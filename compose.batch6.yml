@@ -1,0 +1,211 @@
+
+name: threatlens-batch6
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: threatlens
+      POSTGRES_USER: threatlens
+      POSTGRES_PASSWORD: ${THREATLENS_POSTGRES_PASSWORD}
+    volumes:
+      - threatlens-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U threatlens -d threatlens"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks: [threatlens]
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - exec redis-server --appendonly yes --requirepass "$$THREATLENS_REDIS_PASSWORD"
+    environment:
+      THREATLENS_REDIS_PASSWORD: ${THREATLENS_REDIS_PASSWORD}
+    volumes:
+      - threatlens-redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$THREATLENS_REDIS_PASSWORD\" ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks: [threatlens]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: "10000"
+      THREATLENS_DATABASE_URL: postgresql+psycopg://threatlens:${THREATLENS_POSTGRES_PASSWORD}@postgres:5432/threatlens
+      THREATLENS_DB_POOL_SIZE: "10"
+      THREATLENS_DB_MAX_OVERFLOW: "10"
+      THREATLENS_DB_POOL_RECYCLE_SECONDS: "900"
+      THREATLENS_DB_POOL_TIMEOUT_SECONDS: "30"
+      THREATLENS_JWT_SECRET: ${THREATLENS_JWT_SECRET}
+      THREATLENS_BOOTSTRAP_ADMIN_USERNAME: admin
+      THREATLENS_BOOTSTRAP_ADMIN_PASSWORD: ${THREATLENS_BOOTSTRAP_ADMIN_PASSWORD}
+      THREATLENS_ALLOWED_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+      THREATLENS_TRUSTED_HOSTS: localhost,127.0.0.1,api
+      THREATLENS_ENABLE_DEVELOPMENT_DOCS: "0"
+      THREATLENS_ASYNC_JOBS_ENABLED: "1"
+      THREATLENS_REDIS_URL: redis://:${THREATLENS_REDIS_PASSWORD}@redis:6379/0
+      THREATLENS_AI_QUEUE_NAME: threatlens:ai:jobs
+      THREATLENS_AI_JOB_LEASE_SECONDS: "1800"
+      THREATLENS_AI_JOB_HEARTBEAT_SECONDS: "30"
+      THREATLENS_AI_JOB_RECOVERY_INTERVAL_SECONDS: "60"
+      THREATLENS_AI_JOB_MAX_ATTEMPTS: "2"
+      THREATLENS_AI_MAX_ACTIVE_JOBS: "100"
+      THREATLENS_AI_MAX_ACTIVE_JOBS_PER_ACTOR: "5"
+      THREATLENS_BATCH6_ADVANCED_SOC_ENABLED: "1"
+      THREATLENS_REALTIME_INGESTION_ENABLED: "1"
+      THREATLENS_THREAT_INTEL_ENABLED: "1"
+      THREATLENS_HUNTING_ENABLED: "1"
+      THREATLENS_RESPONSE_PLAYBOOKS_ENABLED: "1"
+      THREATLENS_RAG_ENABLED: "1"
+      THREATLENS_RAG_VECTOR_BACKEND: pgvector
+      THREATLENS_RAG_PGVECTOR_DATABASE_URL: postgresql+psycopg://threatlens:${THREATLENS_POSTGRES_PASSWORD}@postgres:5432/threatlens
+      THREATLENS_RAG_EMBEDDING_DIMENSIONS: "1024"
+      THREATLENS_RAG_PGVECTOR_HNSW: "1"
+      THREATLENS_RAG_COLLECTION: threatlens-v0130-knowledge
+      THREATLENS_OLLAMA_URL: ${THREATLENS_OLLAMA_URL:-http://host.docker.internal:11434}
+      THREATLENS_OLLAMA_API_KEY: ${THREATLENS_OLLAMA_API_KEY:-}
+      THREATLENS_RAG_STANDARD_LLM_MODEL: qwen3.5:4b
+      THREATLENS_RAG_LLM_MODEL: qwen3.5:4b
+      THREATLENS_RAG_DEEP_LLM_MODEL: qwen3.5:9b
+      THREATLENS_RAG_EMBEDDING_MODEL: qwen3-embedding:0.6b
+      THREATLENS_RAG_OLLAMA_NUM_CTX: "4096"
+      THREATLENS_RAG_OLLAMA_NUM_PREDICT: "768"
+      THREATLENS_RAG_READ_TIMEOUT_SECONDS: "300"
+      THREATLENS_RAG_DEEP_OLLAMA_NUM_CTX: "16384"
+      THREATLENS_RAG_DEEP_OLLAMA_NUM_PREDICT: "1600"
+      THREATLENS_RAG_DEEP_READ_TIMEOUT_SECONDS: "600"
+      THREATLENS_RAG_MAX_INCIDENT_CONTEXT_CHARS: "6000"
+      THREATLENS_RAG_MAX_KNOWLEDGE_CONTEXT_CHARS: "3000"
+      THREATLENS_RAG_STANDARD_FALLBACK_MAX_PRIMARY_SECONDS: "30"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:10000/api/v1/health/live', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks: [threatlens]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: ["python", "-m", "jobs.worker"]
+    healthcheck:
+      test: ["CMD", "python", "-m", "jobs.healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    environment:
+      THREATLENS_DATABASE_URL: postgresql+psycopg://threatlens:${THREATLENS_POSTGRES_PASSWORD}@postgres:5432/threatlens
+      THREATLENS_DB_POOL_SIZE: "5"
+      THREATLENS_DB_MAX_OVERFLOW: "5"
+      THREATLENS_JWT_SECRET: ${THREATLENS_JWT_SECRET}
+      THREATLENS_ASYNC_JOBS_ENABLED: "1"
+      THREATLENS_REDIS_URL: redis://:${THREATLENS_REDIS_PASSWORD}@redis:6379/0
+      THREATLENS_AI_QUEUE_NAME: threatlens:ai:jobs
+      THREATLENS_AI_JOB_LEASE_SECONDS: "1800"
+      THREATLENS_AI_JOB_HEARTBEAT_SECONDS: "30"
+      THREATLENS_AI_JOB_RECOVERY_INTERVAL_SECONDS: "60"
+      THREATLENS_AI_JOB_MAX_ATTEMPTS: "2"
+      THREATLENS_AI_MAX_ACTIVE_JOBS: "100"
+      THREATLENS_AI_MAX_ACTIVE_JOBS_PER_ACTOR: "5"
+      THREATLENS_BATCH6_ADVANCED_SOC_ENABLED: "1"
+      THREATLENS_REALTIME_INGESTION_ENABLED: "1"
+      THREATLENS_THREAT_INTEL_ENABLED: "1"
+      THREATLENS_HUNTING_ENABLED: "1"
+      THREATLENS_RESPONSE_PLAYBOOKS_ENABLED: "1"
+      THREATLENS_RAG_ENABLED: "1"
+      THREATLENS_RAG_VECTOR_BACKEND: pgvector
+      THREATLENS_RAG_PGVECTOR_DATABASE_URL: postgresql+psycopg://threatlens:${THREATLENS_POSTGRES_PASSWORD}@postgres:5432/threatlens
+      THREATLENS_RAG_EMBEDDING_DIMENSIONS: "1024"
+      THREATLENS_RAG_PGVECTOR_HNSW: "1"
+      THREATLENS_RAG_COLLECTION: threatlens-v0130-knowledge
+      THREATLENS_OLLAMA_URL: ${THREATLENS_OLLAMA_URL:-http://host.docker.internal:11434}
+      THREATLENS_OLLAMA_API_KEY: ${THREATLENS_OLLAMA_API_KEY:-}
+      THREATLENS_RAG_STANDARD_LLM_MODEL: qwen3.5:4b
+      THREATLENS_RAG_LLM_MODEL: qwen3.5:4b
+      THREATLENS_RAG_DEEP_LLM_MODEL: qwen3.5:9b
+      THREATLENS_RAG_EMBEDDING_MODEL: qwen3-embedding:0.6b
+      THREATLENS_RAG_OLLAMA_NUM_CTX: "4096"
+      THREATLENS_RAG_OLLAMA_NUM_PREDICT: "768"
+      THREATLENS_RAG_READ_TIMEOUT_SECONDS: "300"
+      THREATLENS_RAG_DEEP_OLLAMA_NUM_CTX: "16384"
+      THREATLENS_RAG_DEEP_OLLAMA_NUM_PREDICT: "1600"
+      THREATLENS_RAG_DEEP_READ_TIMEOUT_SECONDS: "600"
+      THREATLENS_RAG_MAX_INCIDENT_CONTEXT_CHARS: "6000"
+      THREATLENS_RAG_MAX_KNOWLEDGE_CONTEXT_CHARS: "3000"
+      THREATLENS_RAG_STANDARD_FALLBACK_MAX_PRIMARY_SECONDS: "30"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks: [threatlens]
+
+  syslog_collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    profiles: ["syslog"]
+    command: ["python", "-m", "advanced_soc.syslog_collector"]
+    environment:
+      THREATLENS_SYSLOG_BIND: 0.0.0.0
+      THREATLENS_SYSLOG_PORT: "5514"
+      THREATLENS_SYSLOG_API_URL: http://api:10000/api/v1/ingest/realtime
+      THREATLENS_SYSLOG_INGEST_KEY: ${THREATLENS_SYSLOG_INGEST_KEY:-}
+    ports:
+      - "5514:5514/udp"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [threatlens]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_THREATLENS_API_URL: ""
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [threatlens]
+
+volumes:
+  threatlens-postgres-data:
+  threatlens-redis-data:
+
+networks:
+  threatlens:
+    driver: bridge

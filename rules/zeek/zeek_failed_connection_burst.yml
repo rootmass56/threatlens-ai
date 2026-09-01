@@ -1,0 +1,78 @@
+title: Failed Connection Burst
+id: 96c1e9f2-f522-5416-836e-ec145dd43b1d
+detection_name: zeek_failed_connection_burst
+version: 1
+status: stable
+enabled: true
+kind: threshold
+description: Detects a burst of unsuccessful Zeek connection attempts from one source.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- zeek
+- reconnaissance
+logsource:
+  category: network
+  product: zeek
+  service: network_monitor
+  dataset: zeek
+detection:
+  selections:
+    failed:
+      event_type: network_connection
+      conn_state: S0
+  condition: failed
+  threshold:
+    selection: failed
+    count: 12
+    group_by:
+    - source_ip
+    timeframe_minutes: 5
+severity: Medium
+confidence: 0.82
+message_template: '{event_count} failed network connections were observed from {source_ip}.'
+attack:
+- technique_id: T1046
+  technique: Network Service Discovery
+  tactic: Discovery
+  role: primary
+  confidence: 0.9
+  justification: Repeated unsuccessful connections across services can indicate network reconnaissance.
+falsepositives:
+- Health checks.
+- Approved scanners.
+- Unstable applications.
+response:
+  recommendation: Review destination ports and assets, validate the source and block unauthorized scanning.
+  playbook: zeek_failed_connections
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of zeek_failed_connection_burst.
+tuning:
+  allowlists:
+  - name: approved_scanners
+    reason: Exclude approved vulnerability scanners.
+    enabled: true
+    expressions:
+      source_ip|in:
+      - 192.0.2.10
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/zeek_failed_connection_burst/manifest.yml

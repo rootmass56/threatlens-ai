@@ -1,0 +1,56 @@
+
+[build-system]
+requires = ["setuptools==84.0.0", "wheel==0.47.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "threatlens-ai"
+version = "0.13.0"
+description = "Production web SOC platform with grounded adaptive AI, PostgreSQL and pgvector"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "streamlit==1.61.1",
+    "fastapi==0.141.1",
+    "starlette==1.3.1",
+    "uvicorn[standard]==0.48.0",
+    "argon2-cffi==25.1.0",
+    "PyJWT==2.13.0",
+    "python-multipart==0.0.32",
+    "email-validator==2.3.0",
+    "pandas==2.2.3",
+    "plotly==6.5.2",
+    "reportlab==4.4.9",
+    "python-dotenv==1.2.2",
+    "pydantic==2.13.4",
+    "pyyaml==6.0.3",
+    "requests==2.34.2",
+    "sqlalchemy==2.0.50",
+    "alembic==1.18.4",
+    "psycopg[binary]==3.3.4",
+    "pgvector==0.5.0",
+    "redis==6.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.3",
+    "pytest-cov==7.0.0",
+    "ruff==0.15.22",
+    "httpx2==2.7.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["advanced_soc*", "api*", "app*", "attack*", "config*", "core*", "correlation*", "database*", "jobs*", "rag*", "rules*", "scripts*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.setuptools.package-data]
+"rules" = ["**/*.yml", "**/*.yaml", "**/*.log", "**/*.json", "**/*.jsonl", "**/*.csv"]
+"config" = ["*.yml", "*.yaml"]

@@ -1,0 +1,77 @@
+title: Zeek DNS TXT Query Observation
+id: 1370a15a-415f-40ca-8279-7b93c83fc044
+detection_name: zeek_dns_txt_query
+version: 1
+status: test
+enabled: true
+kind: event
+description: Detects DNS TXT queries in Zeek telemetry as a low-confidence indicator for possible DNS-based command
+  and control or tunneling.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-04'
+modified: '2026-08-05'
+tags:
+- network
+- zeek
+- dns
+logsource:
+  category: network
+  product: zeek
+  service: network_monitor
+  dataset: zeek
+detection:
+  selections:
+    dns:
+      event_type: dns_query
+      qtype_name: TXT
+  condition: dns
+severity: Low
+confidence: 0.55
+message_template: Zeek observed a DNS TXT query for {event_count} event from {source_ip}.
+attack:
+- technique_id: T1071.004
+  technique: DNS
+  tactic: Command and Control
+  role: primary
+  confidence: 0.55
+  justification: TXT queries can carry command-and-control data, but this event alone is not sufficient to confirm
+    malicious DNS use.
+falsepositives:
+- Legitimate email security, domain verification and service-discovery TXT queries.
+response:
+  recommendation: Review the queried domain, request frequency, response size and related endpoint or proxy telemetry
+    before escalation.
+  playbook: dns_anomaly_triage
+risk:
+  context_bonus: 0
+fixtures:
+  manifest: fixtures/zeek_dns_txt_query/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to zeek_dns_txt_query.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

@@ -1,0 +1,29 @@
+{
+  "schema": "threatlens-react-feature-parity-1.1",
+  "release": "0.12.0",
+  "policy": "Every analyst-facing Streamlit surface must be migrated into React or deliberately superseded by a stronger authenticated FastAPI/React workflow before deployment.",
+  "legacy_surfaces": [
+    {"streamlit":"overview.py","react":"OverviewPage","status":"migrated","capabilities":["persistent metrics","incident posture","recent analyses","RAG runtime","permission-aware actions"]},
+    {"streamlit":"upload.py","react":"UploadPage","status":"migrated","capabilities":["multi-file upload","authoritative upload-limit validation","per-file connector auto-detection","per-file connector override","yearless Linux analysis year","connector diagnostic preview","duplicate policy"]},
+    {"streamlit":"current_analysis.py","react":"CurrentAnalysisPage","status":"migrated","capabilities":["source manifest","events","alerts","incidents","timeline","quarantine","correlation metrics","correlation entities","relationships","CSV exports"]},
+    {"streamlit":"analysis_history.py","react":"AnalysisHistoryPage","status":"migrated","capabilities":["history","filter","load persisted session","CSV export","browser current-analysis continuity"]},
+    {"streamlit":"incident_queue.py","react":"IncidentsPage","status":"migrated","capabilities":["queue","status filter","search","open case","CSV export"]},
+    {"streamlit":"case_details.py","react":"CasePage + AiPage","status":"migrated","capabilities":["permission-aware workflow","valid state transitions","self-assignment rules","alerts","events","entities","relationships","evidence registry","browser SHA-256 evidence hashing","notes","AI assistant","assistant history","permission-scoped audit"]},
+    {"streamlit":"audit_trail.py","react":"AuditPage","status":"migrated","capabilities":["audit records","filter","CSV export","RBAC-scoped navigation"]},
+    {"streamlit":"rule_catalog.py","react":"RulesPage","status":"migrated","capabilities":["rule catalog","rule details","validation","fixture evidence","CSV export"]},
+    {"streamlit":"detection_quality.py","react":"RulesPage Quality view","status":"migrated","capabilities":["quality summary","per-rule governance","profiles","dataset/tactic/severity evidence"]},
+    {"streamlit":"attack_coverage.py","react":"AttackPage","status":"migrated","capabilities":["catalogues","techniques","mappings","coverage gaps","STIX inventory","Navigator export","permission-aware synchronization","forced refresh"]},
+    {"streamlit":"attack_graph.py","react":"AttackGraphPage + CasePage","status":"migrated","capabilities":["analysis selection","interactive node-layer filters","confidence threshold","graph summary","nodes","edges","JSON export","CSV export","entities","relationships"]},
+    {"streamlit":"connector_health.py","react":"ConnectorPage","status":"migrated","capabilities":["registry","coverage","safe file diagnostics","CSV export"]},
+    {"streamlit":"reports.py","react":"ReportPage","status":"migrated","capabilities":["authorized PDF generation","server SHA-256","independent browser SHA-256 verification","download"]},
+    {"streamlit":"rag_admin.py","react":"SystemPage Knowledge Index view","status":"migrated","capabilities":["RAG health","knowledge status","permission-aware incremental re-index","permission-aware forced re-index","model profiles"]},
+    {"streamlit":"security_administration.py","react":"AdminPage","status":"migrated","capabilities":["security status","user directory","role manifests","create account","display name/email update","role update","password reset","activation","unlock","session revocation","last-administrator protection via API","protected OpenAPI"]}
+  ],
+  "production_only_improvements": [
+    "Session restoration re-validates identity/roles/permissions through /auth/me",
+    "Navigation and mutation controls are permission-aware while FastAPI remains the authorization authority",
+    "Standalone attack-graph investigation is retained in React",
+    "Operational-data migration preserves v0.12 security identity instead of copying the old database wholesale",
+    "Streamlit remains reference/regression code only and is not required by production deployment"
+  ]
+}

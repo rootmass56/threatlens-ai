@@ -1,0 +1,95 @@
+title: Successful Linux Login After Repeated Failures
+id: 2b2de922-0453-4aa2-a1d0-52c53d7d78bd
+detection_name: successful_login_after_failures
+version: 1
+status: stable
+enabled: true
+kind: sequence
+description: Detects a successful SSH login after multiple failures from the same source address.
+author: ThreatLens AI Detection Engineering
+date: '2026-07-30'
+modified: '2026-08-05'
+tags:
+- authentication
+- credential-access
+- compromise-indicator
+logsource:
+  category: authentication
+  product: linux
+  service: auth
+  dataset: linux_auth
+detection:
+  selections:
+    failure:
+      event_type|in:
+      - failed_login
+      - failed_login_invalid_user
+    success:
+      event_type: successful_login
+  condition: failure and success
+  sequence:
+    stages:
+    - selection: failure
+      min_count: 3
+      include_all_matching: true
+    - selection: success
+      min_count: 1
+      include_all_matching: false
+    group_by:
+    - source_ip
+    timeframe_minutes: 15
+severity: Critical
+confidence: 0.95
+message_template: Successful login for {username} from {source_ip} after correlated failed attempts.
+attack:
+- technique_id: T1110.001
+  technique: Password Guessing
+  tactic: Credential Access
+  role: primary
+  confidence: 0.95
+  justification: A successful authentication following repeated failures supports successful password guessing.
+- technique_id: T1078
+  technique: Valid Accounts
+  tactic: Initial Access
+  role: secondary
+  confidence: 0.8
+  justification: The successful session may represent adversarial use of a compromised valid account.
+falsepositives:
+- A legitimate user succeeds after repeatedly mistyping a password.
+response:
+  recommendation: Validate the login, revoke suspicious sessions, rotate credentials, and review endpoint and network
+    telemetry.
+  playbook: suspected_account_compromise
+risk:
+  context_bonus: 20
+  privileged_identity: true
+  successful_compromise_indicator: true
+fixtures:
+  manifest: fixtures/successful_login_after_failures/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to successful_login_after_failures.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: false
+    group_by: []
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

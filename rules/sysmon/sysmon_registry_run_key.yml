@@ -1,0 +1,78 @@
+title: Registry Run Key Persistence
+id: 057e0af4-524e-5d32-aed0-ab5aaa6169ea
+detection_name: sysmon_registry_run_key
+version: 2
+status: stable
+enabled: true
+kind: event
+description: Detects Sysmon registry value changes to common Run and RunOnce persistence locations.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-06'
+tags:
+- sysmon
+- registry
+- persistence
+logsource:
+  category: registry
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    registry:
+      event_type: registry_value_set
+    run_key:
+      target_object|regex: \\(Run|RunOnce)(\\|$)
+  condition: registry and run_key
+severity: High
+confidence: 0.93
+message_template: A registry Run key was modified on {hostname} by {username}.
+attack:
+- technique_id: T1547.001
+  technique: 'Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder'
+  tactic: Persistence
+  role: primary
+  confidence: 0.9
+  justification: Modification of Run or RunOnce keys can execute payloads at user logon.
+falsepositives:
+- Approved software installation.
+- Enterprise logon tooling.
+response:
+  recommendation: Inspect the value data, writing process and referenced binary; remove unauthorized persistence and hunt related hosts.
+  playbook: sysmon_registry_persistence
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-06'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_registry_run_key.
+  - version: 2
+    date: '2026-08-06'
+    summary: Migrated deprecated T1060 mapping to current ATT&CK T1547.001.
+tuning:
+  allowlists:
+  - name: approved_software_installers
+    reason: Exclude known signed software deployment agents.
+    enabled: true
+    expressions:
+      process_name|contains:
+      - msiexec.exe
+      - ccmexec.exe
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - target_object
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_registry_run_key/manifest.yml

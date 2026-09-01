@@ -1,0 +1,1 @@
+{"id": "entra_privileged_role_assignment-boundary", "activityDateTime": "2026-08-31T08:01:00Z", "category": "UserManagement", "activityDisplayName": "Update user", "initiatedBy": {"user": {"userPrincipalName": "admin@example.com", "ipAddress": "203.0.113.50"}}, "targetResources": [{"displayName": "Standard User"}]}

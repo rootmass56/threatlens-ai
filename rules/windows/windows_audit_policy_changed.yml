@@ -1,0 +1,75 @@
+title: Windows Audit Policy Changed
+id: f1d2fed4-4eeb-5867-85d6-97db257fa36f
+detection_name: windows_audit_policy_changed
+version: 2
+status: stable
+enabled: true
+kind: event
+description: Detects modification of Windows audit policy that may reduce security visibility.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-06'
+tags:
+- windows
+- defense-impairment
+logsource:
+  category: defense_evasion
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    policy:
+      event_type: audit_policy_changed
+  condition: policy
+severity: High
+confidence: 0.92
+message_template: Audit policy was changed on {hostname} by {username}.
+attack:
+- technique_id: T1685.001
+  technique: 'Disable or Modify Tools: Disable or Modify Windows Event Log'
+  tactic: Defense Impairment
+  role: primary
+  confidence: 0.9
+  justification: Unauthorized audit policy changes can disable or weaken Windows event logging and map to active ATT&CK v19.1 sub-technique T1685.001.
+falsepositives:
+- Approved Group Policy rollout.
+- Documented security baseline changes.
+response:
+  recommendation: Compare the new policy with the approved baseline, identify the actor and restore required auditing
+    when unauthorized.
+  playbook: windows_audit_policy_change
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of windows_audit_policy_changed.
+  - version: 2
+    date: '2026-08-06'
+    summary: Migrated deprecated T1562.002 to active ATT&CK v19.1 sub-technique T1685.001 and reviewed the tactic as Defense Impairment.
+tuning:
+  allowlists:
+  - name: approved_gpo_accounts
+    reason: Exclude authorized Group Policy management accounts.
+    enabled: true
+    expressions:
+      username|contains:
+      - svc_gpo
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/windows_audit_policy_changed/manifest.yml

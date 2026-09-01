@@ -1,0 +1,78 @@
+title: Member Added to Privileged Windows Group
+id: 237bc425-8cb2-55e2-9d35-b3e1ea5ad2d9
+detection_name: windows_privileged_group_member_added
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects a user being added to Administrators or Domain Admins through Windows group-management events.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- windows
+- privilege
+- persistence
+logsource:
+  category: account_management
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    membership:
+      event_type: group_member_added
+    privileged_group:
+      raw_message|contains:
+      - Administrators
+      - Domain Admins
+  condition: membership and privileged_group
+severity: Critical
+confidence: 0.94
+message_template: A member was added to a privileged group on {hostname} by {username}.
+attack:
+- technique_id: T1098
+  technique: Account Manipulation
+  tactic: Persistence
+  role: primary
+  confidence: 0.9
+  justification: Privileged group membership changes can grant durable elevated access.
+falsepositives:
+- Approved privileged-access request.
+- Emergency access activation with documented approval.
+response:
+  recommendation: Identify the added principal, remover/adder account and authorization record; reverse unauthorized
+    membership immediately.
+  playbook: windows_privileged_group_change
+risk:
+  context_bonus: 15
+  privileged_identity: true
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of windows_privileged_group_member_added.
+tuning:
+  allowlists:
+  - name: approved_pam_workflow
+    reason: Exclude documented privileged access management automation.
+    enabled: true
+    expressions:
+      username|contains:
+      - svc_pam
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/windows_privileged_group_member_added/manifest.yml

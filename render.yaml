@@ -1,0 +1,55 @@
+services:
+  - type: web
+    name: threatlens-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/health/live
+    autoDeploy: false
+    envVars:
+      - key: THREATLENS_DATABASE_URL
+        fromDatabase:
+          name: threatlens-postgres
+          property: connectionString
+      - key: THREATLENS_RAG_PGVECTOR_DATABASE_URL
+        fromDatabase:
+          name: threatlens-postgres
+          property: connectionString
+      - key: THREATLENS_RAG_VECTOR_BACKEND
+        value: pgvector
+      - key: THREATLENS_RAG_COLLECTION
+        value: threatlens-v0120-knowledge
+      - key: THREATLENS_RAG_EMBEDDING_DIMENSIONS
+        value: "1024"
+      - key: THREATLENS_RAG_PGVECTOR_HNSW
+        value: "1"
+      - key: THREATLENS_RAG_ENABLED
+        value: "1"
+      - key: THREATLENS_ENABLE_DEVELOPMENT_DOCS
+        value: "0"
+      - key: THREATLENS_JWT_SECRET
+        sync: false
+      - key: THREATLENS_BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+      - key: THREATLENS_ALLOWED_ORIGINS
+        sync: false
+      - key: THREATLENS_TRUSTED_HOSTS
+        sync: false
+      - key: THREATLENS_OLLAMA_URL
+        sync: false
+      - key: THREATLENS_OLLAMA_API_KEY
+        sync: false
+      - key: THREATLENS_RAG_STANDARD_LLM_MODEL
+        value: qwen3.5:4b
+      - key: THREATLENS_RAG_DEEP_LLM_MODEL
+        value: qwen3.5:9b
+      - key: THREATLENS_RAG_EMBEDDING_MODEL
+        value: qwen3-embedding:0.6b
+
+databases:
+  - name: threatlens-postgres
+    plan: free
+    region: singapore
+    databaseName: threatlens
+    user: threatlens

@@ -1,0 +1,1 @@
+{"EventID":1,"UtcTime":"2026-08-05 10:00:00","Computer":"WIN-V06","User":"LAB\\alice","Image":"C:\\Users\\alice\\AppData\\Local\\Temp\\approved.exe","ProcessId":"4500","ProcessGuid":"3e0d0f34-23ea-469f-8456-0d2a3ee6fc02","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"approved.exe --approved-installer","ProviderName":"Microsoft-Windows-Sysmon"}

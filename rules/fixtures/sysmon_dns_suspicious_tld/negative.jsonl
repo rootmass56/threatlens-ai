@@ -1,0 +1,1 @@
+{"EventID":22,"UtcTime":"2026-08-05 10:00:00","Computer":"WIN-V06","User":"LAB\\alice","Image":"C:\\Windows\\System32\\notepad.exe","ProcessId":"4500","ProcessGuid":"4fd584f5-ba12-49b6-852b-5dc305f9cf6d","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"notepad.exe","ProviderName":"Microsoft-Windows-Sysmon","QueryName":"microsoft.com"}

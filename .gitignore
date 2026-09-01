@@ -1,0 +1,56 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+# Runtime data
+database/*.db
+database/*.db-wal
+database/*.db-shm
+data/reports/*.pdf
+data/parsed/*.csv
+logs/*.log
+chroma_db/
+data/rag/
+data/dependency_attestation/
+
+# Streamlit local secrets
+.streamlit/secrets.toml
+
+# IDE
+.vscode/
+.idea/
+
+# Downloaded official ATT&CK runtime data and generated exports
+data/attack/*-attack-*.json
+data/attack/*.metadata.json
+exports/attack/*.json
+
+# Local security bootstrap material
+data/bootstrap_admin_credentials.txt
+exports/openapi/
+
+# Local release archives
+/ThreatLensAI_v*.zip
+
+# Packaging archives are kept outside the source repository
+*.zip
+.env.batch6.local
+batch6_runtime/
+*.pyc
+!.env*.example
+frontend/node_modules/
+frontend/dist/
+node_modules/
+dist/
+*.log

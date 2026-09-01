@@ -1,0 +1,73 @@
+title: Local or Domain User Account Created
+id: 4e7f2e51-8f86-563b-89f6-2ab425922857
+detection_name: windows_user_account_created
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Windows account creation activity through Event 4720.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- windows
+- account-management
+- persistence
+logsource:
+  category: account_management
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    account:
+      event_type: user_account_created
+  condition: account
+severity: High
+confidence: 0.9
+message_template: 'A user account was created on {hostname}: {username}.'
+attack:
+- technique_id: T1136.001
+  technique: 'Create Account: Local Account'
+  tactic: Persistence
+  role: primary
+  confidence: 0.9
+  justification: Account creation can establish persistent access when not authorized.
+falsepositives:
+- Approved onboarding.
+- Automated identity lifecycle operations.
+response:
+  recommendation: Validate the requester, new identity, group memberships and business ticket; disable unauthorized
+    accounts.
+  playbook: windows_account_creation
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of windows_user_account_created.
+tuning:
+  allowlists:
+  - name: approved_identity_provisioning
+    reason: Exclude approved identity provisioning accounts.
+    enabled: true
+    expressions:
+      username|contains:
+      - svc_iam
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/windows_user_account_created/manifest.yml

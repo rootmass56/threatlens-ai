@@ -1,0 +1,1 @@
+{"EventID":6,"UtcTime":"2026-08-05 10:00:00","Computer":"WIN-V06","User":"LAB\\alice","Image":"C:\\Users\\Public\\evil.sys","ProcessId":"4500","ProcessGuid":"ff4ca837-2943-4093-ba74-2f06e3e8a257","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"notepad.exe","ProviderName":"Microsoft-Windows-Sysmon"}

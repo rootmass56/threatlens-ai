@@ -1,0 +1,1 @@
+{"timestamp": "2026-08-04T11:30:00.000000+0000", "flow_id": 1, "event_type": "alert", "src_ip": "10.0.0.5", "src_port": 50000, "dest_ip": "10.0.0.10", "dest_port": 445, "proto": "TCP", "alert": {"action": "allowed", "signature_id": 1, "severity": 2, "signature": "ET SCANNER software update", "category": "Policy"}}

@@ -1,0 +1,6 @@
+{"timestamp":"2026-08-05T10:00:00Z","flow_id":50000,"event_type":"ssh","src_ip":"10.20.30.40","src_port":50000,"dest_ip":"198.51.100.80","dest_port":22,"proto":"TCP","app_proto":"ssh","host":"ENDPOINT-V06"}
+{"timestamp":"2026-08-05T10:02:00Z","flow_id":50002,"event_type":"ssh","src_ip":"10.20.30.40","src_port":50002,"dest_ip":"198.51.100.80","dest_port":22,"proto":"TCP","app_proto":"ssh","host":"ENDPOINT-V06"}
+{"timestamp":"2026-08-05T10:04:00Z","flow_id":50004,"event_type":"ssh","src_ip":"10.20.30.40","src_port":50004,"dest_ip":"198.51.100.80","dest_port":22,"proto":"TCP","app_proto":"ssh","host":"ENDPOINT-V06"}
+{"timestamp":"2026-08-05T10:06:00Z","flow_id":50006,"event_type":"ssh","src_ip":"10.20.30.40","src_port":50006,"dest_ip":"198.51.100.80","dest_port":22,"proto":"TCP","app_proto":"ssh","host":"ENDPOINT-V06"}
+{"timestamp":"2026-08-05T10:08:00Z","flow_id":50008,"event_type":"ssh","src_ip":"10.20.30.40","src_port":50008,"dest_ip":"198.51.100.80","dest_port":22,"proto":"TCP","app_proto":"ssh","host":"ENDPOINT-V06"}
+{"timestamp":"2026-08-05T10:10:00Z","flow_id":50010,"event_type":"ssh","src_ip":"10.20.30.40","src_port":50010,"dest_ip":"198.51.100.80","dest_port":22,"proto":"TCP","app_proto":"ssh","host":"ENDPOINT-V06"}

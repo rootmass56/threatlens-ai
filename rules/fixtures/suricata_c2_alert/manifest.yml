@@ -1,0 +1,14 @@
+rule: suricata_c2_alert
+cases:
+- name: positive
+  file: positive.jsonl
+  expected_alerts: 1
+  case_type: positive
+- name: negative
+  file: negative.jsonl
+  expected_alerts: 0
+  case_type: negative
+- name: boundary
+  file: boundary.jsonl
+  expected_alerts: 0
+  case_type: boundary

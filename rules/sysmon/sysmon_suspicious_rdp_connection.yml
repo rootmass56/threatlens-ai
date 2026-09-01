@@ -1,0 +1,78 @@
+title: Suspicious Process Initiated RDP Connection
+id: d7cf56cd-8324-5b22-a06d-ea9491864385
+detection_name: sysmon_suspicious_rdp_connection
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects outbound RDP traffic initiated by a scripting or command-shell process.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- sysmon
+- rdp
+- lateral-movement
+logsource:
+  category: network
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    network:
+      event_type: network_connection
+      destination_port: 3389
+    shell:
+      process_name|ends_with:
+      - powershell.exe
+      - cmd.exe
+      - wscript.exe
+  condition: network and shell
+severity: High
+confidence: 0.9
+message_template: A scripting process initiated RDP traffic from {hostname} to {destination_ip}.
+attack:
+- technique_id: T1021.001
+  technique: 'Remote Services: Remote Desktop Protocol'
+  tactic: Lateral Movement
+  role: primary
+  confidence: 0.9
+  justification: RDP network activity launched by a command interpreter may indicate lateral movement.
+falsepositives:
+- Approved remote administration scripts.
+response:
+  recommendation: Verify the process command line, destination asset, account and remote-session activity; contain
+    unauthorized lateral movement.
+  playbook: sysmon_rdp_lateral_movement
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_suspicious_rdp_connection.
+tuning:
+  allowlists:
+  - name: approved_rdp_automation
+    reason: Exclude approved RDP automation hosts.
+    enabled: true
+    expressions:
+      hostname|contains:
+      - RDP-JUMP
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - destination_ip
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_suspicious_rdp_connection/manifest.yml

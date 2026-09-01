@@ -1,0 +1,73 @@
+title: Driver Loaded from User-Writable Path
+id: f95ff5ea-79b5-5ae1-b594-bfda36f2c5ba
+detection_name: sysmon_driver_from_user_writable_path
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects a driver load where the image path is under a temporary or user-writable directory.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- sysmon
+- driver
+- persistence
+logsource:
+  category: driver
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    driver:
+      event_type: driver_loaded
+    writable:
+      process_name|contains:
+      - \Temp\
+      - \Users\Public\
+      - \AppData\
+  condition: driver and writable
+severity: Critical
+confidence: 0.95
+message_template: 'A driver was loaded from a user-writable path on {hostname}: {process_name}.'
+attack:
+- technique_id: T1547.006
+  technique: 'Boot or Logon Autostart Execution: Kernel Modules and Extensions'
+  tactic: Persistence
+  role: primary
+  confidence: 0.9
+  justification: Loading a driver from a user-writable path is highly suspicious and may establish kernel-level
+    persistence.
+falsepositives:
+- Driver development in an isolated lab.
+response:
+  recommendation: Verify signature and hash, block the driver, inspect service installation and isolate the system
+    when unauthorized.
+  playbook: sysmon_driver_load
+risk:
+  context_bonus: 20
+  successful_compromise_indicator: true
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_driver_from_user_writable_path.
+tuning:
+  allowlists: []
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - process_name
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_driver_from_user_writable_path/manifest.yml

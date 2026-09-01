@@ -1,0 +1,79 @@
+title: Executable Download Observed in Zeek HTTP
+id: 028e7b7b-6e8d-59ce-a4be-032076d8c9d4
+detection_name: zeek_executable_download
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Zeek HTTP requests for executable, script or dynamic-library file extensions.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- zeek
+- http
+- file-transfer
+logsource:
+  category: network
+  product: zeek
+  service: network_monitor
+  dataset: zeek
+detection:
+  selections:
+    http:
+      event_type: http_request
+    extension:
+      url|ends_with:
+      - .exe
+      - .dll
+      - .ps1
+      - .js
+      - .vbs
+  condition: http and extension
+severity: High
+confidence: 0.86
+message_template: 'An executable download was observed from {source_ip}: {url}.'
+attack:
+- technique_id: T1105
+  technique: Ingress Tool Transfer
+  tactic: Command and Control
+  role: primary
+  confidence: 0.9
+  justification: HTTP retrieval of executable content may deliver attacker tooling.
+falsepositives:
+- Approved software downloads.
+- Patch repositories.
+response:
+  recommendation: Validate the destination, hash the payload and inspect endpoint execution telemetry.
+  playbook: zeek_executable_download
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of zeek_executable_download.
+tuning:
+  allowlists:
+  - name: approved_download_domains
+    reason: Exclude approved software repositories.
+    enabled: true
+    expressions:
+      domain|ends_with:
+      - downloads.corp.example
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - url
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/zeek_executable_download/manifest.yml

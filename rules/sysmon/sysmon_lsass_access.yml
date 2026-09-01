@@ -1,0 +1,79 @@
+title: Suspicious Sysmon Access to LSASS
+id: 1ed2c6f5-35a9-4e35-85d8-6ddae4a5294d
+detection_name: sysmon_lsass_access
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Sysmon process-access telemetry targeting the LSASS process, which can indicate credential
+  dumping.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-04'
+modified: '2026-08-05'
+tags:
+- windows
+- sysmon
+- credential-access
+logsource:
+  category: credential_access
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    access:
+      event_type: process_access
+    lsass_target:
+      target_image|regex: (?i)\\lsass\.exe$
+  condition: access and lsass_target
+severity: Critical
+confidence: 0.92
+message_template: Process access to LSASS detected on {hostname} by {username}.
+attack:
+- technique_id: T1003.001
+  technique: LSASS Memory
+  tactic: Credential Access
+  role: primary
+  confidence: 0.96
+  justification: Sysmon process-access activity targeting lsass.exe is a direct credential-dumping indicator requiring
+    validation.
+falsepositives:
+- Approved endpoint security or diagnostic tooling accessing LSASS.
+response:
+  recommendation: Identify the source process, validate its signer and access mask, isolate the host, and collect
+    memory and process evidence.
+  playbook: windows_credential_dumping
+risk:
+  context_bonus: 20
+  privileged_identity: true
+fixtures:
+  manifest: fixtures/sysmon_lsass_access/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to sysmon_lsass_access.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

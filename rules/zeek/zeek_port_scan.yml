@@ -1,0 +1,83 @@
+title: Zeek Multi-Port Scan
+id: 0d3556bf-3f36-46d8-8f10-a901b4e4e4ae
+detection_name: zeek_port_scan
+version: 1
+status: stable
+enabled: true
+kind: threshold
+description: Detects one source attempting connections to many distinct destination ports within a short period
+  in Zeek conn telemetry.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-04'
+modified: '2026-08-05'
+tags:
+- network
+- zeek
+- discovery
+logsource:
+  category: network
+  product: zeek
+  service: network_monitor
+  dataset: zeek
+detection:
+  selections:
+    connection:
+      event_type: network_connection
+  condition: connection
+  threshold:
+    selection: connection
+    count: 10
+    distinct_field: destination_port
+    distinct_count: 10
+    group_by:
+    - source_ip
+    timeframe_minutes: 5
+severity: Medium
+confidence: 0.88
+message_template: '{event_count} Zeek connections across multiple ports detected from {source_ip}.'
+attack:
+- technique_id: T1046
+  technique: Network Service Discovery
+  tactic: Discovery
+  role: primary
+  confidence: 0.92
+  justification: Rapid connections to many distinct destination ports support network service discovery.
+falsepositives:
+- Approved vulnerability scanners and network inventory systems.
+response:
+  recommendation: Validate the source asset, review destination coverage and connection states, and block unauthorized
+    scanning.
+  playbook: network_reconnaissance
+risk:
+  context_bonus: 10
+fixtures:
+  manifest: fixtures/zeek_port_scan/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to zeek_port_scan.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

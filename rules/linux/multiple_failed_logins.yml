@@ -1,0 +1,81 @@
+title: Multiple Failed Linux Logins
+id: 22c6f5ab-30e6-4cec-994a-c7af122cfe76
+detection_name: multiple_failed_logins
+version: 1
+status: stable
+enabled: true
+kind: threshold
+description: Detects repeated failed SSH authentication attempts from one source in a short window.
+author: ThreatLens AI Detection Engineering
+date: '2026-07-30'
+modified: '2026-08-05'
+tags:
+- authentication
+- credential-access
+logsource:
+  category: authentication
+  product: linux
+  service: auth
+  dataset: linux_auth
+detection:
+  selections:
+    failure:
+      event_type|in:
+      - failed_login
+      - failed_login_invalid_user
+  condition: failure
+  threshold:
+    selection: failure
+    count: 5
+    group_by:
+    - source_ip
+    timeframe_minutes: 15
+severity: High
+confidence: 0.9
+message_template: '{event_count} failed login attempts detected from {source_ip}.'
+attack:
+- technique_id: T1110.001
+  technique: Password Guessing
+  tactic: Credential Access
+  role: primary
+  confidence: 0.95
+  justification: Repeated password failures from one source support password-guessing behavior.
+falsepositives:
+- User repeatedly enters an incorrect password.
+- Authorized security testing against an approved system.
+response:
+  recommendation: Validate the source, review targeted identities, enforce MFA, and block confirmed malicious infrastructure.
+  playbook: linux_brute_force
+risk:
+  context_bonus: 10
+fixtures:
+  manifest: fixtures/multiple_failed_logins/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to multiple_failed_logins.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

@@ -1,0 +1,72 @@
+title: Special Privileges Assigned to New Logon
+id: 4a2cfec1-9790-5045-837e-ffb419c2a2e6
+detection_name: windows_special_privileges_assigned
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Windows Event 4672 indicating that sensitive privileges were assigned to a logon session.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- windows
+- privilege
+logsource:
+  category: privilege
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    privileged:
+      event_type: special_privileges_assigned
+  condition: privileged
+severity: Medium
+confidence: 0.8
+message_template: Special privileges were assigned to {username} on {hostname}.
+attack:
+- technique_id: T1078.002
+  technique: Domain Accounts
+  tactic: Privilege Escalation
+  role: primary
+  confidence: 0.9
+  justification: Sensitive privileges on a logon session may indicate abuse of a privileged domain account.
+falsepositives:
+- Normal administrator logon.
+- Service accounts with documented privileged rights.
+response:
+  recommendation: Verify the account role, logon source and preceding authentication events; escalate unexplained
+    privilege assignment.
+  playbook: windows_privileged_logon
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of windows_special_privileges_assigned.
+tuning:
+  allowlists:
+  - name: approved_admins
+    reason: Exclude explicitly approved administrative identities.
+    enabled: true
+    expressions:
+      username|contains:
+      - LAB\tier0-admin
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/windows_special_privileges_assigned/manifest.yml

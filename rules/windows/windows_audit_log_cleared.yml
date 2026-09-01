@@ -1,0 +1,71 @@
+title: Windows Security Audit Log Cleared
+id: 3ae73167-4e2e-58a9-93e5-46c3a08cf7ab
+detection_name: windows_audit_log_cleared
+version: 2
+status: stable
+enabled: true
+kind: event
+description: Detects Security Event Log clearing through Windows Event 1102.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-06'
+tags:
+- windows
+- defense-impairment
+- high-confidence
+logsource:
+  category: defense_evasion
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    cleared:
+      event_type: audit_log_cleared
+  condition: cleared
+severity: Critical
+confidence: 0.98
+message_template: The Windows Security audit log was cleared on {hostname} by {username}.
+attack:
+- technique_id: T1685.005
+  technique: 'Disable or Modify Tools: Clear Windows Event Logs'
+  tactic: Defense Impairment
+  role: primary
+  confidence: 0.9
+  justification: Windows Security Event 1102 directly records clearing of the Security log and maps to active ATT&CK v19.1 sub-technique T1685.005.
+falsepositives:
+- Approved forensic reset in an isolated lab.
+- System imaging with documented evidence handling.
+response:
+  recommendation: Preserve remaining logs, identify the actor and process, isolate the host when malicious activity
+    is suspected, and recover central log copies.
+  playbook: windows_log_clearing
+risk:
+  context_bonus: 20
+  successful_compromise_indicator: true
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of windows_audit_log_cleared.
+  - version: 2
+    date: '2026-08-06'
+    summary: Migrated deprecated T1070.001 to active ATT&CK v19.1 sub-technique T1685.005 and reviewed the tactic as Defense Impairment.
+tuning:
+  allowlists: []
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - username
+    timeframe_minutes: 60
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/windows_audit_log_cleared/manifest.yml

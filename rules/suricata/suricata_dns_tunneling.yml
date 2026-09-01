@@ -1,0 +1,75 @@
+title: Possible DNS Tunneling
+id: be757c1c-153d-5c29-b4f1-7456622a7f73
+detection_name: suricata_dns_tunneling
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects unusually long high-entropy DNS labels in Suricata DNS telemetry.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- suricata
+- dns
+- c2
+logsource:
+  category: network
+  product: suricata
+  service: eve
+  dataset: suricata_eve
+detection:
+  selections:
+    dns:
+      event_type: dns_query
+    long_label:
+      domain|regex: ^[a-z0-9]{35,}\.
+  condition: dns and long_label
+severity: High
+confidence: 0.86
+message_template: Possible DNS tunneling from {source_ip} using query {domain}.
+attack:
+- technique_id: T1071.004
+  technique: 'Application Layer Protocol: DNS'
+  tactic: Command and Control
+  role: primary
+  confidence: 0.9
+  justification: Long encoded DNS labels may carry command-and-control data.
+falsepositives:
+- DKIM selectors.
+- Long cloud-service validation tokens.
+response:
+  recommendation: Inspect query frequency, entropy, responses and endpoint process context; block confirmed tunneling
+    domains.
+  playbook: network_dns_tunneling
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of suricata_dns_tunneling.
+tuning:
+  allowlists:
+  - name: approved_validation_domains
+    reason: Exclude approved validation suffixes.
+    enabled: true
+    expressions:
+      domain|ends_with:
+      - ._domainkey.example.com
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - domain
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/suricata_dns_tunneling/manifest.yml

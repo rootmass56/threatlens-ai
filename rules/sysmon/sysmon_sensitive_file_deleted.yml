@@ -1,0 +1,72 @@
+title: Sensitive Security File Deleted
+id: ecb5f22e-4ac9-5d2b-b551-5bd441a30d56
+detection_name: sysmon_sensitive_file_deleted
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects deletion of sensitive Windows credential or registry-hive files.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- sysmon
+- file-deletion
+- defense-evasion
+logsource:
+  category: file
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    deleted:
+      event_type: file_deleted
+    sensitive:
+      file_path|contains:
+      - \System32\config\SAM
+      - \System32\config\SECURITY
+      - \NTDS\ntds.dit
+  condition: deleted and sensitive
+severity: Critical
+confidence: 0.96
+message_template: 'A sensitive security file was deleted on {hostname}: {file_path}.'
+attack:
+- technique_id: T1070.004
+  technique: 'Indicator Removal: File Deletion'
+  tactic: Defense Evasion
+  role: primary
+  confidence: 0.9
+  justification: Deletion of credential stores or security hives may destroy evidence or disrupt defenses.
+falsepositives:
+- Controlled forensic restoration in a lab.
+response:
+  recommendation: Isolate the host, preserve filesystem and backup evidence, identify the deleting process and restore
+    affected security data.
+  playbook: sysmon_sensitive_file_deletion
+risk:
+  context_bonus: 20
+  successful_compromise_indicator: true
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_sensitive_file_deleted.
+tuning:
+  allowlists: []
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - file_path
+    timeframe_minutes: 60
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_sensitive_file_deleted/manifest.yml

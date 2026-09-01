@@ -1,0 +1,1 @@
+{"EventID":22,"UtcTime":"2026-08-05 10:00:00","Computer":"THREAT-RESEARCH-01","User":"LAB\\alice","Image":"C:\\Windows\\System32\\notepad.exe","ProcessId":"4500","ProcessGuid":"dd6dedcd-d661-4793-a370-827c1e6acfc2","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"notepad.exe","ProviderName":"Microsoft-Windows-Sysmon","QueryName":"analysis.xyz"}

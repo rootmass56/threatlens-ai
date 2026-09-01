@@ -1,0 +1,80 @@
+title: Suricata Command and Control Alert
+id: 52c419b9-41e0-498a-9c36-2becbf198c50
+detection_name: suricata_c2_alert
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Suricata IDS alerts whose signature or category explicitly indicates command-and-control traffic.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-04'
+modified: '2026-08-05'
+tags:
+- network
+- suricata
+- command-and-control
+logsource:
+  category: network
+  product: suricata
+  service: eve
+  dataset: suricata_eve
+detection:
+  selections:
+    alert:
+      event_type: ids_alert
+    c2_category:
+      alert_category|contains: command and control
+    c2_signature:
+      signature|regex: (?i)(?:\bC2\b|command and control)
+  condition: alert and (c2_category or c2_signature)
+severity: Critical
+confidence: 0.93
+message_template: Suricata reported possible command-and-control traffic from {source_ip}.
+attack:
+- technique_id: T1071.001
+  technique: Web Protocols
+  tactic: Command and Control
+  role: primary
+  confidence: 0.88
+  justification: The IDS evidence explicitly identifies suspected command-and-control traffic over an application
+    protocol.
+falsepositives:
+- Security testing or malware-simulation platforms communicating with approved infrastructure.
+response:
+  recommendation: Isolate the source host, preserve packet and endpoint evidence, block the destination, and investigate
+    persistence and credential access.
+  playbook: network_command_and_control
+risk:
+  context_bonus: 20
+  successful_compromise_indicator: true
+fixtures:
+  manifest: fixtures/suricata_c2_alert/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to suricata_c2_alert.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

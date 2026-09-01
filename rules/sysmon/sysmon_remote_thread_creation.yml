@@ -1,0 +1,73 @@
+title: Sysmon Remote Thread Creation
+id: 6950c83a-7ec5-52ba-86b0-776ca12989ff
+detection_name: sysmon_remote_thread_creation
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Sysmon Event 8 remote thread creation, a strong process-injection indicator.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- sysmon
+- process-injection
+logsource:
+  category: process_injection
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    remote_thread:
+      event_type: create_remote_thread
+  condition: remote_thread
+severity: Critical
+confidence: 0.96
+message_template: Remote thread creation detected on {hostname} by {username}.
+attack:
+- technique_id: T1055
+  technique: Process Injection
+  tactic: Privilege Escalation
+  role: primary
+  confidence: 0.9
+  justification: Sysmon Event 8 records remote-thread creation between processes.
+falsepositives:
+- Security tooling and debuggers.
+- Approved application instrumentation.
+response:
+  recommendation: Inspect source and target processes, call trace and signer; collect memory and isolate the host
+    if unauthorized.
+  playbook: sysmon_process_injection
+risk:
+  context_bonus: 20
+  successful_compromise_indicator: true
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_remote_thread_creation.
+tuning:
+  allowlists:
+  - name: approved_edr_injection
+    reason: Exclude approved EDR or monitoring processes.
+    enabled: true
+    expressions:
+      process_name|contains:
+      - edragent.exe
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - process_name
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_remote_thread_creation/manifest.yml

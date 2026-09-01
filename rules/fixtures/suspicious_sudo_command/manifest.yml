@@ -1,0 +1,14 @@
+rule: suspicious_sudo_command
+cases:
+- name: positive
+  file: positive.log
+  expected_alerts: 1
+  case_type: positive
+- name: benign_sudo
+  file: negative.log
+  expected_alerts: 0
+  case_type: negative
+- name: sudoers_boundary
+  file: boundary.log
+  expected_alerts: 1
+  case_type: boundary

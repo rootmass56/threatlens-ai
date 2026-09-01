@@ -1,0 +1,73 @@
+title: Scheduled Task Created
+id: adefa4eb-64e7-51e1-a297-aabacd98e763
+detection_name: windows_scheduled_task_created
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects creation of a scheduled task through Windows Security Event 4698.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- windows
+- persistence
+logsource:
+  category: persistence
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    task:
+      event_type: scheduled_task_created
+  condition: task
+severity: High
+confidence: 0.9
+message_template: A scheduled task was created on {hostname} by {username}.
+attack:
+- technique_id: T1053.005
+  technique: 'Scheduled Task/Job: Scheduled Task'
+  tactic: Persistence
+  role: primary
+  confidence: 0.9
+  justification: Task creation is a direct Windows scheduled-task persistence primitive.
+falsepositives:
+- Enterprise software deployment.
+- Approved maintenance automation.
+response:
+  recommendation: Inspect the task name, command, author, trigger and file path; disable unauthorized tasks and
+    preserve XML evidence.
+  playbook: windows_scheduled_task
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of windows_scheduled_task_created.
+tuning:
+  allowlists:
+  - name: enterprise_deployment_tasks
+    reason: Exclude approved enterprise task creators.
+    enabled: true
+    expressions:
+      username|contains:
+      - svc_sccm
+      - svc_intune
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/windows_scheduled_task_created/manifest.yml

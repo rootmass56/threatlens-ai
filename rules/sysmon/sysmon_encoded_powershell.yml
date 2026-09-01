@@ -1,0 +1,78 @@
+title: Encoded PowerShell Process Creation from Sysmon
+id: 786f0ca8-7d95-4e43-a02d-f4a083355a75
+detection_name: sysmon_encoded_powershell
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Sysmon process-creation events containing encoded or in-memory PowerShell execution indicators.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-04'
+modified: '2026-08-05'
+tags:
+- windows
+- sysmon
+- powershell
+logsource:
+  category: process_creation
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    process:
+      event_type: process_creation
+      process_name|contains: powershell.exe
+    suspicious_command:
+      command_line|regex:
+      - (?i)(?:-enc(?:odedcommand)?\b|frombase64string\s*\(|invoke-expression\b|\biex\s*\()
+  condition: process and suspicious_command
+severity: High
+confidence: 0.92
+message_template: 'Sysmon observed suspicious PowerShell on {hostname} by {username}: {command_line}'
+attack:
+- technique_id: T1059.001
+  technique: PowerShell
+  tactic: Execution
+  role: primary
+  confidence: 0.97
+  justification: Sysmon provides process and command-line evidence of encoded or in-memory PowerShell execution.
+falsepositives:
+- Approved enterprise automation using encoded PowerShell.
+response:
+  recommendation: Inspect the parent process, command-line payload, network activity and PowerShell operational
+    logs.
+  playbook: windows_powershell_investigation
+risk:
+  context_bonus: 15
+fixtures:
+  manifest: fixtures/sysmon_encoded_powershell/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to sysmon_encoded_powershell.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

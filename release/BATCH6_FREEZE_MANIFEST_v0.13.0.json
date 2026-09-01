@@ -1,0 +1,26 @@
+﻿{
+    "project":  "ThreatLens AI",
+    "version":  "0.13.0",
+    "batch":  6,
+    "batch_name":  "Advanced SOC Capability Expansion",
+    "status":  "FROZEN",
+    "release_gate":  "PASS",
+    "alembic_head":  "f6a6c0b60001",
+    "source_sbom":  "sbom/source-dependencies-v0.13.0.cdx.json",
+    "source_sbom_sha256":  "69d66ca39eca61047085bc685ceb6d5e7663bb617d4625036a0a3bcf6fa915dc",
+    "compose_sha256":  "5493a025dd51ad37da50059590723989dba999c158ccf32919581ab063d4a48f",
+    "reviewed_direct_dependencies":  27,
+    "redis":  "6.4.0",
+    "capabilities":  [
+                         "Authenticated receipt-first real-time telemetry ingestion",
+                         "Threat intelligence, STIX 2.x and IOC enrichment",
+                         "Read-only structured threat hunting and saved hunts",
+                         "Advanced case operations, tasks, handoffs and chain-of-custody",
+                         "Human-approval-gated response playbooks",
+                         "Detection feedback, effectiveness analytics and governed tuning",
+                         "Microsoft Entra ID cloud and identity telemetry",
+                         "Graph Intelligence, relationship explanations, paths, timelines and global search",
+                         "Durable PostgreSQL + Redis asynchronous grounded AI"
+                     ],
+    "frozen_at_utc":  "2026-09-01T17:38:07.0562352Z"
+}

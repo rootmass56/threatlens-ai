@@ -1,0 +1,1 @@
+{"EventID":1,"UtcTime":"2026-08-05 10:00:00","Computer":"WIN-V06","User":"LAB\\alice","Image":"C:\\Windows\\System32\\whoami.exe","ProcessId":"4500","ProcessGuid":"2834dd5d-62e8-4104-a689-6bc59f40ad61","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"whoami.exe","ProviderName":"Microsoft-Windows-Sysmon"}

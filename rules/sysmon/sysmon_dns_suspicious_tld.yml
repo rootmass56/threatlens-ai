@@ -1,0 +1,78 @@
+title: DNS Query to Suspicious Top-Level Domain
+id: 1e3c7d72-44bb-524d-87de-f64462253456
+detection_name: sysmon_dns_suspicious_tld
+version: 1
+status: test
+enabled: true
+kind: event
+description: Detects Sysmon DNS queries to selected high-risk or frequently abused top-level domains.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- sysmon
+- dns
+- network
+logsource:
+  category: network
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    dns:
+      event_type: dns_query
+    tld:
+      domain|ends_with:
+      - .top
+      - .xyz
+      - .click
+  condition: dns and tld
+severity: Medium
+confidence: 0.72
+message_template: 'Suspicious DNS query from {hostname}: {domain}.'
+attack:
+- technique_id: T1071.004
+  technique: 'Application Layer Protocol: DNS'
+  tactic: Command and Control
+  role: primary
+  confidence: 0.9
+  justification: DNS to an uncommon or abused TLD may support command-and-control infrastructure.
+falsepositives:
+- Legitimate newly registered domains.
+- Security research.
+response:
+  recommendation: Enrich the domain, inspect requesting process and related connections, and block confirmed malicious
+    infrastructure.
+  playbook: sysmon_suspicious_dns
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_dns_suspicious_tld.
+tuning:
+  allowlists:
+  - name: approved_security_research
+    reason: Exclude approved threat-research systems.
+    enabled: true
+    expressions:
+      hostname|contains:
+      - THREAT-RESEARCH
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - domain
+    timeframe_minutes: 120
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_dns_suspicious_tld/manifest.yml

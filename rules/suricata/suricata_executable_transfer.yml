@@ -1,0 +1,80 @@
+title: Executable File Transferred over Network
+id: db5d1b9f-d907-5e34-9e2b-eb6d52dc6d8b
+detection_name: suricata_executable_transfer
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Suricata fileinfo records for executable, library or script payloads.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- suricata
+- file-transfer
+logsource:
+  category: network
+  product: suricata
+  service: eve
+  dataset: suricata_eve
+detection:
+  selections:
+    file:
+      event_type: network_file
+    extension:
+      file_path|ends_with:
+      - .exe
+      - .dll
+      - .ps1
+      - .js
+      - .vbs
+  condition: file and extension
+severity: High
+confidence: 0.88
+message_template: 'An executable or script was transferred to {destination_ip}: {file_path}.'
+attack:
+- technique_id: T1105
+  technique: Ingress Tool Transfer
+  tactic: Command and Control
+  role: primary
+  confidence: 0.9
+  justification: Transfer of executable content may deliver attacker tooling.
+falsepositives:
+- Approved software distribution.
+- Patch management.
+response:
+  recommendation: Hash and inspect the file, identify the receiving process and isolate hosts receiving unauthorized
+    payloads.
+  playbook: network_file_transfer
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of suricata_executable_transfer.
+tuning:
+  allowlists:
+  - name: approved_software_repositories
+    reason: Exclude approved software repository destinations.
+    enabled: true
+    expressions:
+      domain|ends_with:
+      - repo.corp.example
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - destination_ip
+    - file_path
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/suricata_executable_transfer/manifest.yml

@@ -1,0 +1,14 @@
+rule: multiple_failed_logins
+cases:
+- name: positive
+  file: positive.log
+  expected_alerts: 1
+  case_type: positive
+- name: negative
+  file: negative.log
+  expected_alerts: 0
+  case_type: negative
+- name: outside_time_window
+  file: boundary.log
+  expected_alerts: 0
+  case_type: boundary

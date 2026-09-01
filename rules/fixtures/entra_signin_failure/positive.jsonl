@@ -1,0 +1,1 @@
+{"id": "entra_signin_failure-positive", "createdDateTime": "2026-08-31T08:00:00Z", "userPrincipalName": "analyst@example.com", "ipAddress": "203.0.113.44", "appDisplayName": "Microsoft Azure Management", "conditionalAccessStatus": "success", "riskLevelDuringSignIn": "none", "status": {"errorCode": 50126, "failureReason": "Invalid username or password."}}

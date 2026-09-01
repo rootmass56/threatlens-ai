@@ -1,0 +1,81 @@
+title: Multiple Failed Windows Logons
+id: 2c14f8e6-9278-4f72-9eb6-8b9c8f61f1c1
+detection_name: windows_failed_logons
+version: 1
+status: stable
+enabled: true
+kind: threshold
+description: Detects repeated failed Windows logons from one source address in a short period.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-04'
+modified: '2026-08-05'
+tags:
+- windows
+- authentication
+- credential-access
+logsource:
+  category: authentication
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    failure:
+      event_type: failed_login
+  condition: failure
+  threshold:
+    selection: failure
+    count: 5
+    group_by:
+    - source_ip
+    timeframe_minutes: 15
+severity: High
+confidence: 0.9
+message_template: '{event_count} failed Windows logons detected from {source_ip}.'
+attack:
+- technique_id: T1110.001
+  technique: Password Guessing
+  tactic: Credential Access
+  role: primary
+  confidence: 0.95
+  justification: Repeated Windows logon failures from one source support password-guessing activity.
+falsepositives:
+- A user repeatedly entering an incorrect password.
+- Approved password auditing or red-team activity.
+response:
+  recommendation: Validate the source, inspect targeted accounts and logon types, enforce MFA, and block confirmed
+    malicious infrastructure.
+  playbook: windows_brute_force
+risk:
+  context_bonus: 10
+fixtures:
+  manifest: fixtures/windows_failed_logons/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to windows_failed_logons.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

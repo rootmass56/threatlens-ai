@@ -1,0 +1,81 @@
+title: Suspicious HTTP POST Endpoint
+id: 707cbf62-0f88-54ab-be21-a15b20ba6571
+detection_name: suricata_suspicious_http_post
+version: 1
+status: test
+enabled: true
+kind: event
+description: Detects HTTP POST requests to upload or gate-style endpoints frequently used by malware.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- suricata
+- http
+- c2
+logsource:
+  category: network
+  product: suricata
+  service: eve
+  dataset: suricata_eve
+detection:
+  selections:
+    http:
+      event_type: http_request
+    post:
+      http_method: POST
+    endpoint:
+      url|contains:
+      - /upload
+      - /gate.php
+      - /submit.php
+  condition: http and post and endpoint
+severity: High
+confidence: 0.84
+message_template: Suspicious HTTP POST from {source_ip} to {url}.
+attack:
+- technique_id: T1071.001
+  technique: 'Application Layer Protocol: Web Protocols'
+  tactic: Command and Control
+  role: primary
+  confidence: 0.9
+  justification: POST traffic to gate or upload endpoints may transfer commands or exfiltrated data.
+falsepositives:
+- Legitimate file upload services.
+- Internal web applications.
+response:
+  recommendation: Inspect payload size, host reputation, endpoint process and subsequent callbacks; block malicious
+    destinations.
+  playbook: network_suspicious_http
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of suricata_suspicious_http_post.
+tuning:
+  allowlists:
+  - name: approved_upload_services
+    reason: Exclude approved internal upload services.
+    enabled: true
+    expressions:
+      domain|ends_with:
+      - upload.corp.example
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - domain
+    - url
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/suricata_suspicious_http_post/manifest.yml

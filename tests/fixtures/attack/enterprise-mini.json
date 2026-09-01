@@ -1,0 +1,156 @@
+{
+  "type": "bundle",
+  "id": "bundle--11111111-1111-4111-8111-111111111111",
+  "objects": [
+    {
+      "type": "x-mitre-tactic",
+      "spec_version": "2.1",
+      "id": "x-mitre-tactic--11111111-1111-4111-8111-111111111111",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Initial Access",
+      "x_mitre_shortname": "initial-access",
+      "external_references": [{"source_name": "mitre-attack", "external_id": "TA0001", "url": "https://attack.mitre.org/tactics/TA0001/"}]
+    },
+    {
+      "type": "x-mitre-tactic",
+      "spec_version": "2.1",
+      "id": "x-mitre-tactic--22222222-2222-4222-8222-222222222222",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Execution",
+      "x_mitre_shortname": "execution",
+      "external_references": [{"source_name": "mitre-attack", "external_id": "TA0002", "url": "https://attack.mitre.org/tactics/TA0002/"}]
+    },
+    {
+      "type": "x-mitre-matrix",
+      "spec_version": "2.1",
+      "id": "x-mitre-matrix--11111111-2222-4333-8444-555555555555",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Enterprise ATT&CK",
+      "x_mitre_version": "test",
+      "tactic_refs": [
+        "x-mitre-tactic--11111111-1111-4111-8111-111111111111",
+        "x-mitre-tactic--22222222-2222-4222-8222-222222222222"
+      ]
+    },
+    {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--10000000-0000-4000-8000-000000000000",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Example Initial Technique",
+      "description": "Synthetic parent technique for deterministic tests.",
+      "x_mitre_platforms": ["Windows", "Linux"],
+      "kill_chain_phases": [{"kill_chain_name": "mitre-attack", "phase_name": "initial-access"}],
+      "external_references": [{"source_name": "mitre-attack", "external_id": "T1000", "url": "https://attack.mitre.org/techniques/T1000/"}]
+    },
+    {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--10001000-0000-4000-8000-000000000000",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Example Initial Sub-technique",
+      "description": "Synthetic sub-technique for deterministic tests.",
+      "x_mitre_is_subtechnique": true,
+      "x_mitre_platforms": ["Windows"],
+      "kill_chain_phases": [{"kill_chain_name": "mitre-attack", "phase_name": "initial-access"}],
+      "external_references": [{"source_name": "mitre-attack", "external_id": "T1000.001", "url": "https://attack.mitre.org/techniques/T1000/001/"}]
+    },
+    {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--20000000-0000-4000-8000-000000000000",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Example Execution Technique",
+      "description": "Synthetic execution technique for deterministic tests.",
+      "x_mitre_platforms": ["Windows"],
+      "kill_chain_phases": [{"kill_chain_name": "mitre-attack", "phase_name": "execution"}],
+      "external_references": [{"source_name": "mitre-attack", "external_id": "T2000", "url": "https://attack.mitre.org/techniques/T2000/"}]
+    },
+    {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--20001000-0000-4000-8000-000000000000",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Example Execution Sub-technique",
+      "description": "Synthetic execution sub-technique for deterministic tests.",
+      "x_mitre_is_subtechnique": true,
+      "x_mitre_platforms": ["Windows"],
+      "kill_chain_phases": [{"kill_chain_name": "mitre-attack", "phase_name": "execution"}],
+      "external_references": [{"source_name": "mitre-attack", "external_id": "T2000.001", "url": "https://attack.mitre.org/techniques/T2000/001/"}]
+    },
+    {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--30000000-0000-4000-8000-000000000000",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Revoked Technique",
+      "revoked": true,
+      "external_references": [{"source_name": "mitre-attack", "external_id": "T3000"}]
+    },
+    {
+      "type": "course-of-action",
+      "spec_version": "2.1",
+      "id": "course-of-action--11111111-1111-4111-8111-111111111111",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Example Mitigation",
+      "external_references": [{"source_name": "mitre-attack", "external_id": "M1000"}]
+    },
+    {
+      "type": "intrusion-set",
+      "spec_version": "2.1",
+      "id": "intrusion-set--11111111-1111-4111-8111-111111111111",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Example Group",
+      "external_references": [{"source_name": "mitre-attack", "external_id": "G1000"}]
+    },
+    {
+      "type": "tool",
+      "spec_version": "2.1",
+      "id": "tool--11111111-1111-4111-8111-111111111111",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "Example Tool",
+      "external_references": [{"source_name": "mitre-attack", "external_id": "S1000"}]
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--10001000-0000-4000-8000-000000000000",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "relationship_type": "subtechnique-of",
+      "source_ref": "attack-pattern--10001000-0000-4000-8000-000000000000",
+      "target_ref": "attack-pattern--10000000-0000-4000-8000-000000000000"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--20001000-0000-4000-8000-000000000000",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "relationship_type": "subtechnique-of",
+      "source_ref": "attack-pattern--20001000-0000-4000-8000-000000000000",
+      "target_ref": "attack-pattern--20000000-0000-4000-8000-000000000000"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--11111111-1111-4111-8111-111111111111",
+      "target_ref": "attack-pattern--10000000-0000-4000-8000-000000000000"
+    }
+  ]
+}

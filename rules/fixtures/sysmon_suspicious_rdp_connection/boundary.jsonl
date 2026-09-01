@@ -1,0 +1,1 @@
+{"EventID":3,"UtcTime":"2026-08-05 10:00:00","Computer":"RDP-JUMP-01","User":"LAB\\alice","Image":"C:\\Windows\\System32\\cmd.exe","ProcessId":"4500","ProcessGuid":"a8825c9d-fca1-407e-b87b-6e74bf5b9afb","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"notepad.exe","ProviderName":"Microsoft-Windows-Sysmon","DestinationIp":"198.51.100.90","DestinationPort":"3389"}

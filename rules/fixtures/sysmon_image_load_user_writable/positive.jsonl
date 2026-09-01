@@ -1,0 +1,1 @@
+{"EventID":7,"UtcTime":"2026-08-05 10:00:00","Computer":"WIN-V06","User":"LAB\\alice","Image":"C:\\Users\\alice\\AppData\\Local\\Temp\\evil.dll","ProcessId":"4500","ProcessGuid":"d06f30dc-ddb4-4f04-8f90-2280437afa2b","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"notepad.exe","ProviderName":"Microsoft-Windows-Sysmon"}

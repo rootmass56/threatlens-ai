@@ -1,0 +1,58 @@
+title: Microsoft Entra Privileged Role Assignment
+id: 5f020c48-7954-5127-a9f0-129f28508679
+detection_name: entra_privileged_role_assignment
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects normalized Microsoft Entra ID activity classified as entra_privileged_role_assignment.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-31'
+modified: '2026-08-31'
+tags:
+- entra
+- identity
+- cloud
+logsource:
+  category: identity
+  product: microsoft_entra_id
+  service: identity
+  dataset: entra_id
+detection:
+  selections:
+    match:
+      event_type: entra_privileged_role_assignment
+  condition: match
+severity: High
+confidence: 0.94
+message_template: Microsoft Entra Privileged Role Assignment involving {username}
+  from {source_ip}.
+attack:
+- technique_id: T1098.003
+  technique: Additional Cloud Roles
+  tactic: Privilege Escalation
+  role: primary
+  confidence: 0.94
+  justification: Microsoft Entra Privileged Role Assignment may represent behavior
+    associated with Additional Cloud Roles.
+falsepositives:
+- Documented administrative or user activity consistent with policy.
+response:
+  recommendation: Verify the requesting identity, target role, approval path and surrounding
+    sign-in activity; escalate unexplained privilege changes.
+  playbook: identity_role_assignment
+risk:
+  context_bonus: 10
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Identity Security
+  last_reviewed: '2026-08-31'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-31'
+    summary: Initial governed Batch 6 release of entra_privileged_role_assignment.
+fixtures:
+  manifest: fixtures/entra_privileged_role_assignment/manifest.yml

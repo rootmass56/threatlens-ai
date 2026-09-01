@@ -1,0 +1,87 @@
+title: Suspicious Windows LOLBin Process
+id: 18ab485e-feb3-55fa-abc3-5088fe183aa4
+detection_name: windows_lolbin_process
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects process creation involving commonly abused signed Windows binaries with suspicious command-line
+  indicators.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- windows
+- execution
+- lolbin
+logsource:
+  category: process_creation
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    lolbin:
+      process_name|ends_with:
+      - rundll32.exe
+      - regsvr32.exe
+      - mshta.exe
+      - certutil.exe
+    suspicious_args:
+      command_line|contains:
+      - 'javascript:'
+      - scrobj.dll
+      - urlcache
+      - http://
+      - https://
+  condition: lolbin and suspicious_args
+severity: High
+confidence: 0.91
+message_template: 'Suspicious LOLBin execution on {hostname}: {process_name} {command_line}'
+attack:
+- technique_id: T1218
+  technique: System Binary Proxy Execution
+  tactic: Defense Evasion
+  role: primary
+  confidence: 0.9
+  justification: The selected signed binaries are commonly abused to proxy malicious execution.
+falsepositives:
+- Administrative troubleshooting.
+- Software installation using signed utilities.
+response:
+  recommendation: Validate signer, parent process, command-line arguments and network destinations; isolate the
+    host when execution is unauthorized.
+  playbook: windows_lolbin_execution
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of windows_lolbin_process.
+tuning:
+  allowlists:
+  - name: approved_package_management
+    reason: Exclude approved software deployment parents.
+    enabled: true
+    expressions:
+      parent_process_name|contains:
+      - ccmexec.exe
+      - IntuneManagementExtension.exe
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - process_name
+    - command_line
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/windows_lolbin_process/manifest.yml

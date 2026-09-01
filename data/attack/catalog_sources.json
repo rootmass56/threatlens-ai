@@ -1,0 +1,38 @@
+{
+  "enterprise-attack": {
+    "collection_id": "x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019",
+    "display_name": "Enterprise ATT&CK",
+    "expected_active_counts": {
+      "subtechniques": 475,
+      "tactics": 15,
+      "techniques": 222
+    },
+    "modified": "2026-05-12T14:00:00.188Z",
+    "source_url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.1/enterprise-attack/enterprise-attack-19.1.json",
+    "version": "19.1"
+  },
+  "mobile-attack": {
+    "collection_id": "x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858",
+    "display_name": "Mobile ATT&CK",
+    "expected_active_counts": {
+      "subtechniques": 47,
+      "tactics": 12,
+      "techniques": 77
+    },
+    "modified": "2026-05-12T14:00:00.188Z",
+    "source_url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.1/mobile-attack/mobile-attack-19.1.json",
+    "version": "19.1"
+  },
+  "ics-attack": {
+    "collection_id": "x-mitre-collection--90c00720-636b-4485-b342-8751d232bf09",
+    "display_name": "ICS ATT&CK",
+    "expected_active_counts": {
+      "subtechniques": 18,
+      "tactics": 12,
+      "techniques": 79
+    },
+    "modified": "2026-05-12T14:00:00.188Z",
+    "source_url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.1/ics-attack/ics-attack-19.1.json",
+    "version": "19.1"
+  }
+}

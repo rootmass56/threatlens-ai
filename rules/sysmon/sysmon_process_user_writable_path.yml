@@ -1,0 +1,76 @@
+title: Process Executed from User-Writable Path
+id: 577aaac7-fb1a-5970-ad9e-21d818331564
+detection_name: sysmon_process_user_writable_path
+version: 1
+status: test
+enabled: true
+kind: event
+description: Detects process execution from AppData, Temp or Public locations.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- sysmon
+- execution
+logsource:
+  category: process_creation
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    process:
+      event_type: process_creation
+    writable:
+      process_name|contains:
+      - \AppData\
+      - \Temp\
+      - \Users\Public\
+  condition: process and writable
+severity: Medium
+confidence: 0.78
+message_template: 'A process executed from a user-writable path on {hostname}: {process_name}.'
+attack:
+- technique_id: T1204.002
+  technique: 'User Execution: Malicious File'
+  tactic: Execution
+  role: primary
+  confidence: 0.9
+  justification: Malware and droppers frequently execute from user-writable locations.
+falsepositives:
+- Portable applications.
+- Developer tools and temporary installers.
+response:
+  recommendation: Validate hash, signer, parent process and download origin; quarantine suspicious binaries.
+  playbook: sysmon_user_writable_execution
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_process_user_writable_path.
+tuning:
+  allowlists:
+  - name: approved_installers
+    reason: Exclude approved signed installer paths.
+    enabled: true
+    expressions:
+      command_line|contains:
+      - --approved-installer
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - process_name
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_process_user_writable_path/manifest.yml

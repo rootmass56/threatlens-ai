@@ -1,0 +1,1 @@
+{"id": "entra_signin_failure-negative", "createdDateTime": "2026-08-31T08:01:00Z", "userPrincipalName": "analyst@example.com", "ipAddress": "203.0.113.45", "appDisplayName": "Microsoft 365", "conditionalAccessStatus": "success", "riskLevelDuringSignIn": "none", "status": {"errorCode": 0, "failureReason": ""}}

@@ -1,0 +1,76 @@
+title: Legacy TLS or SSL Version Observed
+id: cb15e767-4a4d-5ee3-ab47-d91c5f168631
+detection_name: suricata_legacy_tls
+version: 1
+status: test
+enabled: true
+kind: event
+description: Detects network sessions using deprecated SSL or TLS protocol versions.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- suricata
+- tls
+logsource:
+  category: network
+  product: suricata
+  service: eve
+  dataset: suricata_eve
+detection:
+  selections:
+    tls:
+      event_type: tls_handshake
+    legacy:
+      tls_version|in:
+      - SSLv3
+      - TLSv1
+      - TLS 1.0
+  condition: tls and legacy
+severity: Medium
+confidence: 0.82
+message_template: Legacy TLS was observed from {source_ip} to {domain}.
+attack:
+- technique_id: T1040
+  technique: Network Sniffing
+  tactic: Credential Access
+  role: primary
+  confidence: 0.9
+  justification: Legacy encrypted protocols increase exposure to interception and downgrade risk.
+falsepositives:
+- Legacy embedded devices with documented exception.
+response:
+  recommendation: Identify the asset and application, require modern TLS and review traffic for downgrade or interception
+    indicators.
+  playbook: network_legacy_tls
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of suricata_legacy_tls.
+tuning:
+  allowlists:
+  - name: approved_legacy_assets
+    reason: Exclude documented legacy devices during migration.
+    enabled: true
+    expressions:
+      source_ip|in:
+      - 192.0.2.200
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - destination_ip
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/suricata_legacy_tls/manifest.yml

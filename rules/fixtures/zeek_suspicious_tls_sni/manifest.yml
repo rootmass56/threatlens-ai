@@ -1,0 +1,14 @@
+rule: zeek_suspicious_tls_sni
+cases:
+- name: positive
+  case_type: positive
+  file: positive.jsonl
+  expected_alerts: 1
+- name: negative
+  case_type: negative
+  file: negative.jsonl
+  expected_alerts: 0
+- name: boundary
+  case_type: boundary
+  file: boundary.jsonl
+  expected_alerts: 0

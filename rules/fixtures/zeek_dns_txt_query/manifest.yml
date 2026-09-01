@@ -1,0 +1,14 @@
+rule: zeek_dns_txt_query
+cases:
+- name: positive
+  file: positive_dns.jsonl
+  expected_alerts: 1
+  case_type: positive
+- name: negative
+  file: negative_dns.jsonl
+  expected_alerts: 0
+  case_type: negative
+- name: boundary
+  file: boundary_dns.jsonl
+  expected_alerts: 0
+  case_type: boundary

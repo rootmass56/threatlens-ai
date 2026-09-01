@@ -1,0 +1,89 @@
+title: Suspicious Sudo Command Against Sensitive Resources
+id: fd90f064-f3b8-4f1a-a16d-1e67d926f1df
+detection_name: suspicious_sudo_command
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects sudo commands that access sensitive credential or privilege-control resources.
+author: ThreatLens AI Detection Engineering
+date: '2026-07-30'
+modified: '2026-08-05'
+tags:
+- privilege-escalation
+- linux
+logsource:
+  category: authentication
+  product: linux
+  service: auth
+  dataset: linux_auth
+detection:
+  selections:
+    sensitive_resource:
+      event_type: sudo_command
+      command_line|contains:
+      - /etc/shadow
+      - /etc/sudoers
+      - chmod 777
+      - useradd
+    suspicious_shell:
+      event_type: sudo_command
+      command_line|regex:
+      - (^|\s)nc(\s|$)
+      - bash\s+-i
+  condition: sensitive_resource or suspicious_shell
+severity: High
+confidence: 0.88
+message_template: 'Suspicious sudo command observed for user {username}: {command_line}'
+attack:
+- technique_id: T1548.003
+  technique: Sudo and Sudo Caching
+  tactic: Privilege Escalation
+  role: primary
+  confidence: 0.95
+  justification: The command uses sudo to access or modify security-sensitive resources.
+- technique_id: T1003
+  technique: OS Credential Dumping
+  tactic: Credential Access
+  role: secondary
+  confidence: 0.7
+  justification: Access to credential stores such as /etc/shadow may support credential extraction.
+falsepositives:
+- Approved account administration or incident-response activity.
+response:
+  recommendation: Review authorization, command context, affected files, shell history, and related privileged activity.
+  playbook: linux_privilege_abuse
+risk:
+  context_bonus: 10
+  privileged_identity: true
+fixtures:
+  manifest: fixtures/suspicious_sudo_command/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to suspicious_sudo_command.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

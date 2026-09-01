@@ -1,0 +1,57 @@
+title: Microsoft Entra Sign-in Failure
+id: 3e983ef4-2fae-50bf-bc05-6c6811ff0e83
+detection_name: entra_signin_failure
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects normalized Microsoft Entra ID activity classified as entra_signin_failure.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-31'
+modified: '2026-08-31'
+tags:
+- entra
+- identity
+- cloud
+logsource:
+  category: identity
+  product: microsoft_entra_id
+  service: identity
+  dataset: entra_id
+detection:
+  selections:
+    match:
+      event_type: entra_signin_failure
+  condition: match
+severity: Low
+confidence: 0.72
+message_template: Microsoft Entra Sign-in Failure involving {username} from {source_ip}.
+attack:
+- technique_id: T1110
+  technique: Brute Force
+  tactic: Credential Access
+  role: primary
+  confidence: 0.72
+  justification: Microsoft Entra Sign-in Failure may represent behavior associated
+    with Brute Force.
+falsepositives:
+- Documented administrative or user activity consistent with policy.
+response:
+  recommendation: Correlate repeated failures by identity and source IP, then inspect
+    successful sign-ins and risk state.
+  playbook: identity_failed_signin
+risk:
+  context_bonus: 3
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Identity Security
+  last_reviewed: '2026-08-31'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-31'
+    summary: Initial governed Batch 6 release of entra_signin_failure.
+fixtures:
+  manifest: fixtures/entra_signin_failure/manifest.yml

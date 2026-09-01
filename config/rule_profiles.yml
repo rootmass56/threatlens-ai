@@ -1,0 +1,36 @@
+version: 1
+active_profile: default
+profiles:
+  default:
+    description: Production-like defaults from the governed rule YAML files.
+    rules: {}
+  lab:
+    description: Lower-volume thresholds for controlled classroom and demonstration datasets.
+    rules:
+      windows_failed_logons:
+        threshold:
+          count: 4
+          timeframe_minutes: 15
+      suricata_ssh_bruteforce:
+        threshold:
+          count: 4
+          timeframe_minutes: 5
+      zeek_failed_connection_burst:
+        threshold:
+          count: 8
+          timeframe_minutes: 5
+  production:
+    description: Conservative profile that disables rules still marked test.
+    rules:
+      sysmon_dns_suspicious_tld:
+        enabled: false
+      sysmon_process_user_writable_path:
+        enabled: false
+      suricata_suspicious_http_post:
+        enabled: false
+      suricata_legacy_tls:
+        enabled: false
+      zeek_nxdomain_burst:
+        enabled: false
+      zeek_suspicious_tls_sni:
+        enabled: false

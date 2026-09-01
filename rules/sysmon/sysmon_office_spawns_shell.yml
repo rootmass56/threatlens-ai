@@ -1,0 +1,78 @@
+title: Office Application Spawned Command Shell
+id: dd27cfb5-a330-5315-b7ee-104c66388088
+detection_name: sysmon_office_spawns_shell
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Microsoft Office applications spawning a command shell or PowerShell process.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- sysmon
+- office
+- execution
+logsource:
+  category: process_creation
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    office:
+      parent_process_name|ends_with:
+      - WINWORD.EXE
+      - EXCEL.EXE
+      - POWERPNT.EXE
+      - OUTLOOK.EXE
+    shell:
+      process_name|ends_with:
+      - cmd.exe
+      - powershell.exe
+      - wscript.exe
+      - cscript.exe
+  condition: office and shell
+severity: Critical
+confidence: 0.95
+message_template: 'Office spawned a command interpreter on {hostname}: {parent_process_name} -> {process_name}.'
+attack:
+- technique_id: T1204.002
+  technique: 'User Execution: Malicious File'
+  tactic: Execution
+  role: primary
+  confidence: 0.9
+  justification: Office spawning a shell strongly suggests malicious document execution.
+falsepositives:
+- Rare approved Office automation macros.
+response:
+  recommendation: Isolate the host, preserve the document and process tree, collect email provenance and block related
+    payloads.
+  playbook: sysmon_office_child_process
+risk:
+  context_bonus: 20
+  successful_compromise_indicator: true
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_office_spawns_shell.
+tuning:
+  allowlists: []
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - parent_process_name
+    - process_name
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_office_spawns_shell/manifest.yml

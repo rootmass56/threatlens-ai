@@ -1,0 +1,77 @@
+title: Suspicious TLS Server Name
+id: a50733bf-2df7-5ee5-9b6f-e9e1b6cc3686
+detection_name: zeek_suspicious_tls_sni
+version: 1
+status: test
+enabled: true
+kind: event
+description: Detects TLS handshakes to selected suspicious or abused top-level domains.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- zeek
+- tls
+- c2
+logsource:
+  category: network
+  product: zeek
+  service: network_monitor
+  dataset: zeek
+detection:
+  selections:
+    tls:
+      event_type: tls_handshake
+    sni:
+      domain|ends_with:
+      - .top
+      - .xyz
+      - .click
+  condition: tls and sni
+severity: Medium
+confidence: 0.72
+message_template: TLS traffic to suspicious SNI {domain} was observed from {source_ip}.
+attack:
+- technique_id: T1071.001
+  technique: 'Application Layer Protocol: Web Protocols'
+  tactic: Command and Control
+  role: primary
+  confidence: 0.9
+  justification: TLS to an uncommon or abused domain can indicate encrypted command-and-control.
+falsepositives:
+- Legitimate newly registered services.
+response:
+  recommendation: Enrich the SNI and certificate, correlate endpoint process telemetry and block confirmed malicious
+    destinations.
+  playbook: zeek_suspicious_tls
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of zeek_suspicious_tls_sni.
+tuning:
+  allowlists:
+  - name: approved_research_domains
+    reason: Exclude approved research destinations.
+    enabled: true
+    expressions:
+      hostname|contains:
+      - RESEARCH
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - domain
+    timeframe_minutes: 120
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/zeek_suspicious_tls_sni/manifest.yml

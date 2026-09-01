@@ -1,0 +1,82 @@
+title: New Account Followed by Scheduled Task
+id: 1a59694d-80a0-5124-a8bf-dbdd594dc84a
+detection_name: windows_account_to_task_sequence
+version: 1
+status: stable
+enabled: true
+kind: sequence
+description: Correlates account creation followed by scheduled-task creation on the same host within thirty minutes.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- windows
+- sequence
+- persistence
+logsource:
+  category: any
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    account:
+      event_type: user_account_created
+    task:
+      event_type: scheduled_task_created
+  condition: account or task
+  sequence:
+    stages:
+    - selection: account
+    - selection: task
+    group_by:
+    - hostname
+    timeframe_minutes: 30
+severity: Critical
+confidence: 0.93
+message_template: Account creation was followed by scheduled-task persistence on {hostname}.
+attack:
+- technique_id: T1053.005
+  technique: 'Scheduled Task/Job: Scheduled Task'
+  tactic: Persistence
+  role: primary
+  confidence: 0.9
+  justification: The ordered sequence indicates persistence established after account creation.
+falsepositives:
+- Approved onboarding automation that creates maintenance tasks.
+response:
+  recommendation: Review both the new account and task as one storyline; disable unauthorized objects and inspect
+    subsequent logons or execution.
+  playbook: windows_account_task_sequence
+risk:
+  context_bonus: 20
+  privileged_identity: true
+  successful_compromise_indicator: true
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of windows_account_to_task_sequence.
+tuning:
+  allowlists:
+  - name: approved_onboarding_automation
+    reason: Exclude documented onboarding automation identities.
+    enabled: true
+    expressions:
+      username|contains:
+      - svc_onboarding
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    timeframe_minutes: 60
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/windows_account_to_task_sequence/manifest.yml

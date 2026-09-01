@@ -1,0 +1,79 @@
+title: NXDOMAIN Query Burst
+id: b0b4f7d8-4a63-5d2e-a1cf-a5d0b014a933
+detection_name: zeek_nxdomain_burst
+version: 1
+status: test
+enabled: true
+kind: threshold
+description: Detects repeated failed DNS lookups from one source in a short period.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- zeek
+- dns
+- anomaly
+logsource:
+  category: network
+  product: zeek
+  service: network_monitor
+  dataset: zeek
+detection:
+  selections:
+    nxdomain:
+      event_type: dns_query
+      rcode_name: NXDOMAIN
+  condition: nxdomain
+  threshold:
+    selection: nxdomain
+    count: 8
+    group_by:
+    - source_ip
+    timeframe_minutes: 5
+severity: Medium
+confidence: 0.78
+message_template: '{event_count} NXDOMAIN responses were observed for {source_ip}.'
+attack:
+- technique_id: T1071.004
+  technique: 'Application Layer Protocol: DNS'
+  tactic: Command and Control
+  role: primary
+  confidence: 0.9
+  justification: A burst of failed DNS queries may indicate a domain-generation algorithm or misconfigured beacon.
+falsepositives:
+- Browser telemetry.
+- Misconfigured applications.
+response:
+  recommendation: Review queried domains, entropy and endpoint process context; block algorithmically generated
+    malicious domains.
+  playbook: zeek_nxdomain_burst
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of zeek_nxdomain_burst.
+tuning:
+  allowlists:
+  - name: approved_dns_testing
+    reason: Exclude approved DNS test clients.
+    enabled: true
+    expressions:
+      source_ip|in:
+      - 192.0.2.53
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/zeek_nxdomain_burst/manifest.yml

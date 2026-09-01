@@ -1,0 +1,31 @@
+﻿ThreatLens AI v0.12
+BATCH 4 - RAG / AI / SECURITY FREEZE
+
+Created: 2026-08-30 06:54:43
+
+MANUAL UAT:
+Deep qwen3.5:9b generation        PASS
+Deep browser/API                  PASS
+Exact-source retrieval            PASS
+Assessment provenance             PASS
+Grounding score 1.0               PASS
+Invalid citations 0               PASS
+AUTO -> Standard                  PASS
+AUTO -> Deep                      PASS
+Prompt-injection blocking         PASS
+Unsupported-claim protection      PASS
+Cross-incident isolation          PASS
+Deterministic grounded fallback   PASS
+Audit persistence                 PASS
+
+AUTOMATED RELEASE GATE:
+Syntax                            PASS
+Formatting                        PASS
+Focused lint                      PASS
+Critical RAG regressions          PASS
+
+Git commit:
+not-available
+
+STATUS:
+BATCH 4 FROZEN

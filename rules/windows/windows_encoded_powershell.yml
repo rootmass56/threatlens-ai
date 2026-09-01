@@ -1,0 +1,80 @@
+title: Encoded PowerShell Process Creation from Windows Security
+id: 0f6fd403-2a6a-4e1e-9183-bcb5cedf04b5
+detection_name: windows_encoded_powershell
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Windows Security process creation records containing encoded or in-memory PowerShell execution
+  indicators.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-04'
+modified: '2026-08-05'
+tags:
+- windows
+- powershell
+- execution
+logsource:
+  category: process_creation
+  product: windows
+  service: security
+  dataset: windows_security
+detection:
+  selections:
+    process:
+      event_type: process_creation
+      process_name|contains: powershell.exe
+    suspicious_command:
+      command_line|regex:
+      - (?i)(?:-enc(?:odedcommand)?\b|frombase64string\s*\(|invoke-expression\b|\biex\s*\()
+  condition: process and suspicious_command
+severity: High
+confidence: 0.88
+message_template: 'Suspicious encoded PowerShell process created on {hostname} by {username}: {command_line}'
+attack:
+- technique_id: T1059.001
+  technique: PowerShell
+  tactic: Execution
+  role: primary
+  confidence: 0.95
+  justification: Encoded or in-memory PowerShell command patterns support suspicious PowerShell execution.
+falsepositives:
+- Approved automation tools using encoded PowerShell payloads.
+- Administrative scripts executed through enterprise-management systems.
+response:
+  recommendation: Retrieve the full command, parent process and script block logs; isolate the host if malicious
+    execution is confirmed.
+  playbook: windows_powershell_investigation
+risk:
+  context_bonus: 15
+fixtures:
+  manifest: fixtures/windows_encoded_powershell/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to windows_encoded_powershell.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

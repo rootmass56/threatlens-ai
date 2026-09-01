@@ -1,0 +1,78 @@
+title: File Created in Startup Folder
+id: 52c9d16a-4e56-58d7-bb99-e76ceab41a6b
+detection_name: sysmon_startup_folder_file
+version: 2
+status: stable
+enabled: true
+kind: event
+description: Detects file creation in a Windows Startup directory.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-06'
+tags:
+- sysmon
+- file
+- persistence
+logsource:
+  category: file
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    file:
+      event_type: file_created
+    startup:
+      file_path|contains:
+      - \Start Menu\Programs\Startup\
+  condition: file and startup
+severity: High
+confidence: 0.92
+message_template: 'A file was created in a Startup folder on {hostname}: {file_path}.'
+attack:
+- technique_id: T1547.001
+  technique: 'Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder'
+  tactic: Persistence
+  role: primary
+  confidence: 0.9
+  justification: Files in Startup directories execute when the associated user signs in.
+falsepositives:
+- Approved application shortcuts.
+- Administrative logon scripts.
+response:
+  recommendation: Validate the file hash, signer and creator process; remove unauthorized files and inspect logon execution.
+  playbook: sysmon_startup_persistence
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-06'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_startup_folder_file.
+  - version: 2
+    date: '2026-08-06'
+    summary: Migrated deprecated T1060 mapping to current ATT&CK T1547.001.
+tuning:
+  allowlists:
+  - name: approved_startup_shortcuts
+    reason: Exclude approved signed shortcut creation.
+    enabled: true
+    expressions:
+      file_path|ends_with:
+      - approved.lnk
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - file_path
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_startup_folder_file/manifest.yml

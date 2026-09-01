@@ -1,0 +1,1 @@
+{"EventID": 1, "UtcTime": "2026-08-04 11:20:00.000", "Computer": "WIN-TEST", "User": "LAB\\alice", "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "ParentImage": "C:\\Windows\\explorer.exe", "ProviderName": "Microsoft-Windows-Sysmon", "CommandLine": "powershell.exe -ExecutionPolicy RemoteSigned"}

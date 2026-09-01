@@ -1,0 +1,80 @@
+title: Linux Invalid User Enumeration
+id: 9ded4155-45f8-4d32-955e-518cb52ba929
+detection_name: invalid_user_enumeration
+version: 1
+status: stable
+enabled: true
+kind: threshold
+description: Detects repeated SSH attempts against accounts that do not exist on the target host.
+author: ThreatLens AI Detection Engineering
+date: '2026-07-30'
+modified: '2026-08-05'
+tags:
+- authentication
+- discovery
+logsource:
+  category: authentication
+  product: linux
+  service: auth
+  dataset: linux_auth
+detection:
+  selections:
+    invalid_failure:
+      event_type: failed_login_invalid_user
+  condition: invalid_failure
+  threshold:
+    selection: invalid_failure
+    count: 3
+    group_by:
+    - source_ip
+    timeframe_minutes: 15
+severity: Medium
+confidence: 0.8
+message_template: '{event_count} invalid-user login attempts detected from {source_ip}.'
+attack:
+- technique_id: T1087
+  technique: Account Discovery
+  tactic: Discovery
+  role: primary
+  confidence: 0.82
+  justification: Attempts against multiple invalid accounts may expose account-name discovery activity.
+falsepositives:
+- Mistyped usernames from a legitimate user.
+- Stale automation configured with a removed account.
+response:
+  recommendation: Review targeted names, monitor the source, tune authentication controls, and block confirmed malicious
+    activity.
+  playbook: account_enumeration
+risk:
+  context_bonus: 5
+fixtures:
+  manifest: fixtures/invalid_user_enumeration/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to invalid_user_enumeration.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

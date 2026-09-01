@@ -1,0 +1,1 @@
+{"EventID":6,"UtcTime":"2026-08-05 10:00:00","Computer":"WIN-V06","User":"LAB\\alice","Image":"C:\\Windows\\System32\\drivers\\signed.sys","ProcessId":"4500","ProcessGuid":"77018c08-6aef-4215-b55e-e3c115ab72bd","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"notepad.exe","ProviderName":"Microsoft-Windows-Sysmon"}

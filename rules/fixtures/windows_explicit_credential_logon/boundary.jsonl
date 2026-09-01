@@ -1,0 +1,1 @@
+{"EventID":4648,"TimeCreated":"2026-08-05T10:00:00Z","Computer":"WIN-V06","TargetUserName":"svc_deploy","TargetDomainName":"LAB","SubjectUserName":"operator","SubjectDomainName":"LAB","IpAddress":"203.0.113.77","ProviderName":"Microsoft-Windows-Security-Auditing","Channel":"Security","Message":"Windows Security Event 4648"}

@@ -1,0 +1,75 @@
+title: Unusually Long DNS Query
+id: 9dae5411-c7cf-513d-9ee1-f7de4ce1e264
+detection_name: zeek_long_dns_query
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects DNS names with unusually long labels or overall query length.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-05'
+tags:
+- zeek
+- dns
+- c2
+logsource:
+  category: network
+  product: zeek
+  service: network_monitor
+  dataset: zeek
+detection:
+  selections:
+    dns:
+      event_type: dns_query
+    long_query:
+      domain|regex: ^.{70,}$
+  condition: dns and long_query
+severity: High
+confidence: 0.84
+message_template: 'An unusually long DNS query was observed from {source_ip}: {domain}.'
+attack:
+- technique_id: T1071.004
+  technique: 'Application Layer Protocol: DNS'
+  tactic: Command and Control
+  role: primary
+  confidence: 0.9
+  justification: Long DNS queries can encode commands or exfiltrated data.
+falsepositives:
+- DKIM records.
+- Cloud verification records.
+response:
+  recommendation: Inspect label entropy, query volume, response behavior and source process; block confirmed tunnel
+    infrastructure.
+  playbook: zeek_long_dns_query
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of zeek_long_dns_query.
+tuning:
+  allowlists:
+  - name: approved_dkim_queries
+    reason: Exclude approved DKIM selectors.
+    enabled: true
+    expressions:
+      domain|contains:
+      - ._domainkey.
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - domain
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/zeek_long_dns_query/manifest.yml

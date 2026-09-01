@@ -1,0 +1,1 @@
+{"EventID":1,"UtcTime":"2026-08-05 10:00:00","Computer":"WIN-V06","User":"LAB\\alice","Image":"C:\\Users\\alice\\AppData\\Local\\Temp\\dropper.exe","ProcessId":"4500","ProcessGuid":"42496f1d-e10d-4d84-afdd-8c66d03af1c4","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"dropper.exe","ProviderName":"Microsoft-Windows-Sysmon"}

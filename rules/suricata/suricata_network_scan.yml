@@ -1,0 +1,78 @@
+title: Suricata Network Scan Alert
+id: a3ab4422-ecde-4a63-a3d3-e22704bf0f75
+detection_name: suricata_network_scan
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects Suricata IDS signatures or categories that explicitly identify network scanning behavior.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-04'
+modified: '2026-08-05'
+tags:
+- network
+- suricata
+- discovery
+logsource:
+  category: network
+  product: suricata
+  service: eve
+  dataset: suricata_eve
+detection:
+  selections:
+    alert:
+      event_type: ids_alert
+    scan_category:
+      alert_category|contains: network scan
+    scan_signature:
+      signature|regex: (?i)\bSCAN\b
+  condition: alert and (scan_category or scan_signature)
+severity: Medium
+confidence: 0.86
+message_template: Suricata reported network scanning from {source_ip} toward {hostname}.
+attack:
+- technique_id: T1046
+  technique: Network Service Discovery
+  tactic: Discovery
+  role: primary
+  confidence: 0.9
+  justification: A validated IDS signature explicitly identifying scan behavior supports network service discovery.
+falsepositives:
+- Approved vulnerability scanning or asset-discovery platforms.
+response:
+  recommendation: Confirm whether the source is authorized, review targeted ports and destinations, and contain
+    unauthorized scanning.
+  playbook: network_reconnaissance
+risk:
+  context_bonus: 8
+fixtures:
+  manifest: fixtures/suricata_network_scan/manifest.yml
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Governance metadata and v0.6 quality controls added to suricata_network_scan.
+tuning:
+  allowlists:
+  - name: approved_test_assets
+    reason: Suppress known synthetic or approved test identities used during controlled validation.
+    enabled: true
+    expressions:
+      username|contains:
+      - approved-test
+      - svc_threatlens_test
+  suppression:
+    enabled: true
+    group_by:
+    - source_ip
+    - username
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters:
+    profile: default

@@ -1,0 +1,79 @@
+title: Image Loaded from User-Writable Directory
+id: 4cd17d08-98e1-55e8-8807-d7749a02adfe
+detection_name: sysmon_image_load_user_writable
+version: 2
+status: stable
+enabled: true
+kind: event
+description: Detects a DLL or executable image load from AppData, Temp or Public directories.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-05'
+modified: '2026-08-06'
+tags:
+- sysmon
+- module-load
+logsource:
+  category: module_load
+  product: windows
+  service: sysmon
+  dataset: windows_sysmon
+detection:
+  selections:
+    image_load:
+      event_type: image_loaded
+    writable:
+      process_name|contains:
+      - \AppData\
+      - \Temp\
+      - \Users\Public\
+  condition: image_load and writable
+severity: High
+confidence: 0.88
+message_template: 'An image was loaded from a user-writable path on {hostname}: {process_name}.'
+attack:
+- technique_id: T1574.001
+  technique: 'Hijack Execution Flow: DLL'
+  tactic: Stealth
+  role: primary
+  confidence: 0.9
+  justification: Unexpected DLL image loading from a user-writable location can indicate DLL side-loading or DLL hijacking covered by the consolidated ATT&CK DLL sub-technique.
+falsepositives:
+- Portable applications.
+- Developer build output.
+response:
+  recommendation: Inspect the loading process, signature, hash and neighboring files; quarantine malicious modules.
+  playbook: sysmon_suspicious_image_load
+risk:
+  context_bonus: 5
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Security Architecture
+  last_reviewed: '2026-08-05'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-05'
+    summary: Initial governed release of sysmon_image_load_user_writable.
+  - version: 2
+    date: '2026-08-06'
+    summary: Migrated deprecated T1574.002 to active ATT&CK v19.1 technique T1574.001 and reviewed the tactic as Stealth.
+tuning:
+  allowlists:
+  - name: approved_developer_paths
+    reason: Exclude approved development workspaces.
+    enabled: true
+    expressions:
+      process_name|contains:
+      - \dev\signed-builds\
+  suppression:
+    enabled: true
+    group_by:
+    - hostname
+    - process_name
+    timeframe_minutes: 30
+    max_alerts: 1
+  parameters: {}
+fixtures:
+  manifest: fixtures/sysmon_image_load_user_writable/manifest.yml

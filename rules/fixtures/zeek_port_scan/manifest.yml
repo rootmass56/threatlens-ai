@@ -1,0 +1,14 @@
+rule: zeek_port_scan
+cases:
+- name: positive
+  file: positive_conn.jsonl
+  expected_alerts: 1
+  case_type: positive
+- name: negative
+  file: negative_conn.jsonl
+  expected_alerts: 0
+  case_type: negative
+- name: outside_time_window
+  file: boundary_conn.jsonl
+  expected_alerts: 0
+  case_type: boundary

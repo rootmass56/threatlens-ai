@@ -1,0 +1,14 @@
+rule: successful_login_after_failures
+cases:
+- name: positive
+  file: positive.log
+  expected_alerts: 1
+  case_type: positive
+- name: insufficient_failures
+  file: negative.log
+  expected_alerts: 0
+  case_type: negative
+- name: success_outside_window
+  file: boundary.log
+  expected_alerts: 0
+  case_type: boundary

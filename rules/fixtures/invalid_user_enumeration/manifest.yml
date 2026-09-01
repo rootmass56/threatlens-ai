@@ -1,0 +1,14 @@
+rule: invalid_user_enumeration
+cases:
+- name: positive
+  file: positive.log
+  expected_alerts: 1
+  case_type: positive
+- name: negative
+  file: negative.log
+  expected_alerts: 0
+  case_type: negative
+- name: exact_time_boundary
+  file: boundary.log
+  expected_alerts: 1
+  case_type: boundary

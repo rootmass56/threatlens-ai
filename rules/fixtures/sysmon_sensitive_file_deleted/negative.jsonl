@@ -1,0 +1,1 @@
+{"EventID":23,"UtcTime":"2026-08-05 10:00:00","Computer":"WIN-V06","User":"LAB\\alice","Image":"C:\\Windows\\System32\\notepad.exe","ProcessId":"4500","ProcessGuid":"8aa35a1a-7030-4245-91c5-8d2d3f313593","ParentImage":"C:\\Windows\\explorer.exe","CommandLine":"notepad.exe","ProviderName":"Microsoft-Windows-Sysmon","TargetFilename":"C:\\Temp\\cache.tmp"}

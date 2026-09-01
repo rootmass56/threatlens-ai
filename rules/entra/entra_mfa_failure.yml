@@ -1,0 +1,57 @@
+title: Microsoft Entra MFA Failure
+id: ec9e0c52-e4f8-5495-b14f-208fe3b98cd3
+detection_name: entra_mfa_failure
+version: 1
+status: stable
+enabled: true
+kind: event
+description: Detects normalized Microsoft Entra ID activity classified as entra_mfa_failure.
+author: ThreatLens AI Detection Engineering
+date: '2026-08-31'
+modified: '2026-08-31'
+tags:
+- entra
+- identity
+- cloud
+logsource:
+  category: identity
+  product: microsoft_entra_id
+  service: identity
+  dataset: entra_id
+detection:
+  selections:
+    match:
+      event_type: entra_mfa_failure
+  condition: match
+severity: Medium
+confidence: 0.82
+message_template: Microsoft Entra MFA Failure involving {username} from {source_ip}.
+attack:
+- technique_id: T1621
+  technique: Multi-Factor Authentication Request Generation
+  tactic: Credential Access
+  role: primary
+  confidence: 0.82
+  justification: Microsoft Entra MFA Failure may represent behavior associated with
+    Multi-Factor Authentication Request Generation.
+falsepositives:
+- Documented administrative or user activity consistent with policy.
+response:
+  recommendation: Validate whether the MFA failure was user initiated; inspect repeated
+    prompts, source IPs and concurrent sign-in activity.
+  playbook: identity_mfa_abuse
+risk:
+  context_bonus: 3
+lifecycle:
+  owner: ThreatLens AI Detection Engineering
+  reviewers:
+  - SOC Engineering
+  - Identity Security
+  last_reviewed: '2026-08-31'
+  review_interval_days: 90
+  changelog:
+  - version: 1
+    date: '2026-08-31'
+    summary: Initial governed Batch 6 release of entra_mfa_failure.
+fixtures:
+  manifest: fixtures/entra_mfa_failure/manifest.yml
