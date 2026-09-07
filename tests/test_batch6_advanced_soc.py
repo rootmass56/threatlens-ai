@@ -80,7 +80,7 @@ def batch6_environment():
 
 
 def test_batch6_version_connectors_and_governed_rule_matrix() -> None:
-    assert THREATLENS_VERSION == "0.13.0"
+    assert THREATLENS_VERSION == "0.14.0"
     assert build_default_connector_registry().connector_ids() == [
         "entra_id",
         "linux_auth",

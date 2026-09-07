@@ -1,0 +1,1 @@
+{"ts":"2026-08-04T10:20:00Z","uid":"D00000001","id.orig_h":"10.10.10.25","id.orig_p":53000,"id.resp_h":"8.8.8.8","id.resp_p":53,"proto":"udp","query":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.evil.example","qtype_name":"A","rcode_name":"NOERROR"}

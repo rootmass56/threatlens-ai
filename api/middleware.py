@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 from collections import deque
 from dataclasses import dataclass
@@ -10,6 +11,13 @@ from uuid import uuid4
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import JSONResponse, Response
+
+from core.observability import (
+    normalize_route,
+    record_http_request,
+    reset_request_context,
+    set_request_context,
+)
 
 
 @dataclass(frozen=True)
@@ -89,11 +97,117 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "Permissions-Policy", "camera=(), microphone=(), geolocation=()"
         )
         response.headers.setdefault("Cache-Control", "no-store")
+        response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+        response.headers.setdefault("Cross-Origin-Resource-Policy", "same-origin")
         response.headers.setdefault(
             "Content-Security-Policy",
             "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
         )
+        settings = getattr(request.app.state, "security_settings", None)
+        https_only = bool(getattr(settings, "https_only", False))
+        if https_only or request.url.scheme == "https":
+            response.headers.setdefault(
+                "Strict-Transport-Security",
+                "max-age=31536000; includeSubDomains",
+            )
         return response
+
+
+
+
+class RequestBodyLimitMiddleware(BaseHTTPMiddleware):
+    """Reject declared request bodies above the global Batch-7 safety ceiling.
+
+    Upload-specific byte/file validation remains authoritative for multipart
+    analysis uploads. This middleware prevents obviously oversized requests
+    from reaching parsers or route handlers.
+    """
+
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        if request.method.upper() in {"POST", "PUT", "PATCH"}:
+            settings = getattr(request.app.state, "security_settings", None)
+            limit = int(getattr(settings, "max_request_body_bytes", 120 * 1024 * 1024))
+            content_length = request.headers.get("content-length", "").strip()
+            if content_length:
+                try:
+                    declared = int(content_length)
+                except ValueError:
+                    declared = -1
+                if declared < 0:
+                    return JSONResponse(
+                        status_code=400,
+                        content={
+                            "error": {
+                                "code": "invalid_content_length",
+                                "message": "Content-Length must be a non-negative integer.",
+                                "request_id": getattr(request.state, "request_id", None),
+                            }
+                        },
+                    )
+                if declared > limit:
+                    return JSONResponse(
+                        status_code=413,
+                        content={
+                            "error": {
+                                "code": "request_too_large",
+                                "message": "Request body exceeds the configured platform limit.",
+                                "request_id": getattr(request.state, "request_id", None),
+                                "max_bytes": limit,
+                            }
+                        },
+                    )
+        return await call_next(request)
+
+
+class ObservabilityMiddleware(BaseHTTPMiddleware):
+    """Bounded HTTP metrics and structured request-completion logging."""
+
+    _logger = logging.getLogger("threatlens.http")
+
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        started = time.perf_counter()
+        request_id = getattr(request.state, "request_id", None)
+        token = set_request_context(request_id)
+        status_code = 500
+        try:
+            response = await call_next(request)
+            status_code = int(response.status_code)
+            return response
+        finally:
+            duration = max(time.perf_counter() - started, 0.0)
+            route = normalize_route(request)
+            settings = getattr(request.app.state, "security_settings", None)
+            if bool(getattr(settings, "metrics_enabled", True)):
+                record_http_request(
+                    method=request.method,
+                    route=route,
+                    status_code=status_code,
+                    duration_seconds=duration,
+                )
+            slow_ms = int(getattr(settings, "slow_request_ms", 1000))
+            level = logging.WARNING if duration * 1000 >= slow_ms else logging.INFO
+            self._logger.log(
+                level,
+                "http request complete",
+                extra={
+                    "event": "http.request.complete",
+                    "request_id": request_id,
+                    "method": request.method,
+                    "route": route,
+                    "status_code": status_code,
+                    "duration_ms": round(duration * 1000, 3),
+                    "source_ip": request.client.host if request.client else None,
+                },
+            )
+            reset_request_context(token)
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):

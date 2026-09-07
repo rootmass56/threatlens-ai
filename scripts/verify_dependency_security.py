@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from api.version import THREATLENS_VERSION
-
 import argparse
 import ast
 import json
 import re
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+
+from api.version import THREATLENS_VERSION
 
 from scripts.release_inventory import ROOT_DIR
 
@@ -102,6 +102,8 @@ def verify_source_contract(payload: dict) -> None:
         "rag",
         "rules",
         "scripts",
+        "jobs",
+        "advanced_soc",
     )
     forbidden_imports: list[str] = []
     for root_name in active_roots:

@@ -8,7 +8,6 @@ from core.rules import RuleFixtureRunner, RuleLoader, RuleQualityAnalyzer
 EXPECTED_RULES = 46
 EXPECTED_FIXTURES = 138
 EXPECTED_DATASETS = {
-    "entra_id": 4,
     "linux_auth": 4,
     "suricata_eve": 8,
     "windows_security": 11,

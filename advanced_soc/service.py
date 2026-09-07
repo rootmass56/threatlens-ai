@@ -409,10 +409,6 @@ class AdvancedSocService:
                 source.source_uuid,
                 {"accepted": len(accepted), "error_type": type(error).__name__},
             )
-            # Receipt-first ingestion is meaningful only if terminal processing
-            # failures are durable too. Commit the FAILED receipt state and its
-            # audit evidence before the request dependency rolls back on re-raise.
-            self.session.commit()
             raise
 
     def recent_ingress(self, limit: int = 200) -> list[dict[str, Any]]:

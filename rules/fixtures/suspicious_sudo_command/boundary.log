@@ -1,0 +1,1 @@
+Aug  7 10:00:00 host sudo: alice : TTY=pts/0 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/vim /etc/sudoers

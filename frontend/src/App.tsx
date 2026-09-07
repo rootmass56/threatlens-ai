@@ -140,7 +140,7 @@ function Login({ onSuccess }: { onSuccess: (session: Session) => void }) {
   return <main className="login-shell">
     <section className="login-brand">
       <div className="brand-mark">TL</div>
-      <p className="eyebrow">THREATLENS AI · v0.13.0</p>
+      <p className="eyebrow">THREATLENS AI · v0.14.0</p>
       <h1>Evidence-first<br/><span>SOC intelligence.</span></h1>
       <p className="login-copy">Deterministic detections, governed ATT&CK context, auditable case management and grounded adaptive AI in one production investigation console.</p>
       <div className="trust-row"><Status>RBAC protected</Status><Status>Grounded RAG</Status><Status>Audited</Status><Status>Feature parity</Status></div>
@@ -153,7 +153,7 @@ function Login({ onSuccess }: { onSuccess: (session: Session) => void }) {
         {error && <div className="error-box">{error}</div>}
         <button className="primary" disabled={busy}>{busy ? 'Authenticating…' : 'Enter SOC Console'}</button>
       </form>
-      <p className="tiny">API boundary: {API_URL || 'same-origin (/api)'}</p>
+      <p className="tiny">API boundary: {API_URL}</p>
     </section>
   </main>
 }
@@ -244,7 +244,7 @@ export default function App() {
     if (next === 'current' || next === 'analyses' || next === 'reports' || next === 'graph') {
       if (id) nextAnalysisId = id
     }
-    if (next === 'case' || next === 'assistant' || next === 'caseops' || next === 'response' || next === 'graphintel') {
+    if (next === 'case' || next === 'assistant') {
       if (id) nextIncidentId = id
     }
 
@@ -299,7 +299,7 @@ export default function App() {
   else if (page === 'realtime') content = <RealtimePage session={session} />
   else if (page === 'intel') content = <ThreatIntelPage session={session} />
   else if (page === 'hunts') content = <HuntPage session={session} />
-  else if (page === 'caseops') content = <CaseOperationsPage session={session} incidentId={incidentId} navigate={navigate} />
+  else if (page === 'caseops') content = <CaseOperationsPage session={session} incidentId={incidentId} />
   else if (page === 'response') content = <ResponsePage session={session} incidentId={incidentId} />
   else if (page === 'detections') content = <DetectionEngineeringPage session={session} />
   else if (page === 'identity') content = <IdentityPage session={session} />

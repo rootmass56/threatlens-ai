@@ -5,8 +5,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "threatlens-ai"
-version = "0.13.0"
-description = "Production web SOC platform with grounded adaptive AI, PostgreSQL and pgvector"
+version = "0.14.0"
+description = "Operationally hardened SOC platform with observability, resilience, DevSecOps and grounded AI"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [

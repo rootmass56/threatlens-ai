@@ -5,7 +5,7 @@ from core.connectors import build_default_connector_registry
 SAMPLE_DIR = Path("data/sample_logs")
 
 
-def test_default_registry_contains_five_connectors():
+def test_default_registry_contains_current_governed_connectors():
     registry = build_default_connector_registry()
     assert registry.connector_ids() == [
         "entra_id",
@@ -16,6 +16,7 @@ def test_default_registry_contains_five_connectors():
         "windows_sysmon",
         "zeek",
     ]
+
 
 def test_auto_detection_and_normalization_for_all_v05_sources():
     expected = {

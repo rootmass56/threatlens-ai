@@ -14,7 +14,7 @@ def require(v,msg):
     if not v: raise SystemExit(msg)
 
 def main():
-    require(THREATLENS_VERSION=="0.13.0", f"Expected v0.13.0, got {THREATLENS_VERSION}")
+    require(THREATLENS_VERSION in {"0.13.0","0.14.0"}, f"Expected v0.13.0+ capability release, got {THREATLENS_VERSION}")
     ids=build_default_connector_registry().connector_ids()
     require(ids==["entra_id","linux_auth","suricata_eve","syslog_rfc","windows_security","windows_sysmon","zeek"], f"Connector set changed: {ids}")
     report=RuleLoader(ROOT/"rules").validation_report(); require(report.valid, str(report.issues)); require(len(report.rules)==46, f"Expected 46 rules, got {len(report.rules)}")

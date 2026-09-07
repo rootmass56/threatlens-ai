@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_v012_version_is_current_release() -> None:
-    assert THREATLENS_VERSION == "0.13.0"
+    assert THREATLENS_VERSION == "0.14.0"
 
 
 def test_v012_render_postgres_url_normalizes_to_psycopg_driver() -> None:
@@ -50,8 +50,6 @@ def test_v012_default_compact_qwen35_profiles(monkeypatch) -> None:
         "THREATLENS_RAG_STANDARD_LLM_MODEL",
         "THREATLENS_RAG_LLM_MODEL",
         "THREATLENS_RAG_DEEP_LLM_MODEL",
-        "THREATLENS_RAG_EMBED_BATCH_SIZE",
-        "THREATLENS_RAG_READ_TIMEOUT_SECONDS",
     ):
         monkeypatch.delenv(name, raising=False)
     loaded = RagSettings.from_environment()

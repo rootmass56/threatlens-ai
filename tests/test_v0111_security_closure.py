@@ -13,9 +13,9 @@ from scripts.verify_dependency_security import _load, verify_source_contract
 
 
 def test_v0111_version_is_security_closure_release() -> None:
-    assert THREATLENS_VERSION == "0.13.0"
+    assert THREATLENS_VERSION == "0.14.0"
     pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.13.0"' in pyproject
+    assert 'version = "0.14.0"' in pyproject
 
 
 def test_v0111_reviewed_dependency_baseline_passes_source_contract() -> None:
@@ -100,7 +100,7 @@ def test_v0111_setup_verify_and_local_ui_security_controls() -> None:
 def test_v0111_source_sbom_matches_reviewed_direct_dependency_count() -> None:
     baseline = _load()
     expected = sum(len(baseline[name]) for name in ("build", "runtime", "development"))
-    sbom = json.loads(Path("sbom/source-dependencies-v0.13.0.cdx.json").read_text(encoding="utf-8"))
+    sbom = json.loads(Path("sbom/source-dependencies-v0.14.0.cdx.json").read_text(encoding="utf-8"))
     assert sbom["bomFormat"] == "CycloneDX"
     assert sbom["specVersion"] == "1.6"
     assert len(sbom["components"]) == expected

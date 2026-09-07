@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Header, HTTPException, Query, Request, status
+from fastapi import APIRouter, Header, HTTPException, Query, Request, Security, status
+from fastapi.security import APIKeyHeader
 
 from advanced_soc.schemas import (
     CaseProfileUpdate,
@@ -44,6 +45,13 @@ from api.dependencies import (
 )
 
 router = APIRouter(tags=["advanced-soc"])
+
+ingest_key_scheme = APIKeyHeader(
+    name="X-ThreatLens-Ingest-Key",
+    scheme_name="ThreatLensIngestKey",
+    description="Per-source machine credential for authenticated real-time telemetry ingestion.",
+    auto_error=False,
+)
 
 
 def _not_found(error: Exception) -> HTTPException:
@@ -117,9 +125,14 @@ def ingest_realtime(
     payload: RealtimeIngestRequest,
     request: Request,
     session: DatabaseSession,
-    ingest_key: str = Header(min_length=16, alias="X-ThreatLens-Ingest-Key"),
+    ingest_key: str | None = Security(ingest_key_scheme),
 ) -> dict:
     """Machine-to-machine telemetry boundary; uses a hashed source credential, not a user JWT."""
+    if ingest_key is None or len(ingest_key) < 16:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "invalid_ingestion_credential", "message": "A valid machine-ingestion credential is required."},
+        )
     service = AdvancedSocService(session)
     source_ip = request.client.host if request.client else None
     try:

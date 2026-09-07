@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "release": "0.13.0",
-  "reviewed_utc": "2026-09-01T13:37:02Z",
+  "release": "0.14.0",
+  "reviewed_utc": "2026-09-01T20:30:00Z",
   "python_target": "CPython 3.11 on Windows x86-64 and Linux production container",
   "build": {
     "pip": "26.2.1",
@@ -95,8 +95,8 @@
     }
   ],
   "release_candidate_notes": [
-    "v0.12 adds psycopg 3 and pgvector for managed PostgreSQL production storage.",
     "A fresh online OSV audit and Windows/Linux resolved dependency attestation are required before final production freeze.",
-    "v0.13 adds Redis 6.4.0 for durable asynchronous AI coordination; fresh online advisory scanning remains required before external deployment."
+    "v0.14 preserves the reviewed Batch-6 runtime dependency set and adds operational hardening without adding Python runtime dependencies.",
+    "External observability and security scanners run as pinned containers or CI tooling and are not imported by the application runtime."
   ]
 }
