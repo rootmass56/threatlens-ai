@@ -72,7 +72,7 @@ jobs:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@3d0c6e65d3f3ae68ec33f39473d1c2184b7b4a87 # v2
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -84,7 +84,7 @@ jobs:
       - name: Build API image
         run: docker build --file Dockerfile --tag threatlens-api:${{ github.sha }} .
       - name: Scan API image with reviewed policy
-        uses: aquasecurity/trivy-action@f1be1ce6d2dfc45de506d55ebc28faac4af13ba2 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: threatlens-api:${{ github.sha }}
           scanners: vuln
@@ -105,7 +105,7 @@ jobs:
       - name: Build frontend image
         run: docker build --file frontend/Dockerfile --tag threatlens-frontend:${{ github.sha }} ./frontend
       - name: Scan frontend image with reviewed policy
-        uses: aquasecurity/trivy-action@f1be1ce6d2dfc45de506d55ebc28faac4af13ba2 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: threatlens-frontend:${{ github.sha }}
           scanners: vuln
