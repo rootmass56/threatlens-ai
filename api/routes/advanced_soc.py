@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Header, HTTPException, Query, Request, Security, status
+from fastapi import APIRouter, HTTPException, Query, Request, Security, status
 from fastapi.security import APIKeyHeader
 
 from advanced_soc.schemas import (
@@ -286,8 +286,9 @@ def execute_saved_hunt(
     session: DatabaseSession,
 ) -> dict:
     service = AdvancedSocService(session)
-    from database.models import SavedHuntModel
     from sqlalchemy import select
+
+    from database.models import SavedHuntModel
 
     row = session.scalar(select(SavedHuntModel).where(SavedHuntModel.hunt_uuid == hunt_uuid))
     if row is None or (row.owner != principal.username and not row.shared):

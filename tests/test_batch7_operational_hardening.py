@@ -5,8 +5,6 @@ import logging
 import os
 from pathlib import Path
 
-import pytest
-
 os.environ.setdefault(
     "THREATLENS_JWT_SECRET", "batch7-test-secret-that-is-long-enough-123456789"
 )

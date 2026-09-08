@@ -7,7 +7,6 @@ from sqlalchemy import text
 
 from database.session import engine
 
-
 QUERIES = {
     "largest_tables": """
         SELECT relname AS table_name,

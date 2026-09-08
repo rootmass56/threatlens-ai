@@ -18,7 +18,18 @@ from api.middleware import (
     RequestContextMiddleware,
     SecurityHeadersMiddleware,
 )
-from api.routes import advanced_soc, analyses, auth, catalog, incidents, jobs, rag, reports, system, users
+from api.routes import (
+    advanced_soc,
+    analyses,
+    auth,
+    catalog,
+    incidents,
+    jobs,
+    rag,
+    reports,
+    system,
+    users,
+)
 from api.version import THREATLENS_VERSION
 from core.observability import METRICS, configure_structured_logging
 from database.session import engine

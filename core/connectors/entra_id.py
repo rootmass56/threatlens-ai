@@ -6,7 +6,13 @@ from typing import Any
 from pydantic import ValidationError
 
 from core.connectors.base import ConnectorMetadata, SecurityLogConnector
-from core.connectors.structured import clean_text, get_value, load_structured_records, parse_timestamp, safe_ip
+from core.connectors.structured import (
+    clean_text,
+    get_value,
+    load_structured_records,
+    parse_timestamp,
+    safe_ip,
+)
 from core.schema import (
     CommonEvent,
     DataQualityFinding,

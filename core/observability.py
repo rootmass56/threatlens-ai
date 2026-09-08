@@ -8,9 +8,10 @@ import os
 import threading
 import time
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, Iterable
+from typing import Any
 
 _REQUEST_ID: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "threatlens_request_id", default=None

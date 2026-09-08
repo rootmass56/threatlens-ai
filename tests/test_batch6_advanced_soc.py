@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from contextlib import contextmanager
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -34,8 +34,8 @@ from api.main import create_app
 from api.version import THREATLENS_VERSION
 from app.application_service import ThreatLensApplicationService
 from core.connectors import build_default_connector_registry
-from core.rules.loader import RuleLoader
 from core.rules.fixtures import RuleFixtureRunner
+from core.rules.loader import RuleLoader
 from database.base import Base
 from database.models import AlertModel, EvidenceModel, IncidentModel
 
@@ -351,9 +351,11 @@ def test_batch6_openapi_has_advanced_soc_and_separate_machine_auth_boundary() ->
     }
     assert required <= set(paths)
     realtime = paths["/api/v1/ingest/realtime"]["post"]
-    header = realtime["parameters"][0]
-    assert header["name"] == "X-ThreatLens-Ingest-Key"
-    assert header["in"] == "header"
+    assert {"ThreatLensIngestKey": []} in realtime.get("security", [])
+    scheme = schema["components"]["securitySchemes"]["ThreatLensIngestKey"]
+    assert scheme["type"] == "apiKey"
+    assert scheme["name"] == "X-ThreatLens-Ingest-Key"
+    assert scheme["in"] == "header"
     for path in required - {"/api/v1/ingest/realtime"}:
         assert any(operation.get("security") for operation in paths[path].values() if isinstance(operation, dict))
 

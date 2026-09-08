@@ -47,3 +47,7 @@ exports/openapi/
 *.zip
 .env.batch6.local
 batch6_runtime/
+frontend/node_modules/
+frontend/dist/
+node_modules/
+dist/

@@ -1,6 +1,8 @@
 from __future__ import annotations
-import json, os
+
+import os
 from pathlib import Path
+
 ROOT=Path(__file__).resolve().parents[1]
 os.environ.setdefault("THREATLENS_JWT_SECRET","batch6-static-release-secret-that-is-long-enough-123456789")
 from api.main import app
@@ -9,6 +11,7 @@ from core.connectors import build_default_connector_registry
 from core.rules.fixtures import RuleFixtureRunner
 from core.rules.loader import RuleLoader
 from database.base import Base
+
 
 def require(v,msg):
     if not v: raise SystemExit(msg)
@@ -25,7 +28,9 @@ def main():
     required_paths={"/api/v1/ingestion/sources","/api/v1/ingest/realtime","/api/v1/intel/feeds","/api/v1/intel/indicators","/api/v1/hunts/execute","/api/v1/hunts/saved","/api/v1/incidents/{incident_uuid}/case-operations","/api/v1/response/playbooks","/api/v1/detections/feedback","/api/v1/detections/tunings","/api/v1/incidents/{incident_uuid}/graph/intelligence","/api/v1/search"}
     require(required_paths <= paths, f"Missing Batch-6 API paths: {sorted(required_paths-paths)}")
     machine=schema["paths"]["/api/v1/ingest/realtime"]["post"]
-    require(any(p.get("name")=="X-ThreatLens-Ingest-Key" and p.get("in")=="header" for p in machine.get("parameters",[])), "Machine-auth header missing.")
+    require(any("ThreatLensIngestKey" in item for item in machine.get("security",[])), "Machine-auth security requirement missing.")
+    scheme=schema.get("components",{}).get("securitySchemes",{}).get("ThreatLensIngestKey",{})
+    require(scheme.get("type")=="apiKey" and scheme.get("name")=="X-ThreatLens-Ingest-Key" and scheme.get("in")=="header", "Machine-auth API-key scheme missing.")
     migration=(ROOT/"migrations/versions/f6a6c0b60001_batch6_advanced_soc.py").read_text(encoding="utf-8")
     require('revision: str = "f6a6c0b60001"' in migration and 'down_revision: str | None = "e9b5a1300001"' in migration, "Batch-6 migration chain invalid.")
     frontend=(ROOT/"frontend/src/pages/AdvancedSocPages.tsx").read_text(encoding="utf-8")

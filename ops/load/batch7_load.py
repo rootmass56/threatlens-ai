@@ -5,10 +5,8 @@ import concurrent.futures
 import json
 import os
 import statistics
-import sys
 import time
 from dataclasses import dataclass
-from typing import Callable
 
 import requests
 
