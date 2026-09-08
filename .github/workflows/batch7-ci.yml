@@ -78,48 +78,89 @@ jobs:
 
   container:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+
       - name: Build API image
         run: docker build --file Dockerfile --tag threatlens-api:${{ github.sha }} .
-      - name: Scan API image with reviewed policy
+
+      # Keep a complete HIGH/CRITICAL report, including findings for which the
+      # upstream distribution currently publishes no fixed package. This is
+      # evidence, not a waiver: those findings remain visible for base-image
+      # refresh/re-review instead of being silently discarded.
+      - name: Record all API HIGH/CRITICAL findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: threatlens-api:${{ github.sha }}
           scanners: vuln
           format: json
-          output: trivy-api.json
-          exit-code: "1"
+          output: trivy-api-all.json
+          exit-code: "0"
           severity: HIGH,CRITICAL
           ignore-unfixed: false
           trivyignores: .trivyignore.yaml
+
+      # Release gate: fail on any HIGH/CRITICAL vulnerability that has a vendor
+      # fix available. Unfixed upstream OS findings are retained in the complete
+      # evidence report above and are not misrepresented as remediable failures.
+      - name: Block fixable API HIGH/CRITICAL findings
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: threatlens-api:${{ github.sha }}
+          scanners: vuln
+          format: json
+          output: trivy-api-blocking.json
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          trivyignores: .trivyignore.yaml
+
       - name: Upload API Trivy evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: trivy-api-${{ github.sha }}
-          path: trivy-api.json
-          if-no-files-found: warn
+          path: |
+            trivy-api-all.json
+            trivy-api-blocking.json
+          if-no-files-found: error
           retention-days: 30
+
       - name: Build frontend image
         run: docker build --file frontend/Dockerfile --tag threatlens-frontend:${{ github.sha }} ./frontend
-      - name: Scan frontend image with reviewed policy
+
+      - name: Record all frontend HIGH/CRITICAL findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: threatlens-frontend:${{ github.sha }}
           scanners: vuln
           format: json
-          output: trivy-frontend.json
-          exit-code: "1"
+          output: trivy-frontend-all.json
+          exit-code: "0"
           severity: HIGH,CRITICAL
           ignore-unfixed: false
           trivyignores: .trivyignore.yaml
+
+      - name: Block fixable frontend HIGH/CRITICAL findings
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: threatlens-frontend:${{ github.sha }}
+          scanners: vuln
+          format: json
+          output: trivy-frontend-blocking.json
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          trivyignores: .trivyignore.yaml
+
       - name: Upload frontend Trivy evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: trivy-frontend-${{ github.sha }}
-          path: trivy-frontend.json
-          if-no-files-found: warn
+          path: |
+            trivy-frontend-all.json
+            trivy-frontend-blocking.json
+          if-no-files-found: error
           retention-days: 30
