@@ -211,6 +211,22 @@ def test_batch7_frontend_exposes_observability_without_public_metrics_url() -> N
     assert "location /api/" in nginx
     assert "location /internal/" not in nginx
 
+    server_prefix, after_api = nginx.split("location /api/ {", 1)
+    api_location, static_location = after_api.split("location / {", 1)
+    security_headers = (
+        "X-Content-Type-Options",
+        "X-Frame-Options",
+        "Referrer-Policy",
+        "Permissions-Policy",
+        "Cross-Origin-Opener-Policy",
+        "Cross-Origin-Resource-Policy",
+        "Content-Security-Policy",
+    )
+    for header in security_headers:
+        assert f"add_header {header}" not in server_prefix
+        assert f"add_header {header}" not in api_location
+        assert f"add_header {header}" in static_location
+
 
 def test_batch7_runbook_and_acceptance_matrix_is_complete() -> None:
     for name in (
