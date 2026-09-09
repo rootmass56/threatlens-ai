@@ -163,6 +163,11 @@ def test_batch7_backup_restore_is_checksum_guarded_and_primary_restore_blocked()
     assert "pgvector extension missing after restore" in smoke
     assert "AllowPrimaryDatabaseRestore" in restore
     assert "Primary database restore is blocked by default" in restore
+    for source in (backup, smoke, restore):
+        assert "function Invoke-Docker" in source
+        assert '$ErrorActionPreference = "Continue"' in source
+        assert "2> $stderrPath" in source
+        assert "ExitCode" in source
 
 
 def test_batch7_load_probe_is_bounded_and_reports_percentiles() -> None:
