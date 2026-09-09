@@ -155,7 +155,10 @@ jobs:
           trivyignores: .trivyignore.yaml
 
       - name: Upload frontend Trivy evidence
-        if: always()
+        # If an earlier API blocker stops the frontend scans, do not create a
+        # misleading second failure merely because no frontend evidence exists.
+        # If the frontend scan ran (including a blocking failure), preserve it.
+        if: ${{ always() && hashFiles('trivy-frontend-all.json') != '' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: trivy-frontend-${{ github.sha }}

@@ -31,7 +31,7 @@ def test_security_api_runtime_and_test_versions_are_pinned() -> None:
         "PyYAML": "6.0.3",
         "pytest": "9.0.3",
         "pytest-cov": "7.0.0",
-        "httpx2": "2.7.0",
+        "httpx2": "2.12.0",
         "ruff": "0.15.22",
     }
     assert {package: version(package) for package in expected} == expected

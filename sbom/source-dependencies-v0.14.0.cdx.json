@@ -416,7 +416,7 @@
       "version": "0.48.0"
     },
     {
-      "bom-ref": "pkg:pypi/httpx2@2.7.0",
+      "bom-ref": "pkg:pypi/httpx2@2.12.0",
       "name": "httpx2",
       "properties": [
         {
@@ -428,10 +428,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/httpx2@2.7.0",
+      "purl": "pkg:pypi/httpx2@2.12.0",
       "scope": "optional",
       "type": "library",
-      "version": "2.7.0"
+      "version": "2.12.0"
     },
     {
       "bom-ref": "pkg:pypi/pytest@9.0.3",
@@ -501,7 +501,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:e50efc54-10b0-9bff-7ea0-e3d9f708a487",
+  "serialNumber": "urn:uuid:4ab15539-47fd-81b0-db7d-df2a4eb5977b",
   "specVersion": "1.6",
   "version": 1
 }

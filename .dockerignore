@@ -14,3 +14,11 @@ frontend/dist
 data/rag/*.sqlite*
 database/*.db*
 *.zip
+
+# Source-only development, test, and SBOM evidence is excluded from the production image.
+requirements-dev.txt
+constraints-*.txt
+pyproject.toml
+pytest.ini
+sbom/
+tests/

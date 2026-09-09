@@ -139,9 +139,13 @@ def main(containerized: bool = False) -> None:
     require(direct == 27, f"Expected 27 reviewed direct dependencies, got {direct}")
     require(baseline["runtime"].get("redis") == "6.4.0", "Redis 6.4.0 baseline missing.")
 
-    sbom = json.loads((ROOT / "sbom/source-dependencies-v0.14.0.cdx.json").read_text())
-    require(sbom["bomFormat"] == "CycloneDX" and sbom["specVersion"] == "1.6", "SBOM invalid.")
-    require(len(sbom["components"]) == 27, "v0.14 source SBOM component count is not 27.")
+    if not containerized:
+        sbom = json.loads((ROOT / "sbom/source-dependencies-v0.14.0.cdx.json").read_text())
+        require(
+            sbom["bomFormat"] == "CycloneDX" and sbom["specVersion"] == "1.6",
+            "SBOM invalid.",
+        )
+        require(len(sbom["components"]) == 27, "v0.14 source SBOM component count is not 27.")
 
     print("=" * 78)
     print("THREATLENS BATCH 7 OPERATIONAL HARDENING RELEASE CONTRACT: PASS")
