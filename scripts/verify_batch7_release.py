@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import os
 from pathlib import Path
@@ -22,7 +23,7 @@ def require(value: bool, message: str) -> None:
         raise SystemExit(message)
 
 
-def main() -> None:
+def main(containerized: bool = False) -> None:
     require(THREATLENS_VERSION == "0.14.0", f"Expected v0.14.0, got {THREATLENS_VERSION}")
 
     connector_ids = build_default_connector_registry().connector_ids()
@@ -95,19 +96,42 @@ def main() -> None:
     for marker in ("--no-server-header", "--no-access-log", "--limit-concurrency", "--backlog"):
         require(marker in startup, f"Uvicorn hardening marker missing: {marker}")
 
-    for path in (
+    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    require(
+        "*.sh text eol=lf" in {line.strip() for line in attributes.splitlines()},
+        "Shell scripts are not pinned to LF in .gitattributes.",
+    )
+    shell_paths = (
+        "scripts/start_production.sh",
+        "scripts/verify_frontend.sh",
+    )
+    for shell_path in shell_paths:
+        shell_bytes = (ROOT / shell_path).read_bytes()
+        require(
+            b"\r" not in shell_bytes,
+            f"Shell script must be UTF-8 LF-only: {shell_path}",
+        )
+
+    runtime_release_assets = (
         "scripts/backup_batch7.ps1",
         "scripts/restore_batch7_smoke.ps1",
         "scripts/MIGRATE_BATCH6_DATA_TO_BATCH7.ps1",
         "ops/load/batch7_load.py",
         "ops/db/performance_audit.py",
         "ops/security/batch7_security_audit.py",
+        "BATCH7_ACCEPTANCE_CHECKLIST.md",
+    )
+    for path in runtime_release_assets:
+        require((ROOT / path).exists(), f"Batch-7 runtime release asset missing: {path}")
+
+    source_control_assets = (
         ".github/workflows/batch7-ci.yml",
         ".github/workflows/codeql.yml",
         ".github/workflows/batch7-ghcr.yml",
-        "BATCH7_ACCEPTANCE_CHECKLIST.md",
-    ):
-        require((ROOT / path).exists(), f"Batch-7 release asset missing: {path}")
+    )
+    if not containerized:
+        for path in source_control_assets:
+            require((ROOT / path).exists(), f"Batch-7 source-control asset missing: {path}")
 
     baseline = json.loads((ROOT / "config/dependency_security_baseline.json").read_text())
     require(baseline["release"] == "0.14.0", "Dependency baseline is not v0.14.0.")
@@ -130,7 +154,11 @@ def main() -> None:
     print("Reviewed dependencies:", direct)
     print("Migration head       : b7f1c2d30001")
     print("Batch-7 phases       : 7A through 7H packaged")
+    print("Contract mode         :", "containerized" if containerized else "source")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--containerized", action="store_true")
+    args = parser.parse_args()
+    main(containerized=args.containerized)

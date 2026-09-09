@@ -24,7 +24,7 @@ $currentRaw = & docker.exe exec $apiCid alembic current
 $current = [string]::Join("`n", [string[]]@($currentRaw)).Trim()
 if ($current -notmatch "b7f1c2d30001") { throw "Batch-7 Alembic head is not active: $current" }
 
-& docker.exe exec $apiCid python -m scripts.verify_batch7_release
+& docker.exe exec $apiCid python -m scripts.verify_batch7_release --containerized
 if ($LASTEXITCODE -ne 0) { throw "Containerized Batch-7 release contract failed." }
 
 $metricsRaw = & docker.exe exec $apiCid python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:10000/internal/metrics', timeout=10).read().decode())"
