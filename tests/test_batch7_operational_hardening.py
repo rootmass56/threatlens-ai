@@ -181,6 +181,15 @@ def test_batch7_load_probe_is_bounded_and_reports_percentiles() -> None:
 def test_batch7_supply_chain_and_cicd_assets_exist() -> None:
     ci = (ROOT / ".github/workflows/batch7-ci.yml").read_text(encoding="utf-8")
     assert "gitleaks/gitleaks-action" in ci
+    secret_scan_permissions = (
+        "  secret-scan:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    permissions:\n"
+        "      contents: read\n"
+        "      pull-requests: read\n"
+        "    steps:\n"
+    )
+    assert secret_scan_permissions in ci
     assert "pip-audit" in ci
     assert "aquasecurity/trivy-action" in ci
     assert "scripts.generate_source_sbom" in ci
