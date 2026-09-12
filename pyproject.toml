@@ -36,7 +36,7 @@ dependencies = [
 dev = [
     "pytest==9.0.3",
     "pytest-cov==7.0.0",
-    "ruff==0.15.22",
+    "ruff==0.16.6",
     "httpx2==2.12.0",
 ]
 
