@@ -1,0 +1,81 @@
+name: Build immutable Batch-7 images
+
+on:
+  push:
+    branches: ["batch7/v0.14.0-release-candidate"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: batch7-ghcr-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
+      - id: build
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/threatlens-api:sha-${{ github.sha }}
+          provenance: mode=max
+          sbom: true
+      - name: Record API digest
+        shell: bash
+        run: |
+          echo "commit=${GITHUB_SHA}" > api-digest.txt
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER}/threatlens-api@${{ steps.build.outputs.digest }}" >> api-digest.txt
+          cat api-digest.txt >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: batch7-api-digest-${{ github.sha }}
+          path: api-digest.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
+      - id: build
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/threatlens-frontend:sha-${{ github.sha }}
+          provenance: mode=max
+          sbom: true
+      - name: Record frontend digest
+        shell: bash
+        run: |
+          echo "commit=${GITHUB_SHA}" > frontend-digest.txt
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER}/threatlens-frontend@${{ steps.build.outputs.digest }}" >> frontend-digest.txt
+          cat frontend-digest.txt >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: batch7-frontend-digest-${{ github.sha }}
+          path: frontend-digest.txt
+          if-no-files-found: error
+          retention-days: 30

@@ -64,9 +64,10 @@ def test_multi_source_correlation_deduplicates_and_preserves_evidence():
     for key, expected in expected_metrics.items():
         assert correlation.metrics[key] == expected
 
+    assert sorted(int(value) for value in result.incidents_df["alert_count"].tolist()) == [3, 4]
     assert sorted(
-        int(value) for value in result.incidents_df["alert_count"].tolist()
-    ) == [3, 4]
+        int(value) for value in result.incidents_df["representative_alert_count"].tolist()
+    ) == [3, 3]
 
     assert len(correlation.deduplicated_alerts_df) == 6
     assert len(correlation.entities_df) == 10
@@ -74,13 +75,15 @@ def test_multi_source_correlation_deduplicates_and_preserves_evidence():
     assert len(correlation.graph_nodes_df) == 29
     assert len(correlation.graph_edges_df) == 55
 
-    evidence_columns = ['alert_id', 'source_ip', 'source_dataset', 'duplicate_alert_ids', 'duplicate_count']
-    assert evidence_columns
-    assert all(
-        column in correlation.deduplicated_alerts_df.columns
-        for column in evidence_columns
-    )
+    evidence_columns = [
+        "supporting_event_ids",
+        "duplicate_alert_ids",
+        "corroborating_rules",
+        "corroborating_datasets",
+    ]
+    assert all(column in correlation.deduplicated_alerts_df.columns for column in evidence_columns)
     assert correlation.deduplicated_alerts_df[evidence_columns].notna().any().any()
+
 
 def test_relationships_are_explainable_and_cluster_qualified():
     result = _multi_source_result()

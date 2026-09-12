@@ -1,9 +1,9 @@
 from __future__ import annotations
-from api.version import THREATLENS_VERSION
 
 import hashlib
 import json
 
+from api.version import THREATLENS_VERSION
 from scripts.release_inventory import ROOT_DIR
 
 BASELINE = ROOT_DIR / "config" / "dependency_security_baseline.json"
@@ -12,6 +12,11 @@ OUTPUT = ROOT_DIR / "sbom" / f"source-dependencies-v{THREATLENS_VERSION}.cdx.jso
 
 def main() -> None:
     payload = json.loads(BASELINE.read_text(encoding="utf-8"))
+    if payload.get("release") != THREATLENS_VERSION:
+        raise SystemExit(
+            f"Dependency baseline release {payload.get('release')!r} does not match "
+            f"ThreatLens {THREATLENS_VERSION}."
+        )
     components = []
     for scope in ("build", "runtime", "development"):
         for name, version in sorted(payload[scope].items(), key=lambda item: item[0].lower()):
@@ -46,7 +51,11 @@ def main() -> None:
         ),
         "version": 1,
         "metadata": {
-            "component": {"type": "application", "name": "threatlens-ai", "version": "0.12.0"},
+            "component": {
+                "type": "application",
+                "name": "threatlens-ai",
+                "version": THREATLENS_VERSION,
+            },
             "properties": [
                 {
                     "name": "threatlens:sbom-scope",

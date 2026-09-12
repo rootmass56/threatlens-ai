@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from api.version import THREATLENS_VERSION
-
 import argparse
 import ast
 import json
@@ -9,6 +7,7 @@ import re
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
+from api.version import THREATLENS_VERSION
 from scripts.release_inventory import ROOT_DIR
 
 BASELINE_PATH = ROOT_DIR / "config" / "dependency_security_baseline.json"
@@ -54,6 +53,17 @@ def verify_source_contract(payload: dict) -> None:
     runtime = _exact_lines(ROOT_DIR / "requirements.txt")
     dev = _exact_lines(ROOT_DIR / "requirements-dev.txt")
     constraints = _exact_lines(ROOT_DIR / "constraints-windows-py311.txt")
+    # BATCH7G_LINUX_SECURITY_OVERLAY_GUARD
+    linux_constraints = _exact_lines(ROOT_DIR / "constraints-linux-py311.txt")
+    expected_linux_constraints = {"msgpack": "1.2.1", "setuptools": "84.0.0"}
+    if linux_constraints != expected_linux_constraints:
+        raise SystemExit(
+            "Linux security overlay differs from the reviewed Batch-7 constraints: "
+            + json.dumps(
+                {"expected": expected_linux_constraints, "actual": linux_constraints},
+                sort_keys=True,
+            )
+        )
     pyproject = (ROOT_DIR / "pyproject.toml").read_text(encoding="utf-8")
 
     required_runtime = {_canonical(k): str(v) for k, v in payload["runtime"].items()}
@@ -102,6 +112,8 @@ def verify_source_contract(payload: dict) -> None:
         "rag",
         "rules",
         "scripts",
+        "jobs",
+        "advanced_soc",
     )
     forbidden_imports: list[str] = []
     for root_name in active_roots:

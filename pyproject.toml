@@ -5,8 +5,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "threatlens-ai"
-version = "0.13.0"
-description = "Production web SOC platform with grounded adaptive AI, PostgreSQL and pgvector"
+version = "0.14.0"
+description = "Operationally hardened SOC platform with observability, resilience, DevSecOps and grounded AI"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
@@ -37,7 +37,7 @@ dev = [
     "pytest==9.0.3",
     "pytest-cov==7.0.0",
     "ruff==0.15.22",
-    "httpx2==2.7.0",
+    "httpx2==2.12.0",
 ]
 
 [tool.setuptools.packages.find]
@@ -51,6 +51,12 @@ extend-exclude = ["migrations/versions"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+ignore = ["E501"]
+
 [tool.setuptools.package-data]
 "rules" = ["**/*.yml", "**/*.yaml", "**/*.log", "**/*.json", "**/*.jsonl", "**/*.csv"]
 "config" = ["*.yml", "*.yaml"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/verify_batch6_release.py" = ["E402", "E701", "E702"]
+"scripts/verify_batch7_release.py" = ["E402"]

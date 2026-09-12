@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from sqlalchemy import inspect, text
 
-from database.session import DATABASE_URL, engine
+from database.session import engine
 from rag.config import RagSettings
 from rag.vector_store import PgVectorStore
 

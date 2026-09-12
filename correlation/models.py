@@ -2,13 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
-from collections.abc import Mapping
-from datetime import date, datetime
-from numbers import Integral, Real
 from dataclasses import dataclass, field
 from typing import Any
-from uuid import UUID
 
 import pandas as pd
 
@@ -91,7 +86,6 @@ class AdvancedCorrelationResult:
             indent=indent,
             sort_keys=True,
             separators=None if indent else (",", ":"),
-            allow_nan=False,
         ).encode("utf-8")
 
     @property
@@ -131,48 +125,18 @@ class AdvancedCorrelationResult:
 
 
 def _json_compatible(value: Any) -> Any:
-    """Normalize values for strict RFC-compatible JSON persistence.
-
-    PostgreSQL JSON rejects NaN and Infinity. Pandas may materialize nullable
-    integer/object columns as floating-point NaN, so non-finite numbers must
-    be normalized before graph snapshots reach SQLAlchemy.
-    """
-
-    if value is None or isinstance(value, (str, bool)):
+    if value is None or isinstance(value, (str, int, float, bool)):
         return value
-    if isinstance(value, Integral):
-        return int(value)
-    if isinstance(value, Real):
-        number = float(value)
-        return number if math.isfinite(number) else None
-    if isinstance(value, (pd.Timestamp, datetime, date)):
+    if isinstance(value, pd.Timestamp):
         return value.isoformat()
-    if isinstance(value, UUID):
-        return str(value)
-    if isinstance(value, Mapping):
-        return {
-            str(key): _json_compatible(item)
-            for key, item in value.items()
-        }
+    if isinstance(value, dict):
+        return {str(key): _json_compatible(item) for key, item in value.items()}
     if isinstance(value, (list, tuple, set)):
         return [_json_compatible(item) for item in value]
-
-    try:
-        missing = pd.isna(value)
-    except (TypeError, ValueError):
-        missing = False
-
-    if isinstance(missing, bool) and missing:
+    if pd.isna(value):
         return None
-
-    item_method = getattr(value, "item", None)
-    if callable(item_method):
-        try:
-            return _json_compatible(item_method())
-        except (TypeError, ValueError):
-            pass
-
     return str(value)
+
 
 def _records(frame: pd.DataFrame) -> list[dict[str, Any]]:
     if frame.empty:

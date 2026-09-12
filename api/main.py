@@ -5,20 +5,36 @@ import logging
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.openapi.utils import get_openapi
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from api.config import SecuritySettings, get_security_settings
 from api.middleware import (
+    ObservabilityMiddleware,
     RateLimitMiddleware,
+    RequestBodyLimitMiddleware,
     RequestContextMiddleware,
     SecurityHeadersMiddleware,
 )
-from api.routes import advanced_soc, analyses, auth, catalog, incidents, jobs, rag, reports, system, users
+from api.routes import (
+    advanced_soc,
+    analyses,
+    auth,
+    catalog,
+    incidents,
+    jobs,
+    rag,
+    reports,
+    system,
+    users,
+)
 from api.version import THREATLENS_VERSION
+from core.observability import METRICS, configure_structured_logging
+from database.session import engine
+from jobs.config import get_job_settings
+from jobs.queue import RedisJobQueue
 
 LOGGER = logging.getLogger("threatlens.api")
 
@@ -40,49 +56,9 @@ def _error_payload(
     return {"error": payload}
 
 
-
-def _install_openapi_security_contract(app: FastAPI) -> None:
-    """Expose the machine-ingestion credential in the OpenAPI security contract."""
-
-    def custom_openapi():
-        if app.openapi_schema:
-            return app.openapi_schema
-
-        schema = get_openapi(
-            title=app.title,
-            version=app.version,
-            description=app.description,
-            routes=app.routes,
-        )
-
-        security_schemes = schema.setdefault("components", {}).setdefault(
-            "securitySchemes", {}
-        )
-        security_schemes["ThreatLensIngestKey"] = {
-            "type": "apiKey",
-            "in": "header",
-            "name": "X-ThreatLens-Ingest-Key",
-            "description": (
-                "Per-source machine credential for receipt-first telemetry ingestion. "
-                "ThreatLens stores only the SHA-256 credential hash."
-            ),
-        }
-
-        realtime = (
-            schema.get("paths", {})
-            .get("/api/v1/ingest/realtime", {})
-            .get("post")
-        )
-        if isinstance(realtime, dict):
-            realtime["security"] = [{"ThreatLensIngestKey": []}]
-
-        app.openapi_schema = schema
-        return schema
-
-    app.openapi = custom_openapi
-
 def create_app(settings: SecuritySettings | None = None) -> FastAPI:
     settings = settings or get_security_settings()
+    configure_structured_logging("api")
     app = FastAPI(
         title="ThreatLens AI Security API",
         description=(
@@ -112,6 +88,9 @@ def create_app(settings: SecuritySettings | None = None) -> FastAPI:
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.trusted_hosts))
     app.add_middleware(RateLimitMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(RequestBodyLimitMiddleware)
+    app.add_middleware(ObservabilityMiddleware)
+    # Added last so the request identifier exists for every inner middleware/log line.
     app.add_middleware(RequestContextMiddleware)
 
     prefix = "/api/v1"
@@ -133,6 +112,53 @@ def create_app(settings: SecuritySettings | None = None) -> FastAPI:
             "version": THREATLENS_VERSION,
             "health": "/api/v1/health/live",
         }
+
+    @app.get("/internal/metrics", include_in_schema=False)
+    def internal_metrics() -> PlainTextResponse:
+        """Internal Docker-network scrape endpoint.
+
+        The production frontend only proxies /api/*, so this endpoint is not
+        exposed through the public same-origin Nginx boundary.
+        """
+
+        if not settings.metrics_enabled:
+            return PlainTextResponse("# ThreatLens metrics disabled\n", status_code=404)
+
+        try:
+            pool = engine.pool
+            checked_out = getattr(pool, "checkedout", None)
+            checked_in = getattr(pool, "checkedin", None)
+            overflow = getattr(pool, "overflow", None)
+            if callable(checked_out):
+                METRICS.set_gauge("threatlens_db_pool_checked_out", float(checked_out()))
+            if callable(checked_in):
+                METRICS.set_gauge("threatlens_db_pool_checked_in", float(checked_in()))
+            if callable(overflow):
+                METRICS.set_gauge("threatlens_db_pool_overflow", float(overflow()))
+        except Exception:
+            LOGGER.debug("Could not collect SQLAlchemy pool gauges", exc_info=True)
+
+        try:
+            job_settings = get_job_settings()
+            METRICS.set_gauge(
+                "threatlens_async_jobs_enabled",
+                1.0 if job_settings.enabled else 0.0,
+            )
+            if job_settings.enabled:
+                snapshot = RedisJobQueue(job_settings).snapshot()
+                METRICS.set_gauge(
+                    "threatlens_redis_reachable", 1.0 if snapshot.reachable else 0.0
+                )
+                METRICS.set_gauge("threatlens_ai_queue_pending", float(snapshot.pending))
+                METRICS.set_gauge("threatlens_ai_workers", float(snapshot.workers))
+        except Exception:
+            METRICS.set_gauge("threatlens_redis_reachable", 0.0)
+            LOGGER.debug("Could not collect async-job gauges", exc_info=True)
+
+        return PlainTextResponse(
+            METRICS.render_prometheus(),
+            media_type="text/plain; version=0.0.4; charset=utf-8",
+        )
 
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, error: HTTPException):
@@ -182,6 +208,10 @@ def create_app(settings: SecuritySettings | None = None) -> FastAPI:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, error: Exception):
+        METRICS.inc(
+            "threatlens_unhandled_exceptions_total",
+            labels={"exception": type(error).__name__[:96]},
+        )
         LOGGER.exception(
             "Unhandled API error request_id=%s",
             getattr(request.state, "request_id", None),
@@ -196,7 +226,6 @@ def create_app(settings: SecuritySettings | None = None) -> FastAPI:
             ),
         )
 
-    _install_openapi_security_contract(app)
     return app
 
 

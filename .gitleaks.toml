@@ -1,0 +1,42 @@
+# ThreatLens AI v0.14.0 - reviewed Gitleaks false-positive policy.
+#
+# Default Gitleaks rules remain enabled.
+# Each exception requires BOTH an exact file path and exact benign source-line pattern.
+# No production credential, token, private key, or secret value is allowlisted.
+
+title = "ThreatLens AI v0.14.0 reviewed secret-scan policy"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+targetRules = ["generic-api-key"]
+description = "Deterministic verifier-only JWT test secret."
+condition = "AND"
+regexTarget = "line"
+paths = ['''(^|/)scripts/verify_security_api\.py$''']
+regexes = ['''_TEST_SECRET\s*=\s*"(0123456789abcdef){3}"''']
+
+[[allowlists]]
+targetRules = ["generic-api-key"]
+description = "Deterministic isolated pytest JWT test secret."
+condition = "AND"
+regexTarget = "line"
+paths = ['''(^|/)tests/test_v09_security_api\.py$''']
+regexes = ['''jwt_secret\s*=\s*"(0123456789abcdef){3}"''']
+
+[[allowlists]]
+targetRules = ["generic-api-key"]
+description = "Password input UI label only; no credential value exists on this line."
+condition = "AND"
+regexTarget = "line"
+paths = ['''(^|/)app/pages/security_administration\.py$''']
+regexes = ['''"New password \(optional\)",\s*type="password",\s*max_chars=256''']
+
+[[allowlists]]
+targetRules = ["generic-api-key"]
+description = "README release-gate prose; contains no credential material."
+condition = "AND"
+regexTarget = "line"
+paths = ['''(^|/)README\.md$''']
+regexes = ['''release-manifest integrity\.''']

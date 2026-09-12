@@ -1,19 +1,20 @@
 # Changelog
 
-## v0.13.0 — Batch 6 Advanced SOC Capability Expansion
+## v0.14.0 — Batch 7 Operational Hardening (Release Candidate)
 
-- Add authenticated receipt-first real-time ingestion and durable ingress records.
-- Add provenance-preserving threat intelligence and explicit enrichment-only IOC matches.
-- Add read-only structured threat hunting with saved hunts and audited execution.
-- Add advanced case operations, tasks, handoffs, evidence registration and custody history.
-- Add human-approval-gated response playbooks; no autonomous destructive action.
-- Add detection feedback/effectiveness and governed tuning proposals.
-- Add first-class Microsoft Entra ID cloud/identity telemetry and detections.
-- Add evidence-backed Graph Intelligence, paths, entity timelines and paged global search.
-- Preserve Batch-5 PostgreSQL/pgvector + Redis durable AI and restore the React durable-job transport.
-- Declare the machine-ingestion API-key boundary in OpenAPI.
-- Add Redis 6.4.0 to the v0.13 source dependency contract; fresh online advisory scanning remains a Batch-7 deployment gate.
-
+- Added structured JSON logging and request correlation for API/worker runtime.
+- Added bounded Prometheus-format application metrics and protected operational status view.
+- Added optional Prometheus, Grafana, PostgreSQL exporter and Redis exporter Compose profile.
+- Added measured HTTP load/concurrency probes with success-rate and percentile latency thresholds.
+- Added Alembic revision `b7f1c2d30001` for operational composite indexes.
+- Added PostgreSQL statistics/performance audit tooling.
+- Added SHA-256-manifested PostgreSQL backup, isolated restore smoke and guarded approved restore scripts.
+- Added request-size ceiling, conditional HSTS, COOP/CORP headers, hidden Nginx version and bounded Uvicorn concurrency.
+- Hardened application containers with no-new-privileges, dropped capabilities, PID/resource bounds and loopback-only local published ports.
+- Added Batch-7 security audit and threat-model documentation.
+- Added GitHub Actions CI, CodeQL, secret scanning, dependency audit, container vulnerability scan and immutable GHCR build workflow.
+- Added operational runbooks for startup/shutdown, observability, Redis/worker/database/model outages, backup/restore, credential rotation, deployment rollback and platform security incidents.
+- Preserved the frozen v0.13.0 deterministic/evidence-first authority model and all Batch-6 SOC capabilities.
 
 ## v0.12.0 — Production Web Platform Release Candidate
 

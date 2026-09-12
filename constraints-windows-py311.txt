@@ -1,4 +1,4 @@
-# ThreatLens AI v0.13.0 reviewed Windows / CPython 3.11 constraints
+# ThreatLens AI v0.14.0 reviewed Windows / CPython 3.11 constraints
 # Direct runtime/dev dependencies and build tooling are release-pinned.
 pip==26.2.1
 setuptools==84.0.0
@@ -23,8 +23,14 @@ alembic==1.18.4
 pytest==9.0.3
 pytest-cov==7.0.0
 ruff==0.15.22
-httpx2==2.7.0
+httpx2==2.12.0
 
 psycopg==3.3.4
 pgvector==0.5.0
 redis==6.4.0
+
+# THREATLENS_BATCH7F_PYTHON_SECURITY_CONSTRAINTS_BEGIN
+# Security pins generated only from fixable Trivy Python-package findings.
+# Advisory FixedVersion is a minimum floor; reviewed newer direct pins win.
+System.Object[]
+# THREATLENS_BATCH7F_PYTHON_SECURITY_CONSTRAINTS_END

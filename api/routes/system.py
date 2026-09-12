@@ -9,6 +9,7 @@ from sqlalchemy import func, select, text
 
 from api.dependencies import DatabaseSession, RequireDocsView, RequireSystemRead, Settings
 from api.version import THREATLENS_VERSION
+from core.observability import METRICS
 from database.models import AnalysisSessionModel, UserAccountModel
 from jobs.config import get_job_settings
 from jobs.queue import RedisJobQueue
@@ -90,3 +91,37 @@ def protected_openapi(
 ) -> JSONResponse:
     del principal
     return JSONResponse(request.app.openapi())
+
+@router.get("/system/observability")
+def observability_status(
+    principal: RequireSystemRead,
+    settings: Settings,
+) -> dict[str, object]:
+    del principal
+    job_settings = get_job_settings()
+    queue: dict[str, object] = {"enabled": job_settings.enabled}
+    if job_settings.enabled:
+        try:
+            snapshot = RedisJobQueue(job_settings).snapshot()
+            queue.update(
+                {
+                    "reachable": snapshot.reachable,
+                    "pending": snapshot.pending,
+                    "workers": snapshot.workers,
+                    "detail": snapshot.detail,
+                }
+            )
+        except Exception as error:
+            queue.update({"reachable": False, "detail": type(error).__name__})
+    return {
+        "version": THREATLENS_VERSION,
+        "structured_logging": settings.structured_logging,
+        "log_level": settings.log_level,
+        "metrics_enabled": settings.metrics_enabled,
+        "slow_request_ms": settings.slow_request_ms,
+        "https_only": settings.https_only,
+        "max_request_body_bytes": settings.max_request_body_bytes,
+        "async_jobs": queue,
+        "metrics": METRICS.snapshot(),
+    }
+

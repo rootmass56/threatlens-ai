@@ -16,6 +16,29 @@ from uuid import uuid4
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
+from advanced_soc.schemas import (
+    CaseProfileUpdate,
+    CustodyEventCreate,
+    DetectionFeedbackCreate,
+    DetectionTuningCreate,
+    DetectionTuningReview,
+    GraphPathRequest,
+    HandoffCreate,
+    HuntQuery,
+    IncidentTaskCreate,
+    IncidentTaskUpdate,
+    IngestionSourceCreate,
+    IngestionSourceUpdate,
+    PlaybookApprovalRequest,
+    PlaybookCreate,
+    PlaybookExecutionComplete,
+    PlaybookExecutionRequest,
+    RealtimeIngestRequest,
+    SavedHuntCreate,
+    ThreatFeedCreate,
+    ThreatIndicatorInput,
+    ThreatIntelImportRequest,
+)
 from app.application_service import ThreatLensApplicationService
 from database.models import (
     AlertModel,
@@ -45,30 +68,6 @@ from database.models import (
     utc_now,
 )
 from database.service import ThreatLensPersistenceService
-from advanced_soc.schemas import (
-    CaseProfileUpdate,
-    CustodyEventCreate,
-    DetectionFeedbackCreate,
-    DetectionTuningCreate,
-    DetectionTuningReview,
-    GraphPathRequest,
-    HandoffCreate,
-    HuntQuery,
-    IncidentTaskCreate,
-    IncidentTaskUpdate,
-    IngestionSourceCreate,
-    IngestionSourceUpdate,
-    PlaybookApprovalRequest,
-    PlaybookCreate,
-    PlaybookExecutionComplete,
-    PlaybookExecutionRequest,
-    RealtimeIngestRequest,
-    SavedHuntCreate,
-    ThreatFeedCreate,
-    ThreatIndicatorInput,
-    ThreatIntelImportRequest,
-)
-
 
 STIX_PATTERN = re.compile(
     r"\[\s*(?P<object>[a-z0-9_-]+):(?P<field>[^=]+?)\s*=\s*['\"](?P<value>.+?)['\"]\s*\]",
@@ -409,10 +408,6 @@ class AdvancedSocService:
                 source.source_uuid,
                 {"accepted": len(accepted), "error_type": type(error).__name__},
             )
-            # Receipt-first ingestion is meaningful only if terminal processing
-            # failures are durable too. Commit the FAILED receipt state and its
-            # audit evidence before the request dependency rolls back on re-raise.
-            self.session.commit()
             raise
 
     def recent_ingress(self, limit: int = 200) -> list[dict[str, Any]]:

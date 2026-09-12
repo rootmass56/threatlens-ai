@@ -47,10 +47,7 @@ exports/openapi/
 *.zip
 .env.batch6.local
 batch6_runtime/
-*.pyc
-!.env*.example
 frontend/node_modules/
 frontend/dist/
 node_modules/
 dist/
-*.log

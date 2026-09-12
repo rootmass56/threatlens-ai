@@ -5,8 +5,20 @@ from collections import Counter
 from datetime import UTC, datetime
 
 from core.connectors.base import ConnectorMetadata, SecurityLogConnector
-from core.connectors.structured import clean_text, get_value, load_structured_records, parse_timestamp, safe_ip
-from core.schema import CommonEvent, ParserResult, ParserStatistics, ParseStatus, SourceValidationResult
+from core.connectors.structured import (
+    clean_text,
+    get_value,
+    load_structured_records,
+    parse_timestamp,
+    safe_ip,
+)
+from core.schema import (
+    CommonEvent,
+    ParserResult,
+    ParserStatistics,
+    ParseStatus,
+    SourceValidationResult,
+)
 
 RFC3164 = re.compile(r"^(?:<(?P<pri>\d{1,3})>)?(?P<ts>[A-Z][a-z]{2}\s+\d{1,2}\s+\d\d:\d\d:\d\d)\s+(?P<host>\S+)\s+(?P<msg>.*)$")
 
@@ -33,20 +45,24 @@ class SyslogRfcConnector(SecurityLogConnector):
     def parse(self, raw_content: str | bytes, *, filename: str | None = None, options: dict | None = None) -> ParserResult:
         del options
         loaded = load_structured_records(raw_content, filename=filename)
-        events=[]; quality=Counter()
+        events = []
+        quality = Counter()
         for item in loaded.records:
             message=clean_text(get_value(item.payload,"message","raw_message")) or item.raw_record
             received=parse_timestamp(get_value(item.payload,"received_at","timestamp")) or datetime.now(UTC)
             source_ip=safe_ip(get_value(item.payload,"source_ip"))
             hostname=clean_text(get_value(item.payload,"hostname"))
-            facility=None; severity=None
+            facility = None
+            severity = None
             m=RFC3164.match(message)
             normalized=message
             if m:
                 hostname=hostname or m.group("host")
                 normalized=m.group("msg")
                 if m.group("pri"):
-                    pri=int(m.group("pri")); facility=pri//8; severity=pri%8
+                    pri = int(m.group("pri"))
+                    facility = pri // 8
+                    severity = pri % 8
             events.append(CommonEvent(
                 external_event_id=clean_text(get_value(item.payload,"client_event_id")) or str(item.record_number),
                 timestamp=received,

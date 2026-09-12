@@ -1,3 +1,4 @@
+.gitattributes text eol=lf
 * text=auto
 
 *.py text eol=lf
@@ -7,4 +8,5 @@
 *.sql text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
+*.sh text eol=lf
 *.ps1 text eol=crlf

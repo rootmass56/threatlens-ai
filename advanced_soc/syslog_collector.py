@@ -17,15 +17,18 @@ def main() -> int:
     key=os.getenv("THREATLENS_SYSLOG_INGEST_KEY","").strip()
     if not key:
         raise SystemExit("THREATLENS_SYSLOG_INGEST_KEY is required; create a syslog_rfc ingestion source first.")
-    sock=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); sock.bind((host,port)); sock.settimeout(2.0)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind((host, port))
+    sock.settimeout(2.0)
     print(f"ThreatLens syslog collector listening UDP {host}:{port}",flush=True)
     while True:
         try:
             data,address=sock.recvfrom(65535)
-        except socket.timeout:
+        except TimeoutError:
             continue
         message=data.decode("utf-8",errors="replace").strip()
-        if not message: continue
+        if not message:
+            continue
         event_id=f"{int(time.time()*1000)}-{address[0]}-{abs(hash(message)) & 0xffffffff:x}"
         payload={"records":[{"client_event_id":event_id,"payload":{"message":message,"source_ip":address[0],"received_at":datetime.now(UTC).isoformat(),"transport":"udp"}}],"analysis_name":"Realtime Syslog"}
         request=urllib.request.Request(api,data=json.dumps(payload).encode(),headers={"Content-Type":"application/json","X-ThreatLens-Ingest-Key":key},method="POST")

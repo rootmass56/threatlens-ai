@@ -8,6 +8,7 @@ import time
 from contextlib import suppress
 from dataclasses import dataclass
 
+from core.observability import configure_structured_logging
 from database.session import SessionLocal
 from jobs.config import JobSettings, get_job_settings
 from jobs.queue import QueueUnavailable, RedisJobQueue
@@ -151,7 +152,9 @@ def _process(job_uuid: str, *, worker_id: str, settings: JobSettings, queue: Red
 
 
 def main() -> int:
-    logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
+    configure_structured_logging("worker")
+    if not os.getenv("THREATLENS_STRUCTURED_LOGGING"):
+        logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
     settings = get_job_settings()
     if not settings.enabled:
         LOGGER.warning("Asynchronous jobs are disabled; worker exiting.")

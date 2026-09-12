@@ -1,0 +1,4 @@
+Aug  7 10:00:00 host sshd[1]: Failed password for alice from 203.0.113.11 port 42001 ssh2
+Aug  7 10:01:00 host sshd[2]: Failed password for alice from 203.0.113.11 port 42002 ssh2
+Aug  7 10:02:00 host sshd[3]: Failed password for alice from 203.0.113.11 port 42003 ssh2
+Aug  7 10:16:01 host sshd[4]: Accepted password for alice from 203.0.113.11 port 42004 ssh2

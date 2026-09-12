@@ -1,21 +1,36 @@
-# ThreatLens AI v0.13.0 — Batch 6 Advanced SOC Capability Expansion
+# ThreatLens AI v0.14.0 — Batch 7 Operational Hardening
 
-> **Current package:** Batch-6 implementation candidate (6A–6H) built on the production-style PostgreSQL/pgvector + Redis worker architecture. Run the included static/live gates before recording a Batch-6 freeze on a target environment.
+> **Current package:** Batch-7 operational-hardening release candidate built directly on the frozen v0.13.0 / Batch-6 SOC capability boundary. v0.13.0 remains immutable; Batch 7 adds observability, measured performance/concurrency tooling, database performance indexes, backup/restore/DR, container/API hardening, DevSecOps, CI/CD and operational runbooks. Run every Batch-7 acceptance gate before freezing v0.14.0.
 
-## Batch 6 modules
+## Batch 7 phases
 
-- Real-time authenticated HTTP ingestion + optional UDP syslog edge collector
-- Threat intelligence / STIX / IOC provenance and enrichment
-- Structured threat-hunting workspace and saved hunts
-- Advanced case operations, SLA/tasks/handoffs and evidence custody
-- Approval-gated response playbooks (no autonomous destructive actions)
-- Detection feedback/effectiveness and governed tuning proposals
-- Microsoft Entra ID identity telemetry with four governed detections
-- Graph intelligence, path explanation, entity timeline and global search
+- **7A Observability:** structured JSON API/worker logs, request correlation, internal Prometheus metrics, PostgreSQL/Redis exporters and provisioned Grafana dashboard.
+- **7B Performance & concurrency:** bounded repeatable load probes with measured success rate, throughput and p50/p95/p99 latency.
+- **7C PostgreSQL/pgvector performance:** operational composite-index migration and PostgreSQL statistics audit.
+- **7D Backup/restore/DR:** SHA-256-manifested PostgreSQL backups, isolated restore smoke and guarded approved restore.
+- **7E Security hardening:** request body ceiling, conditional HSTS, stronger browser headers, non-root/no-new-privileges/capability-drop container posture and static security audit.
+- **7F DevSecOps:** reviewed dependency contract, v0.14 CycloneDX SBOM, secret/dependency/container scans and CodeQL workflow.
+- **7G CI/CD:** PR/push gates plus manual immutable GHCR image publication by Git SHA. Final cloud deployment remains Batch 8.
+- **7H Operations/freeze:** outage, recovery, backup, credential, deployment and security-incident runbooks plus final v0.14 release gate.
 
-See `docs/BATCH6_ADVANCED_SOC_RUNBOOK.md` and `docs/BATCH6_ACCEPTANCE.md`.
+## Operational entrypoints
+
+- `scripts/bootstrap_batch7_env.ps1`
+- `scripts/MIGRATE_BATCH6_DATA_TO_BATCH7.ps1`
+- `scripts/start_batch7_stack.ps1 -Observability`
+- `scripts/verify_batch7_static.ps1`
+- `scripts/verify_batch7_live.ps1`
+- `scripts/backup_batch7.ps1`
+- `scripts/restore_batch7_smoke.ps1`
+- `BATCH7_ACCEPTANCE_CHECKLIST.md`
+
+The Batch-7 Docker profile keeps PostgreSQL/Redis private, binds the local web/observability surfaces to loopback, and intentionally keeps `/internal/metrics` outside the Nginx `/api/` proxy. Final public HTTPS/cloud architecture is a separate Batch-8 acceptance boundary.
 
 ---
+
+## Frozen Batch 6 capability baseline retained
+
+Batch 7 preserves the full v0.13.0 capability set: authenticated realtime ingestion, threat intelligence, threat hunting, advanced case operations/evidence custody, approval-gated response, governed detection tuning, Microsoft Entra ID telemetry, graph intelligence/global search, and durable PostgreSQL+Redis grounded AI jobs.
 
 # ThreatLens AI v0.12.0
 
@@ -248,7 +263,7 @@ Setup:
 7. synchronizes pinned ATT&CK v19.1 catalogs unless skipped;
 8. pulls configured Qwen models and builds the governed SQLite vector index when Ollama is available.
 
-Runtime dependency-attestation files are machine-specific and excluded from immutable source releases; the source release includes `sbom/source-dependencies-v0.13.0.cdx.json` for its reviewed direct dependency contract.
+Runtime dependency-attestation files are machine-specific and excluded from immutable source releases; the source release includes `sbom/source-dependencies-v0.12.0.cdx.json` for its reviewed direct dependency contract.
 
 Optional setup controls:
 
@@ -356,7 +371,7 @@ Current:
 - `docs/DEPLOYMENT_v0.12.0.md`
 - `docs/FEATURE_PARITY_PHASE_HANDOFF.md`
 - `docs/openapi_v0.12.0.json`
-- `sbom/source-dependencies-v0.13.0.cdx.json`
+- `sbom/source-dependencies-v0.12.0.cdx.json`
 
 Historical v0.10/v0.11.0 documents and manifests are retained as earlier-release evidence.
 

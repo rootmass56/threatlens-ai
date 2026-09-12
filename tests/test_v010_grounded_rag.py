@@ -1273,7 +1273,7 @@ def test_v0111_release_dependencies_use_builtin_sqlite_vector_store() -> None:
     pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
     requirements = Path("requirements.txt").read_text(encoding="utf-8")
     constraints = Path("constraints-windows-py311.txt").read_text(encoding="utf-8")
-    assert 'version = "0.13.0"' in pyproject
+    assert 'version = "0.14.0"' in pyproject
     assert "chromadb" not in pyproject.casefold()
     assert "chromadb" not in requirements.casefold()
     assert "chromadb" not in constraints.casefold()

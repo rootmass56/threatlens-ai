@@ -75,6 +75,12 @@ class SecuritySettings:
     max_upload_files: int
     api_host: str
     api_port: int
+    structured_logging: bool = False
+    log_level: str = "INFO"
+    metrics_enabled: bool = True
+    slow_request_ms: int = 1000
+    https_only: bool = False
+    max_request_body_bytes: int = 120 * 1024 * 1024
 
     @classmethod
     def from_environment(cls) -> SecuritySettings:
@@ -105,6 +111,15 @@ class SecuritySettings:
             max_upload_files=_as_int("THREATLENS_MAX_UPLOAD_FILES", 10),
             api_host=os.getenv("THREATLENS_API_HOST", "127.0.0.1").strip(),
             api_port=_as_int("THREATLENS_API_PORT", 8000),
+            structured_logging=_as_bool("THREATLENS_STRUCTURED_LOGGING", False),
+            log_level=os.getenv("THREATLENS_LOG_LEVEL", "INFO").strip().upper() or "INFO",
+            metrics_enabled=_as_bool("THREATLENS_METRICS_ENABLED", True),
+            slow_request_ms=_as_int("THREATLENS_SLOW_REQUEST_MS", 1000),
+            https_only=_as_bool("THREATLENS_HTTPS_ONLY", False),
+            max_request_body_bytes=_as_int(
+                "THREATLENS_MAX_REQUEST_BODY_BYTES",
+                120 * 1024 * 1024,
+            ),
         )
 
 

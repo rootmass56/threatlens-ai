@@ -1,0 +1,69 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "API request rate",
+      "datasource": {"type": "prometheus", "uid": "threatlens-prometheus"},
+      "targets": [{"expr": "sum(rate(threatlens_http_requests_total[5m]))", "refId": "A"}],
+      "gridPos": {"h": 7, "w": 6, "x": 0, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "5xx rate",
+      "datasource": {"type": "prometheus", "uid": "threatlens-prometheus"},
+      "targets": [{"expr": "sum(rate(threatlens_http_server_errors_total[5m]))", "refId": "A"}],
+      "gridPos": {"h": 7, "w": 6, "x": 6, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "AI queue pending",
+      "datasource": {"type": "prometheus", "uid": "threatlens-prometheus"},
+      "targets": [{"expr": "threatlens_ai_queue_pending", "refId": "A"}],
+      "gridPos": {"h": 7, "w": 6, "x": 12, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "AI workers",
+      "datasource": {"type": "prometheus", "uid": "threatlens-prometheus"},
+      "targets": [{"expr": "threatlens_ai_workers", "refId": "A"}],
+      "gridPos": {"h": 7, "w": 6, "x": 18, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP p95 latency",
+      "datasource": {"type": "prometheus", "uid": "threatlens-prometheus"},
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, route) (rate(threatlens_http_request_duration_seconds_bucket[5m])))", "legendFormat": "{{route}}", "refId": "A"}],
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 7}
+    },
+    {
+      "type": "timeseries",
+      "title": "PostgreSQL connections",
+      "datasource": {"type": "prometheus", "uid": "threatlens-prometheus"},
+      "targets": [{"expr": "pg_stat_activity_count{datname=\"threatlens\"}", "refId": "A"}],
+      "gridPos": {"h": 9, "w": 6, "x": 12, "y": 7}
+    },
+    {
+      "type": "timeseries",
+      "title": "Redis memory",
+      "datasource": {"type": "prometheus", "uid": "threatlens-prometheus"},
+      "targets": [{"expr": "redis_memory_used_bytes", "refId": "A"}],
+      "gridPos": {"h": 9, "w": 6, "x": 18, "y": 7}
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 40,
+  "tags": ["ThreatLens", "Batch7", "SOC"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timezone": "browser",
+  "title": "ThreatLens Operations",
+  "uid": "threatlens-operations",
+  "version": 1
+}
