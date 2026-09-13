@@ -7,6 +7,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# THREATLENS_H4_PCRE2_SECURITY_PATCH_BEGIN
+# Remediate CVE-2026-86145 and CVE-2026-89161 in Debian libpcre2-8-0.
+# The pinned base image contains 10.42-1; Debian bookworm-security publishes
+# 10.42-1+deb12u1 or newer. Keep this targeted and remove APT metadata afterward.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends --only-upgrade libpcre2-8-0 \
+    && rm -rf /var/lib/apt/lists/*
+# THREATLENS_H4_PCRE2_SECURITY_PATCH_END
+
 RUN addgroup --system threatlens && adduser --system --ingroup threatlens threatlens
 
 COPY requirements.txt ./
