@@ -17,7 +17,10 @@ from api.dependencies import (
 from api.serialization import dataframe_records, json_safe
 from api.uploads import read_limited_upload
 from app.application_service import AnalysisExecutionResult, ThreatLensApplicationService
-from core.connectors import build_default_connector_registry
+from core.connectors import (
+    ConnectorNotFoundError,
+    build_default_connector_registry,
+)
 from core.pipeline import AnalysisPipelineResult, SourceInput
 
 router = APIRouter(prefix="/analyses", tags=["analyses"])
@@ -307,39 +310,51 @@ async def upload_analysis(
         metadata = [(connector_id, {})]
 
     service = ThreatLensApplicationService()
-    if len(uploaded) == 1:
-        name, content = uploaded[0]
-        selected_connector, options = metadata[0]
-        result = await run_in_threadpool(
-            partial(
-                service.analyze_and_persist_source,
-                analysis_name=analysis_name,
-                original_filename=name,
-                raw_content=content,
-                connector_id=selected_connector,
-                connector_options=options,
-                actor=principal.username,
-                allow_duplicate=allow_duplicate,
+    try:
+        if len(uploaded) == 1:
+            name, content = uploaded[0]
+            selected_connector, options = metadata[0]
+            result = await run_in_threadpool(
+                partial(
+                    service.analyze_and_persist_source,
+                    analysis_name=analysis_name,
+                    original_filename=name,
+                    raw_content=content,
+                    connector_id=selected_connector,
+                    connector_options=options,
+                    actor=principal.username,
+                    allow_duplicate=allow_duplicate,
+                )
             )
-        )
-    else:
-        result = await run_in_threadpool(
-            partial(
-                service.analyze_and_persist_sources,
-                analysis_name=analysis_name,
-                sources=[
-                    SourceInput(
-                        raw_content=content,
-                        filename=name,
-                        connector_id=metadata[index][0],
-                        options=metadata[index][1],
-                    )
-                    for index, (name, content) in enumerate(uploaded)
-                ],
-                actor=principal.username,
-                allow_duplicate=allow_duplicate,
+        else:
+            result = await run_in_threadpool(
+                partial(
+                    service.analyze_and_persist_sources,
+                    analysis_name=analysis_name,
+                    sources=[
+                        SourceInput(
+                            raw_content=content,
+                            filename=name,
+                            connector_id=metadata[index][0],
+                            options=metadata[index][1],
+                        )
+                        for index, (name, content) in enumerate(uploaded)
+                    ],
+                    actor=principal.username,
+                    allow_duplicate=allow_duplicate,
+                )
             )
-        )
+    except ConnectorNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "unsupported_telemetry",
+                "message": (
+                    "One or more uploaded telemetry sources were not recognized "
+                    "by any registered connector."
+                ),
+            },
+        ) from error
     return _execution_payload(result)
 
 
