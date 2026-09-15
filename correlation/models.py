@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -86,6 +87,7 @@ class AdvancedCorrelationResult:
             indent=indent,
             sort_keys=True,
             separators=None if indent else (",", ":"),
+            allow_nan=False,
         ).encode("utf-8")
 
     @property
@@ -125,14 +127,18 @@ class AdvancedCorrelationResult:
 
 
 def _json_compatible(value: Any) -> Any:
-    if value is None or isinstance(value, (str, int, float, bool)):
-        return value
+    if value is None:
+        return None
     if isinstance(value, pd.Timestamp):
         return value.isoformat()
     if isinstance(value, dict):
         return {str(key): _json_compatible(item) for key, item in value.items()}
     if isinstance(value, (list, tuple, set)):
         return [_json_compatible(item) for item in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, (str, int, float, bool)):
+        return value
     if pd.isna(value):
         return None
     return str(value)
