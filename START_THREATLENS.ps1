@@ -38,12 +38,23 @@ function Ensure-DockerReady {
     }
 
     Write-Host "[INFO] Docker engine not ready; attempting Docker Desktop startup..." -ForegroundColor Yellow
-    $candidates = @(
-        (Join-Path $env:ProgramFiles "Docker\Docker\Docker Desktop.exe"),
-        (Join-Path ${env:ProgramFiles(x86)} "Docker\Docker\Docker Desktop.exe")
-    ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+    # Always materialize an array. In Windows PowerShell 5.1 a pipeline that
+    # returns exactly one path becomes a scalar String; under StrictMode that
+    # scalar has no .Count property.
+    $candidatePaths = @(
+        (Join-Path $env:ProgramFiles "Docker\Docker\Docker Desktop.exe")
+        if (-not [string]::IsNullOrWhiteSpace(${env:ProgramFiles(x86)})) {
+            Join-Path ${env:ProgramFiles(x86)} "Docker\Docker\Docker Desktop.exe"
+        }
+    )
 
-    if ($candidates.Count -eq 0) {
+    $candidates = @(
+        $candidatePaths | Where-Object {
+            $_ -and (Test-Path -LiteralPath $_ -PathType Leaf)
+        }
+    )
+
+    if (@($candidates).Count -eq 0) {
         throw "Docker Desktop is not running and its executable was not found."
     }
 
