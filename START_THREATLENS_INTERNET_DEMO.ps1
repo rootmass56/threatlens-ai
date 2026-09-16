@@ -189,6 +189,39 @@ function Wait-CoreContainerHealth {
 
     Fail -Message "Core ThreatLens containers did not all reach running/healthy state within six minutes."
 }
+function Read-SharedFileText {
+    param([Parameter(Mandatory=$true)][string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        return ""
+    }
+
+    $stream = $null
+    $reader = $null
+
+    try {
+        $shareMode = [IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete
+        $stream = [IO.File]::Open(
+            $Path,
+            [IO.FileMode]::Open,
+            [IO.FileAccess]::Read,
+            $shareMode
+        )
+        $reader = New-Object IO.StreamReader($stream,[Text.Encoding]::UTF8,$true)
+        return $reader.ReadToEnd()
+    }
+    catch [IO.IOException] {
+        return ""
+    }
+    finally {
+        if ($null -ne $reader) {
+            $reader.Dispose()
+        }
+        elseif ($null -ne $stream) {
+            $stream.Dispose()
+        }
+    }
+}
 function Invoke-PublicCheck {
     param([Parameter(Mandatory=$true)][string]$PublicUrl)
 
@@ -325,13 +358,13 @@ try {
 
         if ($tunnelProcess.HasExited) {
             $details = ""
-            if (Test-Path -LiteralPath $stderrPath) { $details = [IO.File]::ReadAllText($stderrPath) }
+            if (Test-Path -LiteralPath $stderrPath) { $details = Read-SharedFileText -Path $stderrPath }
             Fail -Message ("cloudflared exited before publishing a Quick Tunnel URL. {0}" -f $details.Trim())
         }
 
         $combined = ""
-        if (Test-Path -LiteralPath $stdoutPath) { $combined += [IO.File]::ReadAllText($stdoutPath) }
-        if (Test-Path -LiteralPath $stderrPath) { $combined += "`n" + [IO.File]::ReadAllText($stderrPath) }
+        if (Test-Path -LiteralPath $stdoutPath) { $combined += (Read-SharedFileText -Path $stdoutPath) }
+        if (Test-Path -LiteralPath $stderrPath) { $combined += "`n" + (Read-SharedFileText -Path $stderrPath) }
 
         $match = [regex]::Match($combined, 'https://[a-z0-9-]+\.trycloudflare\.com', [Text.RegularExpressions.RegexOptions]::IgnoreCase)
 
