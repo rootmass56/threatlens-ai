@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "mode": "STATIC_PUBLIC_SHOWCASE",
+  "title": "ThreatLens AI â€” Evidence-First SOC Investigation Platform",
+  "runtime_behavior": {
+    "javascript": false,
+    "network_calls": false,
+    "forms": false,
+    "cookies": false,
+    "analytics": false,
+    "telemetry_collection": false,
+    "live_ai": false,
+    "authentication_surface": false,
+    "operational_api": false
+  },
+  "accepted_public_claims": {
+    "golden_demo": {
+      "normalized_events": 10,
+      "alerts": 8,
+      "correlated_incidents": 5,
+      "quarantined_records": 0
+    },
+    "rag_indexed_chunks": 1007,
+    "concurrency_acceptance": {
+      "requests": 160,
+      "errors": 0,
+      "scope": "accepted local benchmark"
+    },
+    "idempotency_race": {
+      "simultaneous_identical_requests": 8,
+      "http_500_responses": 0,
+      "durable_jobs": 1,
+      "scope": "accepted local benchmark"
+    },
+    "core_restart_ready_seconds": 31.866
+  },
+  "architecture_invariant": "AI is downstream of deterministic persisted evidence and does not establish authoritative incident facts.",
+  "provenance": [
+    "accepted Phase 3 end-to-end SOC UAT",
+    "accepted Phase 4 reliability / AI security / performance",
+    "accepted Phase 5 Golden Demo"
+  ]
+}
