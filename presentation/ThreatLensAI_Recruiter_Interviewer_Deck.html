@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ThreatLens AI - Recruiter and Interviewer Deck</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  --bg: #06131f;
+  --panel: #0a1f2d;
+  --panel2: #0d2735;
+  --line: #1d4c60;
+  --cyan: #56f0df;
+  --blue: #91c9ff;
+  --text: #eef8ff;
+  --muted: #9ebbd0;
+  --warn: #ffcf8a;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", Arial, sans-serif; }
+body { padding: 28px; }
+.deck { max-width: 1280px; margin: 0 auto; }
+.slide {
+  min-height: 720px;
+  margin: 0 0 34px;
+  padding: 54px 62px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(86,240,223,.12), transparent 34%),
+    linear-gradient(135deg, #081724 0%, #0a1f2d 62%, #07131f 100%);
+  box-shadow: 0 24px 80px rgba(0,0,0,.26);
+  page-break-after: always;
+}
+.kicker { color: var(--cyan); letter-spacing: .22em; text-transform: uppercase; font: 700 13px Consolas, monospace; margin-bottom: 24px; }
+h1 { font-size: 70px; line-height: .96; margin: 0 0 28px; letter-spacing: -0.055em; max-width: 860px; }
+h2 { font-size: 46px; line-height: 1.02; margin: 0 0 24px; letter-spacing: -0.035em; }
+h3 { font-size: 24px; margin: 0 0 12px; color: var(--text); }
+p { color: var(--muted); font-size: 22px; line-height: 1.5; margin: 0 0 18px; max-width: 940px; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px; margin-top: 34px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px; margin-top: 32px; }
+.card { background: rgba(8,25,37,.74); border: 1px solid #214d62; border-radius: 20px; padding: 26px; min-height: 138px; }
+.card strong { color: var(--cyan); display: block; font-size: 34px; margin-bottom: 6px; }
+.card span { color: var(--muted); font-size: 18px; line-height: 1.42; }
+.metric { font-size: 58px; color: var(--text); font-weight: 800; letter-spacing: -.06em; }
+.caption { color: var(--muted); font-size: 17px; margin-top: 18px; }
+.diagram { width: 100%; border: 1px solid #214d62; border-radius: 22px; display: block; background: #06131f; }
+.two { display: grid; grid-template-columns: .86fr 1.14fr; gap: 34px; align-items: center; }
+.pillrow { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.pill { border: 1px solid #2ea7a1; background: #0e303a; color: var(--cyan); border-radius: 999px; padding: 11px 16px; font: 700 14px Consolas, monospace; }
+ol { color: var(--muted); font-size: 22px; line-height: 1.55; }
+li { margin-bottom: 10px; }
+.footer { margin-top: 42px; color: #5faabc; font: 700 13px Consolas, monospace; letter-spacing: .08em; }
+@media print {
+  body { padding: 0; }
+  .slide { border-radius: 0; margin: 0; min-height: 100vh; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+<main class="deck">
+
+<section class="slide">
+  <div class="kicker">ThreatLens AI / Evidence-first SOC platform</div>
+  <h1>Deterministic evidence first. AI second.</h1>
+  <p>Production-style SOC investigation platform for telemetry ingestion, detections, correlated incidents, evidence-backed cases, ATT&amp;CK context, attack graphs, threat hunting, and grounded AI analysis.</p>
+  <div class="pillrow">
+    <span class="pill">FastAPI</span><span class="pill">React</span><span class="pill">PostgreSQL / pgvector</span><span class="pill">Redis worker</span><span class="pill">Ollama RAG</span><span class="pill">Cloudflare showcase</span>
+  </div>
+  <div class="footer">Slide 01 / recruiter opening</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Problem</div>
+  <h2>SOC teams do not just need another chatbot.</h2>
+  <div class="grid">
+    <div class="card"><strong>Noise</strong><span>Raw telemetry becomes alerts, but many tools do not preserve the full investigation story.</span></div>
+    <div class="card"><strong>Fragmentation</strong><span>Cases, evidence, ATT&amp;CK mapping, hunts, graph context, and AI notes often live in different places.</span></div>
+    <div class="card"><strong>Trust gap</strong><span>AI summaries can be useful, but unsupported claims create risk during security investigation.</span></div>
+    <div class="card"><strong>Demo gap</strong><span>Projects often show UI screens without proving reliability, security boundaries, and deployment readiness.</span></div>
+  </div>
+  <div class="footer">Slide 02 / motivation</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Solution</div>
+  <h2>ThreatLens connects detections, evidence, cases, graphs, hunts, and grounded AI.</h2>
+  <p>The platform is designed around a strict trust model: persisted SOC evidence is authoritative; AI operates downstream with retrieval, citations, structured output, confidence, and limitations.</p>
+  <div class="grid3">
+    <div class="card"><strong>10</strong><span>accepted golden-demo normalized events</span></div>
+    <div class="card"><strong>8</strong><span>alerts generated by governed detection logic</span></div>
+    <div class="card"><strong>5</strong><span>correlated incidents available for investigation</span></div>
+  </div>
+  <div class="footer">Slide 03 / product thesis</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Architecture</div>
+  <h2>System architecture</h2>
+  <img class="diagram" src="assets/architecture.png" alt="ThreatLens AI system architecture diagram">
+  <div class="caption">Authenticated React console, FastAPI security API, PostgreSQL + pgvector, Redis worker, Ollama model runtime, and observability.</div>
+  <div class="footer">Slide 04 / architecture diagram</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">SOC workflow</div>
+  <h2>Telemetry to investigation</h2>
+  <img class="diagram" src="assets/soc-data-flow.png" alt="ThreatLens AI SOC data-flow diagram">
+  <div class="caption">Golden Demo flow: 10 normalized events -> 8 alerts -> 5 correlated incidents -> evidence-backed investigation surfaces.</div>
+  <div class="footer">Slide 05 / SOC data flow</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Golden Demo story</div>
+  <h2>Accepted demo narrative</h2>
+  <div class="grid">
+    <div class="card"><strong>Inputs</strong><span>Heterogeneous telemetry including Linux, Windows, Sysmon, Suricata, and Zeek-style signals.</span></div>
+    <div class="card"><strong>Detections</strong><span>Fixture-backed rule quality and governed detection evaluation.</span></div>
+    <div class="card"><strong>Incidents</strong><span>Open, high-priority and critical incidents with correlated evidence.</span></div>
+    <div class="card"><strong>Investigation</strong><span>Case notes, custody, threat intelligence, hunts, attack graph, RAG history, and audit capability.</span></div>
+  </div>
+  <div class="footer">Slide 06 / accepted demo path</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Trust model</div>
+  <h2>Evidence-first trust boundary</h2>
+  <img class="diagram" src="assets/evidence-first-trust-model.png" alt="Evidence-first trust model diagram">
+  <div class="caption">AI does not establish authoritative incident facts. It retrieves, reasons, cites, and labels uncertainty downstream of stored evidence.</div>
+  <div class="footer">Slide 07 / evidence trust model</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Grounded AI</div>
+  <h2>RAG flow and model profiles</h2>
+  <img class="diagram" src="assets/grounded-rag-flow.png" alt="Grounded RAG flow diagram">
+  <div class="caption">pgvector retrieval, 1007 indexed chunks, 1024-d embeddings, structured generation, citations, limitations, and deterministic fallback.</div>
+  <div class="pillrow">
+    <span class="pill">Standard: qwen3.5:4b</span>
+    <span class="pill">Deep: qwen3.5:9b</span>
+    <span class="pill">Embedding: qwen3-embedding:0.6b</span>
+  </div>
+  <div class="footer">Slide 08 / grounded RAG</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Security and deployment boundary</div>
+  <h2>Public showcase is static. Operational demo is supervised.</h2>
+  <img class="diagram" src="assets/deployment-boundary.png" alt="Deployment and public boundary diagram">
+  <div class="caption">Cloudflare Pages hosts a sanitized static portfolio. The operational SOC console remains authenticated and was proven through temporary, revocable Quick Tunnel access.</div>
+  <div class="footer">Slide 09 / deployment boundary</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Assurance</div>
+  <h2>What was proven before calling it production-style?</h2>
+  <div class="grid">
+    <div class="card"><strong>Reliability</strong><span>Restart readiness, queue recovery, idempotency repair, and concurrency-safe job creation.</span></div>
+    <div class="card"><strong>AI safety</strong><span>Grounding, citation checks, unsupported-claim rejection, model readiness, and RAG continuity.</span></div>
+    <div class="card"><strong>Internet boundary</strong><span>HTTPS, same-origin API, unauthenticated boundary, no direct internal-service exposure, and final public exposure NONE.</span></div>
+    <div class="card"><strong>Evidence chain</strong><span>Each phase was frozen by branch, SHA, tree, receipt, and no-mutation checks.</span></div>
+  </div>
+  <div class="footer">Slide 10 / engineering assurance</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Demo walkthrough</div>
+  <h2>What I would show in a recruiter/interviewer walkthrough</h2>
+  <ol>
+    <li>Public static showcase: sanitized architecture and accepted project claims.</li>
+    <li>Authenticated SOC console: Overview, incident queue, analysis history, and RAG status.</li>
+    <li>One incident: evidence, custody, ATT&amp;CK, threat intelligence, hunt, and graph context.</li>
+    <li>AI investigation: grounded answer with citations, limitations, and no unsupported claims.</li>
+    <li>Security boundary: public tunnel can be started, verified, and revoked safely.</li>
+  </ol>
+  <div class="footer">Slide 11 / demo script</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Close</div>
+  <h2>Why this project is interview-defensible</h2>
+  <p>ThreatLens AI demonstrates full-stack security engineering: backend API design, RBAC, durable SOC data modeling, async workers, idempotency, RAG architecture, local deployment, observability, public showcase hardening, and controlled internet-demo lifecycle.</p>
+  <div class="grid3">
+    <div class="card"><strong>Build</strong><span>FastAPI, React, PostgreSQL, Redis, Docker, Ollama</span></div>
+    <div class="card"><strong>Security</strong><span>RBAC, same-origin boundary, auditability, evidence custody</span></div>
+    <div class="card"><strong>Proof</strong><span>Frozen phases, receipts, public verification, clean worktree</span></div>
+  </div>
+  <div class="footer">Slide 12 / closing pitch</div>
+</section>
+
+</main>
+</body>
+</html>
