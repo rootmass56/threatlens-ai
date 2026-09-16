@@ -1,0 +1,126 @@
+{
+    "contract_version":  "1.0",
+    "phase":  "5A",
+    "status":  "LOCKED",
+    "purpose":  "Create a deterministic, recruiter-ready, evidence-first end-to-end SOC demonstration without weakening production security or mutating accepted Phase3/4 UAT evidence.",
+    "implementation_branch":  "phase5/golden-demo-mode",
+    "immutable_baseline":  {
+                               "phase4_final_receipt":  "D:\\ThreatLensAI_Runtime\\release_gates\\phase4e_final_acceptance_v1\\20260916-090759\\phase4-final-result.json",
+                               "phase4_final_receipt_sha256":  "3d434e69cb6267d36af90a9bcc01a536302f8911e51d589cbdfeb9359868800e",
+                               "source_sha":  "ffe3c3ba3991e301272fd10285bfff6d065be68d",
+                               "source_tree":  "8a5def757e80ddbb27e73cd123f1e108ecf94377"
+                           },
+    "reference_story":  {
+                            "analysis_session_uuid":  "93aa1e45-480d-4dbb-aae1-e4fd12db3c15",
+                            "events":  10,
+                            "alerts":  8,
+                            "incidents":  5,
+                            "quarantined":  0,
+                            "integrated_incident_uuid":  "95275eea-92f9-498a-a975-74f53906e803",
+                            "integrated_incident_title":  "Multi-Stage Credential Access Activity",
+                            "reference_is_read_only":  true
+                        },
+    "golden_demo_storyline":  [
+                                  "01 - Start / validate ThreatLens runtime and grounded-RAG readiness",
+                                  "02 - Open the SOC Overview and establish the evidence-first architecture",
+                                  "03 - Show deterministic multi-source analysis: 10 normalized events, 8 alerts, 5 correlated incidents",
+                                  "04 - Open the Incident Queue and select the locked integrated incident",
+                                  "05 - Walk Case Details: timeline, risk, entities, correlated alert evidence",
+                                  "06 - Show MITRE ATT\u0026CK mappings and the attack graph",
+                                  "07 - Show governed threat-intelligence enrichment as external intelligence only",
+                                  "08 - Show the saved hunt and hunt execution around the same IOC/evidence",
+                                  "09 - Show case note, registered evidence, SHA-256 and custody history",
+                                  "10 - Show grounded AI investigation with citations, grounding and zero unsupported citations",
+                                  "11 - Show the append-only audit trail",
+                                  "12 - Finish on System Health / observability and explain reliability/performance validation"
+                              ],
+    "launcher_contract":  {
+                              "filename":  "START_THREATLENS_DEMO.ps1",
+                              "must_be_single_command_entrypoint":  true,
+                              "must_never_embed_or_echo_credentials":  true,
+                              "must_never_run_docker_down_v":  true,
+                              "must_never_delete_database_or_redis_state":  true,
+                              "must_never_delete_ollama_models":  true,
+                              "must_never_rebuild_rag_index_without_explicit_operator_action":  true,
+                              "must_validate_source_lineage_before_demo":  true,
+                              "must_start_or_reuse_existing_compose_services_non_destructively":  true,
+                              "must_wait_for_frontend_api_worker_database_redis_health":  true,
+                              "must_require_observability_and_ai_health":  true,
+                              "must_require_rag_ready_pgvector_1007_or_accepted_future_index_contract":  true,
+                              "must_resolve_demo_context_by_stable_uuid_or_marker_not_numeric_database_id":  true,
+                              "must_print_demo_urls_and_storyline":  true,
+                              "must_open_or_offer_local_frontend":  true,
+                              "must_be_idempotent_and_safe_to_run_repeatedly":  true
+                          },
+    "authentication_contract":  {
+                                    "mode":  "existing authorized local ThreatLens analyst account",
+                                    "credentials_in_source":  false,
+                                    "credentials_in_launcher":  false,
+                                    "credentials_in_receipts":  false,
+                                    "secrets_echoed_to_terminal":  false,
+                                    "login_boundary_remains_enabled":  true,
+                                    "rbac_remains_enabled":  true
+                                },
+    "data_contract":  {
+                          "accepted_phase3_reference_must_remain_immutable":  true,
+                          "implementation_may_display_reference_records_read_only":  true,
+                          "if_demo_writes_are_needed_they_must_use_demo_namespace":  "PHASE5-GOLDEN-DEMO-V1",
+                          "demo_seed_must_be_idempotent":  true,
+                          "demo_seed_must_not_depend_on_accidental_numeric_database_ids":  true,
+                          "demo_cleanup_must_never_touch_phase3_or_phase4_accepted_records":  true,
+                          "authoritative_facts_must_remain_deterministic":  true,
+                          "ai_must_remain_downstream_of_persisted_evidence":  true
+                      },
+    "ai_demo_contract":  {
+                             "default_question":  "Summarize the persisted incident evidence, separate observed facts from inference, cite every factual assessment, and state limitations.",
+                             "accepted_statuses":  [
+                                                       "answered",
+                                                       "partially_supported"
+                                                   ],
+                             "citations_minimum":  1,
+                             "unsupported_citations_required":  0,
+                             "grounding_score_must_be_positive":  true,
+                             "exact_model_wording_is_not_a_demo_assertion":  true,
+                             "exact_relevance_score_is_not_a_demo_assertion":  true,
+                             "deterministic_history_may_be_used_as_demo_fallback_if_live_generation_is_slow":  true,
+                             "fallback_must_be_clearly_labeled_as_persisted_prior_result":  true
+                         },
+    "required_console_surfaces":  [
+                                      "Overview",
+                                      "Upload \u0026 Analyze",
+                                      "Current Analysis",
+                                      "Incident Queue",
+                                      "Case Details",
+                                      "AI Investigation",
+                                      "Attack Graph",
+                                      "MITRE ATT\u0026CK",
+                                      "Audit Trail",
+                                      "Threat Intelligence",
+                                      "Threat Hunting",
+                                      "Case Operations",
+                                      "System Health"
+                                  ],
+    "demo_acceptance_criteria":  [
+                                     "One launcher command brings an already-configured local system to demo-ready state without destructive reset.",
+                                     "Demo-ready check proves frontend/API/worker/PostgreSQL/Redis plus observability and Ollama/RAG readiness.",
+                                     "A stable Golden Demo context can be resolved without manually copying database IDs.",
+                                     "Overview -\u003e analysis -\u003e incident -\u003e case -\u003e ATT\u0026CK -\u003e graph -\u003e TI -\u003e hunt -\u003e evidence/custody -\u003e AI -\u003e audit can be demonstrated coherently.",
+                                     "Reference storyline remains 10 events / 8 alerts / 5 incidents / 0 quarantine unless a separately namespaced demo copy is intentionally created.",
+                                     "No secret, password, PAT, ingest key or private credential is printed, committed or written into demo evidence.",
+                                     "AI output remains grounded/cited and never becomes authoritative incident evidence.",
+                                     "Repeated launcher execution is idempotent.",
+                                     "Accepted Phase3 and Phase4 evidence/state is unchanged after demo preparation and execution.",
+                                     "Golden Demo receives its own final acceptance receipt before Phase6 begins."
+                                 ],
+    "planned_phase5_artifacts":  [
+                                     "START_THREATLENS_DEMO.ps1",
+                                     "demo/README_GOLDEN_DEMO.md",
+                                     "demo/golden-demo-contract.json",
+                                     "demo/golden-demo-runbook.json"
+                                 ],
+    "implementation_sequence":  [
+                                    "5B - Golden Demo implementation and dedicated Phase5 branch",
+                                    "5C - Deterministic demo data/context + launcher + recruiter runbook",
+                                    "5D - Golden Demo end-to-end acceptance and freeze"
+                                ]
+}
