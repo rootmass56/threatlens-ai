@@ -102,11 +102,11 @@ export function AiPage({ session, incidentId }: { session: Session; incidentId: 
 
   return <>
     <Header kicker="GROUNDED RAG · DURABLE JOBS" title="AI Investigation" subtitle="Adaptive Qwen analysis is queued durably in PostgreSQL, delivered through Redis workers, and constrained by authorized evidence, governed knowledge and post-generation citation validation." />
-    <div className="summary-grid">
-      <div className="metric-card"><span>Queue</span><strong>{value(queue.data, ['reachable'], 'false') === 'true' ? 'READY' : 'CHECK'}</strong><small>{value(queue.data, ['pending'], '0')} pending</small></div>
-      <div className="metric-card"><span>Workers</span><strong>{value(queue.data, ['workers'], '0')}</strong><small>Durable AI executors</small></div>
-      <div className="metric-card"><span>Current job</span><strong>{jobStatus || 'idle'}</strong><small>{job ? `delivery ${value(job, ['queue_delivery_state'], '—')}` : 'No active request'}</small></div>
-      <div className="metric-card"><span>Result UUID</span><strong>{job ? value(job, ['result_query_uuid'], '—') || '—' : '—'}</strong><small>Persisted RAG query</small></div>
+    <div className="metric-grid">
+      <div className="metric"><span>Queue</span><strong>{value(queue.data, ['reachable'], 'false') === 'true' ? 'READY' : 'CHECK'}</strong><small>{value(queue.data, ['pending'], '0')} pending</small></div>
+      <div className="metric"><span>Workers</span><strong>{value(queue.data, ['workers'], '0')}</strong><small>Durable AI executors</small></div>
+      <div className="metric"><span>Current job</span><strong>{jobStatus || 'idle'}</strong><small>{job ? `delivery ${value(job, ['queue_delivery_state'], '—')}` : 'No active request'}</small></div>
+      <div className="metric"><span>Result UUID</span><strong className="compact">{job ? value(job, ['result_query_uuid'], '—') || '—' : '—'}</strong><small>Persisted RAG query</small></div>
     </div>
     <div className="assistant-grid">
       <Panel title="Investigation request">
