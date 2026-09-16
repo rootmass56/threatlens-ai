@@ -1,4 +1,4 @@
-# ThreatLens AI â€” Public Showcase
+# ThreatLens AI — Public Showcase
 
 This directory is the Phase-6 recruiter-facing public showcase for ThreatLens AI.
 
@@ -18,10 +18,10 @@ The page uses a restrictive meta Content Security Policy with `script-src 'none'
 
 ## Files
 
-- `index.html` â€” semantic single-page portfolio content.
-- `styles.css` â€” responsive dependency-free visual design.
-- `showcase-manifest.json` â€” machine-readable sanitized claim/behavior manifest.
-- `README.md` â€” this deployment and security contract.
+- `index.html` — semantic single-page portfolio content.
+- `styles.css` — responsive dependency-free visual design.
+- `showcase-manifest.json` — machine-readable sanitized claim/behavior manifest.
+- `README.md` — this deployment and security contract.
 
 ## Deployment contract
 

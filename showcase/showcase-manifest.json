@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "STATIC_PUBLIC_SHOWCASE",
-  "title": "ThreatLens AI â€” Evidence-First SOC Investigation Platform",
+  "title": "ThreatLens AI — Evidence-First SOC Investigation Platform",
   "runtime_behavior": {
     "javascript": false,
     "network_calls": false,

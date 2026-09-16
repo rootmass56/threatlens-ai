@@ -1,4 +1,4 @@
-/* ThreatLens AI public showcase â€” static, dependency-free, no external assets. */
+/* ThreatLens AI public showcase — static, dependency-free, no external assets. */
 :root {
   color-scheme: dark;
   --bg: #071019;
@@ -428,7 +428,7 @@ h3 {
   right: -10px;
   z-index: 2;
   color: var(--cyan);
-  content: "â†’";
+  content: "→";
   font-weight: 900;
 }
 
@@ -722,7 +722,7 @@ h3 {
 .status-list span::before {
   margin-right: 7px;
   color: var(--green);
-  content: "âœ“";
+  content: "✓";
 }
 
 .site-footer {
