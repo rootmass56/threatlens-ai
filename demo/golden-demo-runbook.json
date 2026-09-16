@@ -1,0 +1,101 @@
+{
+  "version": "1.0",
+  "name": "ThreatLens AI Golden Demo",
+  "launcher": "START_THREATLENS_DEMO.ps1",
+  "authentication": {
+    "required": true,
+    "mode": "existing authorized ThreatLens analyst account",
+    "credentials_stored": false,
+    "rbac_preserved": true
+  },
+  "context": {
+    "analysis_uuid": "93aa1e45-480d-4dbb-aae1-e4fd12db3c15",
+    "incident_uuid": "95275eea-92f9-498a-a975-74f53906e803",
+    "incident_title": "Multi-Stage Credential Access Activity",
+    "events": 10,
+    "alerts": 8,
+    "incidents": 5,
+    "quarantined": 0
+  },
+  "default_ai_question": "Summarize the persisted incident evidence, separate observed facts from inference, cite every factual assessment, and state limitations.",
+  "steps": [
+    {
+      "order": 1,
+      "page": "overview",
+      "label": "Overview",
+      "talking_point": "Evidence-first SOC architecture and deterministic authority."
+    },
+    {
+      "order": 2,
+      "page": "current",
+      "label": "Current Analysis",
+      "talking_point": "10 normalized events, 8 alerts and 5 correlated incidents."
+    },
+    {
+      "order": 3,
+      "page": "incidents",
+      "label": "Incident Queue",
+      "talking_point": "Risk/prioritization and integrated incident selection."
+    },
+    {
+      "order": 4,
+      "page": "case",
+      "label": "Case Details",
+      "talking_point": "Timeline, correlated alerts, entities and persisted evidence."
+    },
+    {
+      "order": 5,
+      "page": "attack",
+      "label": "MITRE ATT&CK",
+      "talking_point": "Governed ATT&CK context."
+    },
+    {
+      "order": 6,
+      "page": "graph",
+      "label": "Attack Graph",
+      "talking_point": "Correlation-run-backed attack graph."
+    },
+    {
+      "order": 7,
+      "page": "intel",
+      "label": "Threat Intelligence",
+      "talking_point": "External intelligence remains non-authoritative."
+    },
+    {
+      "order": 8,
+      "page": "hunts",
+      "label": "Threat Hunting",
+      "talking_point": "Saved hunt and execution capability."
+    },
+    {
+      "order": 9,
+      "page": "caseops",
+      "label": "Case Operations",
+      "talking_point": "Notes, evidence integrity and custody."
+    },
+    {
+      "order": 10,
+      "page": "assistant",
+      "label": "AI Investigation",
+      "talking_point": "Grounded answer with citations and limitations."
+    },
+    {
+      "order": 11,
+      "page": "audit",
+      "label": "Audit Trail",
+      "talking_point": "Auditable analyst and security actions."
+    },
+    {
+      "order": 12,
+      "page": "system",
+      "label": "System Health",
+      "talking_point": "Runtime, observability and grounded-RAG readiness."
+    }
+  ],
+  "safety": {
+    "destructive_reset": false,
+    "accepted_uat_mutation": false,
+    "credentials_in_artifacts": false,
+    "ai_authoritative": false
+  }
+}
