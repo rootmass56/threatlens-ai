@@ -110,6 +110,85 @@ function Wait-LocalReady {
     Fail -Message "Phase9 local frontend/API did not become ready within six minutes."
 }
 
+function Wait-CoreContainerHealth {
+    $services = @("postgres","redis","api","worker","frontend")
+    $deadline = (Get-Date).AddMinutes(6)
+
+    do {
+        $notReady = @()
+
+        foreach ($service in $services) {
+            $idRun = Invoke-Native `
+                -FilePath "docker.exe" `
+                -ArgumentList @(
+                    "compose",
+                    "--project-directory",$Project,
+                    "-p",$ProjectName,
+                    "--profile","observability",
+                    "--env-file",$EnvFile,
+                    "-f",$ComposeBase,
+                    "-f",$ComposeInternet,
+                    "ps","-q",$service
+                ) `
+                -Label ("wait-container-id-" + $service) `
+                -AllowFailure
+
+            $containerId = ([string]$idRun.Stdout).Trim()
+
+            if ([int]$idRun.ExitCode -ne 0 -or [string]::IsNullOrWhiteSpace($containerId)) {
+                $notReady += ($service + "=missing")
+                continue
+            }
+
+            $inspectRun = Invoke-Native `
+                -FilePath "docker.exe" `
+                -ArgumentList @("inspect",$containerId) `
+                -Label ("wait-container-state-" + $service) `
+                -AllowFailure
+
+            if ([int]$inspectRun.ExitCode -ne 0) {
+                $notReady += ($service + "=inspect-failed")
+                continue
+            }
+
+            try {
+                $inspectObjects = @(([string]$inspectRun.Stdout) | ConvertFrom-Json)
+
+                if ($inspectObjects.Length -lt 1) {
+                    $notReady += ($service + "=no-state")
+                    continue
+                }
+
+                $state = $inspectObjects[0].State
+                $status = [string]$state.Status
+                $health = "none"
+                $healthProperty = $state.PSObject.Properties["Health"]
+
+                if ($null -ne $healthProperty -and $null -ne $healthProperty.Value) {
+                    $health = [string]$healthProperty.Value.Status
+                }
+
+                if ($status -ne "running" -or ($health -ne "none" -and $health -ne "healthy")) {
+                    $notReady += ("{0}={1}/{2}" -f $service,$status,$health)
+                }
+            }
+            catch {
+                $notReady += ($service + "=state-parse-failed")
+            }
+        }
+
+        if ($notReady.Length -eq 0) {
+            Write-Host "[OK] postgres/redis/api/worker/frontend are running and healthy." -ForegroundColor Green
+            return
+        }
+
+        Write-Host ("[WAIT] Core services not healthy yet: " + ($notReady -join ", ")) -ForegroundColor DarkGray
+        Start-Sleep -Seconds 3
+    }
+    while ((Get-Date) -lt $deadline)
+
+    Fail -Message "Core ThreatLens containers did not all reach running/healthy state within six minutes."
+}
 function Invoke-PublicCheck {
     param([Parameter(Mandatory=$true)][string]$PublicUrl)
 
@@ -213,6 +292,7 @@ try {
         -EchoStdout
 
     Wait-LocalReady
+    Wait-CoreContainerHealth
     $null = Invoke-FullHealth
 
     $front = Invoke-WebRequest -UseBasicParsing -Uri "$Origin/" -TimeoutSec 10
