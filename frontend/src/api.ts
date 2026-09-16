@@ -1,6 +1,6 @@
 import { Json, Session } from './types'
 
-const API_URL = (import.meta.env.VITE_THREATLENS_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
+const API_URL = (import.meta.env.VITE_THREATLENS_API_URL || '').replace(/\/$/, '')
 const STORAGE_KEY = 'threatlens.session.v014'
 let refreshInFlight: Promise<void> | null = null
 
