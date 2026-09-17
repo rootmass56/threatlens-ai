@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "mode": "STATIC_PUBLIC_SHOWCASE",
   "title": "ThreatLens AI — Evidence-First SOC Investigation Platform",
   "runtime_behavior": {
@@ -15,10 +15,20 @@
   },
   "accepted_public_claims": {
     "golden_demo": {
-      "normalized_events": 10,
-      "alerts": 8,
-      "correlated_incidents": 5,
-      "quarantined_records": 0
+      "name": "Enhanced Golden Demo v2",
+      "scope": "final namespaced and idempotent portfolio scenario",
+      "telemetry_connectors": 5,
+      "normalized_events": 29,
+      "deterministic_alerts": 26,
+      "representative_alerts": 23,
+      "correlated_incidents": 2,
+      "incident_severity": "Critical",
+      "quarantined_records": 0,
+      "parse_success_percent": 100,
+      "attack_tactics": 8,
+      "attack_techniques": 19,
+      "graph_nodes": 76,
+      "graph_edges": 300
     },
     "rag_indexed_chunks": 1007,
     "concurrency_acceptance": {
@@ -32,12 +42,20 @@
       "durable_jobs": 1,
       "scope": "accepted local benchmark"
     },
-    "core_restart_ready_seconds": 31.866
+    "core_restart_ready_seconds": 31.866,
+    "frozen_v1_acceptance_demo": {
+      "normalized_events": 10,
+      "alerts": 8,
+      "correlated_incidents": 5,
+      "quarantined_records": 0,
+      "immutable_tag": "v1.0.0"
+    }
   },
   "architecture_invariant": "AI is downstream of deterministic persisted evidence and does not establish authoritative incident facts.",
   "provenance": [
     "accepted Phase 3 end-to-end SOC UAT",
     "accepted Phase 4 reliability / AI security / performance",
-    "accepted Phase 5 Golden Demo"
+    "accepted Phase 5 Golden Demo",
+    "Enhanced Golden Demo v2 protected PR #29 with seven required CI / security checks"
   ]
 }
