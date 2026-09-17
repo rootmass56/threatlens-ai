@@ -30,6 +30,8 @@ export function AiPage({ session, incidentId }: { session: Session; incidentId: 
 
   const history = useResource<ListResponse>(session, selected ? `/api/v1/incidents/${encodeURIComponent(selected)}/assistant/history?limit=50` : '/api/v1/incidents?limit=1', { items: [] }, Boolean(selected))
   const jobs = useResource<ListResponse>(session, selected ? `/api/v1/incidents/${encodeURIComponent(selected)}/assistant/jobs?limit=50` : '/api/v1/incidents?limit=1', { items: [] }, Boolean(selected))
+  const reloadHistory = history.reload
+  const reloadJobs = jobs.reload
   const jobUuid = job ? value(job, ['job_uuid'], '') : ''
   const jobStatus = job ? value(job, ['status'], '') : ''
 
@@ -43,12 +45,12 @@ export function AiPage({ session, incidentId }: { session: Session; incidentId: 
         if (status === 'succeeded') {
           setResult(asJson(current.result))
           setBusy(false)
-          await history.reload()
-          await jobs.reload()
+          await reloadHistory()
+          await reloadJobs()
         } else if (status === 'failed' || status === 'cancelled') {
           setBusy(false)
           if (status === 'failed') setError(value(current, ['error_message'], 'AI investigation job failed.'))
-          await jobs.reload()
+          await reloadJobs()
         }
       } catch (caught) {
         setBusy(false)
@@ -58,7 +60,7 @@ export function AiPage({ session, incidentId }: { session: Session; incidentId: 
     void poll()
     const timer = window.setInterval(() => { void poll() }, 1500)
     return () => window.clearInterval(timer)
-  }, [history, jobStatus, jobUuid, jobs, session])
+  }, [jobStatus, jobUuid, reloadHistory, reloadJobs, session])
 
   async function submit(event: FormEvent) {
     event.preventDefault()
@@ -74,7 +76,7 @@ export function AiPage({ session, incidentId }: { session: Session; incidentId: 
         body: JSON.stringify({ question, analysis_mode: mode }),
       })
       setJob(created)
-      await jobs.reload()
+      await reloadJobs()
     } catch (caught) {
       setBusy(false)
       setError(caught instanceof Error ? caught.message : 'AI investigation submission failed.')
@@ -87,7 +89,7 @@ export function AiPage({ session, incidentId }: { session: Session; incidentId: 
       const cancelled = await api<Json>(session, `/api/v1/assistant/jobs/${encodeURIComponent(jobUuid)}/cancel`, { method: 'POST' })
       setJob(cancelled)
       setBusy(false)
-      await jobs.reload()
+      await reloadJobs()
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to cancel the queued AI job.')
     }
