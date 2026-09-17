@@ -10,16 +10,28 @@ ThreatLens AI is built around one rule: **deterministic persisted evidence remai
 
 The AI layer does not establish incident facts. It consumes authorized persisted evidence and governed knowledge, validates citations after generation, and exposes explicit fallback and grounding behavior.
 
-## Accepted Golden Demo
+## Golden Demo — Verified End-to-End Investigation
 
-| Signal | Accepted result |
-| --- | ---: |
-| Normalized events | **10** |
-| Deterministic alerts | **8** |
-| Correlated incidents | **5** |
-| Quarantined records | **0** |
+> **Deterministic release-acceptance fixture—not a scale benchmark.** The frozen Golden Demo is a reproducible, multi-source dataset with known outcomes. These values describe that fixture, not lifetime platform totals or maximum throughput.
 
-The accepted demo follows the complete investigation story: telemetry → detections → alerts → correlated incidents → case evidence → ATT&CK/attack graph → threat intelligence/hunting → grounded AI → audit trail.
+| **10**<br>Normalized events | **8**<br>Deterministic alerts | **5**<br>Correlated incidents | **0**<br>Quarantined records |
+| :---: | :---: | :---: | :---: |
+| Telemetry parsed and persisted | Governed rules produced evidence | Alerts grouped into durable investigations | Every record in the valid fixture followed the accepted path |
+
+**Evidence path**
+
+`Telemetry` → `Normalization` → `Detections` → `Alerts` → `Correlation` → `Incidents` → `Case evidence` → `ATT&CK + attack graph` → `Threat intelligence + hunting` → `Grounded AI` → `Audit trail`
+
+**What this proves**
+
+- Deterministic evidence and incident state exist before any LLM is invoked.
+- The same persisted investigation continues through case evidence, ATT&CK context, attack graphs, threat-intelligence enrichment, bounded hunting, grounded AI and audit history.
+- AI operates only on authorized evidence and governed knowledge, with post-generation citation validation and explicit fallback behavior.
+- Malformed and invalid inputs were tested separately against quarantine/error contracts; the `0` above describes the accepted valid fixture, not the absence of quarantine controls.
+
+Reproduce the presentation workflow with `.\START_THREATLENS_DEMO.ps1`.
+
+[Golden Demo contract](demo/README_GOLDEN_DEMO.md) · [Validation evidence](docs/FINAL_TESTING_AND_VALIDATION.md) · [Recruiter walkthrough](docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md)
 
 ## Core capabilities
 
