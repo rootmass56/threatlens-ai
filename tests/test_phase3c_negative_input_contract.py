@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-from tests.test_v09_security_api import auth_header, login
+from tests.test_v09_security_api import (
+    auth_header,
+    login,
+    security_environment,  # noqa: F401 - imported pytest fixture is discovered by name
+)
 
 
 def test_unrecognized_telemetry_returns_controlled_422(
-    security_environment,
+    security_environment,  # noqa: F811 - pytest injects the imported fixture
 ) -> None:
     client, _ = security_environment
     analyst = login(client, "analyst", "AnalystPass!234")
