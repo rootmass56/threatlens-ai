@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="ThreatLens AI — an evidence-first SOC investigation platform with deterministic detections, auditable case workflows, MITRE ATT&amp;CK context, attack graphs, threat hunting, and grounded AI." />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; connect-src 'none'; img-src 'self' data:; font-src 'self'; object-src 'none'; media-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'" />
+  <meta name="color-scheme" content="dark" />
+  <title>ThreatLens AI — Evidence-First SOC Investigation Platform</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="shell nav-shell">
+      <a class="brand" href="#top" aria-label="ThreatLens AI home">
+        <span class="brand-mark" aria-hidden="true">TL</span>
+        <span class="brand-copy">
+          <strong>ThreatLens AI</strong>
+          <span>Evidence-first SOC platform</span>
+        </span>
+      </a>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a href="#architecture">Architecture</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#demo">Golden Demo</a>
+        <a href="#assurance">Assurance</a>
+        <a href="#stack">Stack</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="top" class="hero">
+      <div class="shell hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Cybersecurity engineering • SOC investigation • Grounded AI</p>
+          <h1>Deterministic evidence first.<br />AI second.</h1>
+          <p class="hero-lead">
+            ThreatLens AI is a production-style SOC investigation platform that turns heterogeneous telemetry into
+            detections, alerts, correlated incidents, evidence-backed cases, ATT&amp;CK context, attack graphs,
+            threat-hunting workflows, and grounded AI investigations.
+          </p>
+
+          <div class="hero-actions" aria-label="Page shortcuts">
+            <a class="button primary" href="#demo">Explore the Golden Demo</a>
+            <a class="button secondary" href="#architecture">See the architecture</a>
+          </div>
+
+          <div class="principle-card">
+            <span class="principle-kicker">Core invariant</span>
+            <p>
+              AI never establishes authoritative incident facts. Persisted deterministic evidence remains the source
+              of truth; retrieval and LLM analysis operate downstream with citations, grounding, and limitations.
+            </p>
+          </div>
+        </div>
+
+        <aside class="hero-panel" aria-label="Accepted Golden Demo summary">
+          <div class="panel-topline">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span>Accepted Golden Demo</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric">
+              <strong>10</strong>
+              <span>normalized events</span>
+            </div>
+            <div class="metric">
+              <strong>8</strong>
+              <span>alerts</span>
+            </div>
+            <div class="metric">
+              <strong>5</strong>
+              <span>correlated incidents</span>
+            </div>
+            <div class="metric">
+              <strong>0</strong>
+              <span>quarantined records</span>
+            </div>
+          </div>
+          <div class="trace">
+            <div><span class="trace-step">01</span><span>Telemetry normalized</span></div>
+            <div><span class="trace-step">02</span><span>Detections evaluated</span></div>
+            <div><span class="trace-step">03</span><span>Incidents correlated</span></div>
+            <div><span class="trace-step">04</span><span>Evidence investigated</span></div>
+            <div><span class="trace-step">05</span><span>Grounded AI explains</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Design principles">
+      <div class="shell trust-grid">
+        <span>Deterministic analytics</span>
+        <span>RBAC &amp; authenticated workflows</span>
+        <span>Evidence integrity</span>
+        <span>MITRE ATT&amp;CK</span>
+        <span>Grounded RAG</span>
+        <span>Auditability</span>
+      </div>
+    </section>
+
+    <section id="architecture" class="section">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Architecture</p>
+          <h2>One evidence chain from telemetry to investigation</h2>
+          <p>
+            ThreatLens separates authoritative security facts from explanatory AI. Each layer adds context without
+            rewriting the deterministic record beneath it.
+          </p>
+        </div>
+
+        <div class="pipeline" aria-label="ThreatLens evidence pipeline">
+          <div class="pipeline-card">
+            <span class="pipeline-number">01</span>
+            <h3>Telemetry</h3>
+            <p>Multi-source security events enter a normalized analysis pipeline.</p>
+          </div>
+          <div class="pipeline-card">
+            <span class="pipeline-number">02</span>
+            <h3>Detections</h3>
+            <p>Governed rules and deterministic logic establish security findings.</p>
+          </div>
+          <div class="pipeline-card">
+            <span class="pipeline-number">03</span>
+            <h3>Correlation</h3>
+            <p>Alerts are grouped into incidents with persisted risk and relationships.</p>
+          </div>
+          <div class="pipeline-card">
+            <span class="pipeline-number">04</span>
+            <h3>Investigation</h3>
+            <p>Analysts work with cases, notes, evidence, custody, ATT&amp;CK, graphs, intel, and hunts.</p>
+          </div>
+          <div class="pipeline-card ai-card">
+            <span class="pipeline-number">05</span>
+            <h3>Grounded AI</h3>
+            <p>RAG retrieves persisted evidence and governed knowledge, then generates cited structured analysis.</p>
+          </div>
+        </div>
+
+        <div class="architecture-rails">
+          <article>
+            <span class="mini-label">Context rail</span>
+            <h3>MITRE ATT&amp;CK + attack graph</h3>
+            <p>Technique context and graph snapshots help explain multi-stage behavior without replacing the source evidence.</p>
+          </article>
+          <article>
+            <span class="mini-label">Investigation rail</span>
+            <h3>Threat intelligence + hunting</h3>
+            <p>External intelligence and saved hunts enrich investigation while remaining clearly distinct from observed facts.</p>
+          </article>
+          <article>
+            <span class="mini-label">Governance rail</span>
+            <h3>Audit + observability</h3>
+            <p>Analyst activity, security controls, service health, metrics, and failure behavior remain visible and reviewable.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="capabilities" class="section section-alt">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Capabilities</p>
+          <h2>Built like a SOC platform, not a chatbot demo</h2>
+          <p>
+            The project combines security analytics, case management, detection engineering, investigation tooling,
+            operational hardening, and adaptive grounded AI.
+          </p>
+        </div>
+
+        <div class="capability-grid">
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">01</span>
+            <h3>Deterministic detection engineering</h3>
+            <p>Normalized events, governed rules, alerts, correlation, risk scoring, incident state, and detection feedback.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">02</span>
+            <h3>Case &amp; evidence operations</h3>
+            <p>Analyst notes, registered evidence, SHA-256 integrity, custody history, case timelines, and auditable actions.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">03</span>
+            <h3>ATT&amp;CK &amp; attack graphs</h3>
+            <p>Governed MITRE ATT&amp;CK mappings and correlation-backed graph snapshots for multi-stage investigations.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">04</span>
+            <h3>Threat intelligence</h3>
+            <p>Feed, indicator, and hit workflows enrich investigations while preserving the boundary between external context and fact.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">05</span>
+            <h3>Threat hunting</h3>
+            <p>Saved hunts and executions support evidence-driven investigation beyond triggered detections.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">06</span>
+            <h3>Grounded adaptive AI</h3>
+            <p>Standard and Deep Analysis profiles use persisted evidence, pgvector retrieval, structured generation, citations, and fallback behavior.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">07</span>
+            <h3>Security boundaries</h3>
+            <p>Authentication, RBAC, cross-incident isolation, prompt-injection defenses, citation-spoof rejection, and strict output handling.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">08</span>
+            <h3>Operational visibility</h3>
+            <p>Container health, metrics, Prometheus/Grafana observability, queue health, recovery checks, and release-gate evidence.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" class="section">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Golden Demo</p>
+          <h2>A recruiter-ready incident story with real persisted evidence</h2>
+          <p>
+            The accepted local Golden Demo follows a fixed heterogeneous SOC scenario through the same surfaces an analyst
+            would use in a real investigation.
+          </p>
+        </div>
+
+        <div class="demo-layout">
+          <ol class="demo-timeline">
+            <li>
+              <span>01</span>
+              <div><h3>Overview</h3><p>Start with the evidence-first architecture and system state.</p></div>
+            </li>
+            <li>
+              <span>02</span>
+              <div><h3>Current analysis</h3><p>Show the 10 normalized events, 8 alerts, and 5 correlated incidents.</p></div>
+            </li>
+            <li>
+              <span>03</span>
+              <div><h3>Incident queue</h3><p>Move from detection output to risk-prioritized investigation.</p></div>
+            </li>
+            <li>
+              <span>04</span>
+              <div><h3>Case details</h3><p>Review timeline, entities, correlated alerts, and persisted evidence.</p></div>
+            </li>
+            <li>
+              <span>05</span>
+              <div><h3>ATT&amp;CK + graph</h3><p>Connect behaviors to governed technique context and multi-stage relationships.</p></div>
+            </li>
+            <li>
+              <span>06</span>
+              <div><h3>Intel + hunting</h3><p>Enrich the case with threat intelligence and saved investigative hunts.</p></div>
+            </li>
+            <li>
+              <span>07</span>
+              <div><h3>Evidence + custody</h3><p>Demonstrate analyst notes, evidence integrity, and chain-of-custody history.</p></div>
+            </li>
+            <li>
+              <span>08</span>
+              <div><h3>Grounded AI</h3><p>Summarize persisted evidence, separate fact from inference, cite assessments, and state limitations.</p></div>
+            </li>
+            <li>
+              <span>09</span>
+              <div><h3>Audit + health</h3><p>Finish with traceability, runtime health, observability, and grounded-RAG readiness.</p></div>
+            </li>
+          </ol>
+
+          <aside class="demo-card">
+            <p class="mini-label">Demonstration invariant</p>
+            <blockquote>
+              “Summarize the persisted incident evidence, separate observed facts from inference, cite every factual assessment,
+              and state limitations.”
+            </blockquote>
+            <div class="demo-rule">
+              <strong>Observed facts</strong>
+              <span>Persisted deterministic evidence</span>
+            </div>
+            <div class="demo-rule">
+              <strong>Inference</strong>
+              <span>Clearly labeled AI reasoning</span>
+            </div>
+            <div class="demo-rule">
+              <strong>Citations</strong>
+              <span>Traceable to retrieved evidence/context</span>
+            </div>
+            <div class="demo-rule">
+              <strong>Limitations</strong>
+              <span>Explicit when evidence cannot support a claim</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="assurance" class="section section-alt">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Engineering assurance</p>
+          <h2>Measured behavior, not just feature claims</h2>
+          <p>
+            These are accepted local validation results from the project’s release-gate workflow. They are benchmark
+            evidence, not guarantees about every environment.
+          </p>
+        </div>
+
+        <div class="assurance-grid">
+          <article class="assurance-card">
+            <strong>1,007</strong>
+            <h3>Indexed knowledge chunks</h3>
+            <p>Grounded RAG accepted on pgvector with the governed knowledge collection.</p>
+          </article>
+          <article class="assurance-card">
+            <strong>160 / 0</strong>
+            <h3>Concurrent API requests / errors</h3>
+            <p>Accepted local concurrency run completed with zero request errors.</p>
+          </article>
+          <article class="assurance-card">
+            <strong>8 → 1</strong>
+            <h3>Idempotent race convergence</h3>
+            <p>Eight simultaneous identical job submissions converged to one durable job with zero HTTP 500 responses.</p>
+          </article>
+          <article class="assurance-card">
+            <strong>≈31.9s</strong>
+            <h3>Core restart to ready</h3>
+            <p>Accepted local recovery run returned the complete core stack to READY after a controlled restart.</p>
+          </article>
+        </div>
+
+        <div class="assurance-note">
+          <h3>Adversarial AI/RAG validation</h3>
+          <p>
+            Prompt-injection handling, secret-extraction resistance, cross-incident isolation, unsupported attribution,
+            citation-spoof rejection, overclaim hardening, strict structured output, model fallback, timeout handling,
+            and invalid-JSON fallback were exercised during accepted hardening gates.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="stack" class="section">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Technology stack</p>
+          <h2>Production-style components across the SOC workflow</h2>
+        </div>
+
+        <div class="stack-grid">
+          <div><span>Backend</span><strong>Python • FastAPI • SQLAlchemy</strong></div>
+          <div><span>Frontend</span><strong>React • Vite • TypeScript • Nginx</strong></div>
+          <div><span>Data</span><strong>PostgreSQL • pgvector • Redis</strong></div>
+          <div><span>AI / RAG</span><strong>Qwen • Ollama • embeddings • structured generation</strong></div>
+          <div><span>SOC context</span><strong>MITRE ATT&amp;CK • correlation • threat intel • hunting</strong></div>
+          <div><span>Operations</span><strong>Docker Compose • Prometheus • Grafana • exporters</strong></div>
+          <div><span>Security</span><strong>RBAC • JWT • audit • evidence integrity • policy gates</strong></div>
+          <div><span>Delivery</span><strong>Pytest • CodeQL • Gitleaks • Trivy • SBOM • CI/CD</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section final-cta">
+      <div class="shell cta-panel">
+        <div>
+          <p class="eyebrow">Project status</p>
+          <h2>Golden Demo accepted. Public showcase sanitized by design.</h2>
+          <p>
+            This page presents a static portfolio view of ThreatLens AI. The operational SOC application, authentication,
+            databases, worker, model runtime, observability consoles, telemetry upload, and live AI interfaces are intentionally
+            not exposed here.
+          </p>
+        </div>
+        <div class="status-list" aria-label="Public showcase privacy properties">
+          <span>No login form</span>
+          <span>No API calls</span>
+          <span>No analytics</span>
+          <span>No cookies</span>
+          <span>No telemetry collection</span>
+          <span>No live AI</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div>
+        <strong>ThreatLens AI</strong>
+        <p>Evidence-first SOC investigation platform.</p>
+      </div>
+      <p>
+        Static public showcase. Sanitized project information only. Operational services remain private.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

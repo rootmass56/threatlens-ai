@@ -28,7 +28,7 @@ def get_database_session() -> Generator[Session, None, None]:
         session.close()
 
 
-DatabaseSession = Annotated[Session, Depends(get_database_session)]
+DatabaseSession = Annotated[Session, Depends(get_database_session, scope="function")]
 
 
 def get_request_security_settings(request: Request) -> SecuritySettings:

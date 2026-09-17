@@ -1,0 +1,12 @@
+services:
+  api:
+    environment:
+      THREATLENS_TRUSTED_HOSTS: localhost,127.0.0.1,api,*.trycloudflare.com
+      THREATLENS_HTTPS_ONLY: "1"
+
+  frontend:
+    build:
+      args:
+        VITE_THREATLENS_API_URL: ""
+    volumes:
+      - ./frontend/nginx.phase9.conf:/etc/nginx/conf.d/default.conf:ro

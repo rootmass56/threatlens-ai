@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from database.models import AiInvestigationJobModel, IncidentModel
@@ -123,8 +124,36 @@ class AiJobService:
             queue_delivery_state="pending",
             result_json={},
         )
-        self.session.add(job)
-        self.session.flush()
+        if not key_hash:
+            self.session.add(job)
+            self.session.flush()
+            return job, True
+
+        # The optimistic lookup above is only a fast replay path. Two requests
+        # carrying the same Idempotency-Key can both observe "missing" before
+        # either transaction commits. Let PostgreSQL's unique constraint remain
+        # authoritative, but isolate the insert in a SAVEPOINT so a concurrent
+        # uniqueness collision does not poison the outer request transaction.
+        try:
+            with self.session.begin_nested():
+                self.session.add(job)
+                self.session.flush()
+        except IntegrityError as exc:
+            existing = self.session.scalar(
+                select(AiInvestigationJobModel).where(
+                    AiInvestigationJobModel.idempotency_key_hash == key_hash
+                )
+            )
+            if existing is None:
+                # A different integrity invariant failed; preserve the original
+                # database exception rather than misclassifying it as a replay.
+                raise
+            if existing.request_fingerprint != fingerprint:
+                raise ValueError(
+                    "Idempotency-Key was already used for a different request."
+                ) from exc
+            return existing, False
+
         return job, True
 
     def list_for_incident(self, incident_uuid: str, *, limit: int = 50) -> list[AiInvestigationJobModel]:

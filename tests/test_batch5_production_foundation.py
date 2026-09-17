@@ -107,6 +107,49 @@ def test_batch5_job_creation_and_idempotency(job_session) -> None:
         )
 
 
+def test_batch5_idempotency_unique_race_recovers_existing_job(
+    job_session, monkeypatch
+) -> None:
+    service = AiJobService(job_session, _settings())
+    first, created = service.create(
+        incident_uuid="22222222-2222-4222-8222-222222222222",
+        actor="concurrent-analyst",
+        question="Summarize the supported evidence.",
+        analysis_mode=RagAnalysisMode.STANDARD,
+        idempotency_key="concurrent-request",
+    )
+    job_session.commit()
+    assert created is True
+
+    original_scalar = job_session.scalar
+    hidden_first_idempotency_lookup = False
+
+    def race_scalar(statement, *args, **kwargs):
+        nonlocal hidden_first_idempotency_lookup
+        rendered = str(statement)
+        if (
+            not hidden_first_idempotency_lookup
+            and "ai_investigation_jobs.idempotency_key_hash" in rendered
+        ):
+            hidden_first_idempotency_lookup = True
+            return None
+        return original_scalar(statement, *args, **kwargs)
+
+    monkeypatch.setattr(job_session, "scalar", race_scalar)
+
+    replay, replay_created = service.create(
+        incident_uuid="22222222-2222-4222-8222-222222222222",
+        actor="concurrent-analyst",
+        question="Summarize the supported evidence.",
+        analysis_mode=RagAnalysisMode.STANDARD,
+        idempotency_key="concurrent-request",
+    )
+
+    assert hidden_first_idempotency_lookup is True
+    assert replay_created is False
+    assert replay.job_uuid == first.job_uuid
+
+
 def test_batch5_worker_claim_lease_and_completion(job_session) -> None:
     service = AiJobService(job_session, _settings())
     job, _ = service.create(
