@@ -138,7 +138,7 @@ class AiJobService:
             with self.session.begin_nested():
                 self.session.add(job)
                 self.session.flush()
-        except IntegrityError:
+        except IntegrityError as exc:
             existing = self.session.scalar(
                 select(AiInvestigationJobModel).where(
                     AiInvestigationJobModel.idempotency_key_hash == key_hash
@@ -151,7 +151,7 @@ class AiJobService:
             if existing.request_fingerprint != fingerprint:
                 raise ValueError(
                     "Idempotency-Key was already used for a different request."
-                )
+                ) from exc
             return existing, False
 
         return job, True
