@@ -6,6 +6,10 @@ ThreatLens AI is a production-style Security Operations Center platform for inge
 
 The current source version is **0.14.0**. The repository is progressing toward a **v1.0.0 final release only after the final Phase 10 acceptance/freeze**. Do not describe the current repository as v1.0.0 until that gate passes.
 
+## Release lineage
+
+- **v0.10.0 Grounded RAG Investigation Assistant** — historical milestone retained as part of the release lineage and regression contract for the grounded investigation capability.
+
 ## Authority model
 
 ThreatLens is intentionally evidence-first:
