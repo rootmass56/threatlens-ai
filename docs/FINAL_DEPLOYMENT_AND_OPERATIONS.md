@@ -186,4 +186,4 @@ A rebuild is not equivalent to a data reset.
 
 Phase-specific launchers may enforce exact branches or ancestry. Those checks are intentional.
 
-The final Phase 10 process owns the v1.0.0 release/tag decision. Do not create an early v1.0.0 tag from Phase 8 documentation work.
+Phase 10 completed the v1.0.0 release through protected PR #18. The existing v1.0.0 tag is immutable and must not be moved, recreated or retargeted.

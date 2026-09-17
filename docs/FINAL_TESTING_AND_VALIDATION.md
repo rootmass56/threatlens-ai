@@ -137,10 +137,13 @@ Evidence receipts should contain hashes, status and non-secret validation detail
 
 ## Final release acceptance
 
-Phase 10 owns the final v1.0.0 decision.
+Phase 10 completed the final v1.0.0 acceptance and protected release.
 
-Before that point, the correct description is:
+The correct post-release description is:
 
-- current source version: 0.14.0;
-- final release candidate work completed through accepted phases;
-- v1.0.0 tag/release pending final acceptance.
+- accepted internal source lineage: 0.14.0;
+- published project release: v1.0.0;
+- protected release PR: #18;
+- release commit: `cd6994b560ac4ca079d23033d52b7593f260dbea`;
+- release tree: `1e73c7ed2a7db153b2e53e186c4f59b917be45cf`;
+- current `main` may contain later protected repository-presentation maintenance without changing the immutable release tag.

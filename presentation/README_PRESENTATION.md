@@ -4,8 +4,8 @@ This folder contains the recruiter/interviewer presentation assets for ThreatLen
 
 ## Accepted Golden Demo
 
-- Reference analysis: $ReferenceAnalysis
-- Reference incident: $ReferenceIncident
+- Reference analysis: `93aa1e45-480d-4dbb-aae1-e4fd12db3c15`
+- Reference incident: `95275eea-92f9-498a-a975-74f53906e803` (`Multi-Stage Credential Access Activity`)
 - 10 normalized events
 - 8 alerts
 - 5 correlated incidents
@@ -18,8 +18,8 @@ The accepted Golden Demo remains the primary deterministic investigation story.
 
 Case Operations uses a separate namespaced, non-reference Batch-6 incident:
 
-- Incident: $demoTitle
-- Incident UUID: $demoIncident
+- Marker: `PHASE7D-CASEOPS-DEMO-V1`
+- Incident identity: resolve from the namespaced persisted presentation context; do not hard-code a numeric database ID
 - Tasks: 3
 - Handoffs: 1
 - Containment: in_progress
