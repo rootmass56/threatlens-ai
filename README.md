@@ -10,7 +10,23 @@ ThreatLens AI is built around one rule: **deterministic persisted evidence remai
 
 The AI layer does not establish incident facts. It consumes authorized persisted evidence and governed knowledge, validates citations after generation, and exposes explicit fallback and grounding behavior.
 
-## Golden Demo — Verified End-to-End Investigation
+## Enhanced Golden Demo v2 — Final Portfolio Investigation
+
+> **Final recruiter/interview scenario.** Enhanced v2 is a separately namespaced, idempotent post-release scenario. It does not modify the frozen `v1.0.0` tag or the accepted v1 demo.
+
+| **29**<br>Normalized events | **26**<br>Deterministic alerts | **2**<br>Critical incidents | **0**<br>Quarantined records |
+| :---: | :---: | :---: | :---: |
+| Five telemetry connectors | 23 representative signals after deduplication | One intrusion plus linked defense-impairment activity | 100% valid fixture parsing |
+
+The scenario traces an Entra identity compromise through Windows authentication, encoded PowerShell, LSASS access, process injection, RDP lateral movement, redundant persistence, payload transfer, C2, DNS tunneling and evidence destruction. Its locked coverage includes **19 ATT&CK techniques**, **21 resolved entities**, **139 scored relationships**, and a persisted **76-node / 300-edge attack graph**.
+
+It then proves the operational investigation layer: IOC provenance and enrichment-only boundaries, a saved hunt and execution, a P1 case profile/task, evidence SHA-256 and verified custody, true-positive feedback, a human-approved simulated response, a grounded deep-analysis query, and append-only audit history.
+
+Run the final workflow with `.\START_THREATLENS_ENHANCED_DEMO_V2.ps1`.
+
+[Enhanced v2 contract and walkthrough](demo/README_ENHANCED_DEMO_V2.md) · [Machine-readable acceptance contract](demo/enhanced-v2-contract.json)
+
+## Frozen v1 Acceptance Demo — Verified End-to-End Investigation
 
 > **Deterministic release-acceptance fixture—not a scale benchmark.** The frozen Golden Demo is a reproducible, multi-source dataset with known outcomes. These values describe that fixture, not lifetime platform totals or maximum throughput.
 
@@ -98,11 +114,13 @@ Copy-Item .env.example .env.batch7.local
 
 SOC console: `http://127.0.0.1:8080`
 
-For the deterministic presentation workflow:
+For the final Enhanced v2 presentation workflow:
 
 ```powershell
-.\START_THREATLENS_DEMO.ps1
+.\START_THREATLENS_ENHANCED_DEMO_V2.ps1
 ```
+
+The frozen v1 acceptance fixture remains available through `.\START_THREATLENS_DEMO.ps1`.
 
 Deployment and operations: [`docs/FINAL_DEPLOYMENT_AND_OPERATIONS.md`](docs/FINAL_DEPLOYMENT_AND_OPERATIONS.md)
 
@@ -142,6 +160,7 @@ Release history is retained in Git tags and repository history; current users sh
 | RAG / AI architecture | [`FINAL_RAG_AI_ARCHITECTURE.md`](docs/FINAL_RAG_AI_ARCHITECTURE.md) |
 | Testing & validation | [`FINAL_TESTING_AND_VALIDATION.md`](docs/FINAL_TESTING_AND_VALIDATION.md) |
 | Feature guide | [`FINAL_FEATURE_GUIDE.md`](docs/FINAL_FEATURE_GUIDE.md) |
+| Enhanced Golden Demo v2 | [`README_ENHANCED_DEMO_V2.md`](demo/README_ENHANCED_DEMO_V2.md) |
 | Demo / interview walkthrough | [`FINAL_DEMO_AND_INTERVIEW_GUIDE.md`](docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md) |
 | Troubleshooting | [`FINAL_TROUBLESHOOTING.md`](docs/FINAL_TROUBLESHOOTING.md) |
 | Known limitations | [`FINAL_LIMITATIONS.md`](docs/FINAL_LIMITATIONS.md) |
@@ -157,3 +176,4 @@ The internal source lineage remains `0.14.0` for compatibility with the accepted
 ## Responsible use
 
 ThreatLens AI is an educational and defensive security engineering project. Use it only with systems, telemetry and environments you are authorized to assess. AI output is investigative assistance, not independent proof of compromise.
+
