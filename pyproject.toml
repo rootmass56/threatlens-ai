@@ -1,6 +1,6 @@
 
 [build-system]
-requires = ["setuptools==84.0.0", "wheel==0.47.0"]
+requires = ["setuptools==84.0.0", "wheel==0.48.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,33 +10,33 @@ description = "Operationally hardened SOC platform with observability, resilienc
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
-    "streamlit==1.61.1",
+    "streamlit==1.63.0",
     "fastapi==0.141.1",
-    "starlette==1.3.1",
-    "uvicorn[standard]==0.48.0",
+    "starlette==1.6.0",
+    "uvicorn[standard]==0.52.4",
     "argon2-cffi==25.1.0",
-    "PyJWT==2.13.0",
+    "PyJWT==2.14.0",
     "python-multipart==0.0.32",
     "email-validator==2.3.0",
     "pandas==2.2.3",
     "plotly==6.5.2",
     "reportlab==4.4.9",
-    "python-dotenv==1.2.2",
-    "pydantic==2.13.4",
+    "python-dotenv==1.2.3",
+    "pydantic==2.13.5",
     "pyyaml==6.0.3",
     "requests==2.34.2",
-    "sqlalchemy==2.0.50",
-    "alembic==1.18.4",
-    "psycopg[binary]==3.3.4",
+    "sqlalchemy==2.0.52",
+    "alembic==1.20.0",
+    "psycopg[binary]==3.3.5",
     "pgvector==0.5.0",
     "redis==6.4.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest==9.0.3",
-    "pytest-cov==7.0.0",
-    "ruff==0.15.22",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.16.7",
     "httpx2==2.12.0",
 ]
 
