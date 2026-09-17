@@ -493,12 +493,21 @@ def _ensure_operational_story(
 
 def _ensure_rag_query(db: Session, primary: IncidentModel) -> None:
     existing = db.scalar(
-        select(RagInvestigationQueryModel).where(
+        select(RagInvestigationQueryModel)
+        .where(
             RagInvestigationQueryModel.incident_id == primary.id,
             RagInvestigationQueryModel.question == RAG_QUESTION,
         )
+        .order_by(RagInvestigationQueryModel.id.desc())
+        .limit(1)
     )
-    if existing is not None:
+    if (
+        existing is not None
+        and existing.response_status in {"answered", "partially_supported"}
+        and existing.retrieval_count > 0
+        and existing.grounding_score > 0
+        and bool(existing.citation_ids_json)
+    ):
         return
     from rag.models import RagAnalysisMode
     from rag.runtime import get_rag_runtime
@@ -623,6 +632,15 @@ def resolve(
             )
             or 0
         )
+        rag_query = db.scalar(
+            select(RagInvestigationQueryModel)
+            .where(
+                RagInvestigationQueryModel.incident_id == primary.id,
+                RagInvestigationQueryModel.question == RAG_QUESTION,
+            )
+            .order_by(RagInvestigationQueryModel.id.desc())
+            .limit(1)
+        )
         capabilities = {
             "notes": _count(
                 db, InvestigationNoteModel, InvestigationNoteModel.incident_id.in_(incident_ids)
@@ -694,27 +712,41 @@ def resolve(
             ),
             "audit_records": _count(db, AuditLogModel, AuditLogModel.actor == ACTOR),
         }
-        required = {
-            "notes",
-            "evidence",
-            "custody_events",
-            "graph_snapshots",
-            "threat_intel_indicators",
-            "threat_intel_hits",
-            "saved_hunts",
-            "hunt_executions",
-            "case_profiles",
-            "case_tasks",
-            "response_executions",
-            "detection_feedback",
-            "audit_records",
+        required_minimums = {
+            "notes": 1,
+            "evidence": 1,
+            "custody_events": 1,
+            "graph_snapshots": 1,
+            "threat_intel_indicators": 5,
+            "threat_intel_hits": 1,
+            "saved_hunts": 1,
+            "hunt_executions": 1,
+            "case_profiles": 1,
+            "case_tasks": 1,
+            "response_executions": 1,
+            "detection_feedback": 1,
+            "audit_records": 1,
         }
         if require_rag:
-            required.add("rag_queries")
-        missing = sorted(name for name in required if capabilities[name] < 1)
+            required_minimums["rag_queries"] = 1
+        missing = sorted(
+            f"{name}<{minimum}"
+            for name, minimum in required_minimums.items()
+            if capabilities[name] < minimum
+        )
         if missing:
             raise RuntimeError(
                 "Enhanced v2 capability evidence missing: " + ", ".join(missing)
+            )
+        if require_rag and (
+            rag_query is None
+            or rag_query.response_status not in {"answered", "partially_supported"}
+            or rag_query.retrieval_count < 1
+            or rag_query.grounding_score <= 0
+            or not rag_query.citation_ids_json
+        ):
+            raise RuntimeError(
+                "Enhanced v2 grounded RAG result is missing retrieved, cited support."
             )
         return {
             "status": "PASS",
@@ -730,6 +762,9 @@ def resolve(
                 "critical_alerts": EXPECTED["critical_alerts"],
                 "graph_nodes": EXPECTED["graph_nodes"],
                 "graph_edges": EXPECTED["graph_edges"],
+                "rag_status": rag_query.response_status if rag_query else None,
+                "rag_grounding_score": rag_query.grounding_score if rag_query else None,
+                "rag_citations": len(rag_query.citation_ids_json or []) if rag_query else 0,
                 **capabilities,
             },
         }

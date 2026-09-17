@@ -47,6 +47,7 @@ def test_enhanced_v2_pipeline_contract_is_exact_and_explainable() -> None:
         "Defense Evasion",
         "Defense Impairment",
         "Execution",
+        "Lateral Movement",
         "Persistence",
         "Privilege Escalation",
     }
