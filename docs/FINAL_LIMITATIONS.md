@@ -6,7 +6,7 @@ ThreatLens AI is intentionally documented with explicit boundaries. A technicall
 
 Current source version: **0.14.0**.
 
-Final v1.0.0 release remains pending final Phase 10 acceptance.
+Published project release: **v1.0.0**, frozen after successful Phase 10 acceptance.
 
 ## 1. AI is not authoritative incident evidence
 
@@ -149,15 +149,15 @@ The project includes response/playbook-oriented capabilities, but final document
 
 Security response actions should remain permissioned and auditable.
 
-## 20. Final v1.0.0 is still a release gate decision
+## 20. The v1.0.0 release is immutable
 
-Phase 8 documentation completion is not the same thing as final release.
+Phase 10 completed the protected v1.0.0 release through PR #18.
 
-The final tag/release decision belongs to Phase 10.
+The annotated v1.0.0 tag points to release commit `cd6994b560ac4ca079d23033d52b7593f260dbea` with release tree `1e73c7ed2a7db153b2e53e186c4f59b917be45cf`. Later protected maintenance on `main` does not change that released snapshot.
 
-Until then, the precise statement is:
+The precise statement is:
 
-> ThreatLens AI source version 0.14.0 has completed accepted engineering, demo and documentation phases toward the final v1.0.0 release candidate, with final release acceptance still pending.
+> ThreatLens AI is released as v1.0.0. The accepted internal source lineage remains 0.14.0 for compatibility, and current main may contain later repository-presentation maintenance.
 
 ## Related documents
 

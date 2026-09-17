@@ -6,9 +6,9 @@ This guide is for recruiter demonstrations, technical interviews, project review
 
 Current source version: **0.14.0**.
 
-Final release target: **v1.0.0 only after final Phase 10 acceptance/freeze**.
+Published project release: **v1.0.0**, frozen after successful Phase 10 acceptance through protected PR #18.
 
-Do not describe the repository as v1.0.0 before that final gate passes.
+Current `main` may include later repository-presentation maintenance; do not describe those later changes as part of the immutable v1.0.0 snapshot.
 
 ## One-sentence project description
 
@@ -237,7 +237,7 @@ See [Final Testing and Validation](FINAL_TESTING_AND_VALIDATION.md).
 
 Do not claim:
 
-- that ThreatLens is already released as v1.0.0 before Phase 10;
+- that post-release changes on current `main` are part of the immutable v1.0.0 snapshot;
 - that the LLM is the source of truth;
 - that the system has zero vulnerabilities;
 - that a threat-intelligence hit proves compromise;
