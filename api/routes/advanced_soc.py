@@ -471,6 +471,8 @@ def approve_playbook_execution(
         raise _not_found(error) from error
     except ValueError as error:
         raise _invalid(error) from error
+    except PermissionError as error:
+        raise _forbidden(error) from error
 
 
 @router.post("/response-executions/{execution_uuid}/execute")
