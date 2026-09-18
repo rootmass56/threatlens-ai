@@ -107,16 +107,96 @@ export function CaseOperationsPage({ session, incidentId }: { session: Session; 
 }
 
 export function ResponsePage({ session, incidentId }: { session: Session; incidentId: string }) {
-  const playbooks=useResource<ListResponse>(session,'/api/v1/response/playbooks',{items:[]})
-  const execPath=incidentId?`/api/v1/incidents/${incidentId}/response-executions`:'/api/v1/health/live'
-  const executions=useResource<ListResponse>(session,execPath,{items:[]},Boolean(incidentId))
-  const [selected,setSelected]=useState(''); const [message,setMessage]=useState('')
-  async function request(){const id=selected||value((playbooks.data.items||[])[0]||{},['playbook_uuid']);if(!incidentId||!id)return;try{await api(session,`/api/v1/incidents/${incidentId}/response-executions`,{method:'POST',body:JSON.stringify({playbook_uuid:id,parameters:{requested_from:'soc_console'}})});setMessage('Execution requested; an authorized human must approve it before any execution record can be completed.');void executions.reload()}catch(caught){setMessage(caught instanceof Error?caught.message:'Request failed.')}}
+  const playbooks = useResource<ListResponse>(session, '/api/v1/response/playbooks', { items: [] })
+  const execPath = incidentId ? `/api/v1/incidents/${incidentId}/response-executions` : '/api/v1/health/live'
+  const executions = useResource<ListResponse>(session, execPath, { items: [] }, Boolean(incidentId))
+  const [selected, setSelected] = useState('')
+  const [selectedExecution, setSelectedExecution] = useState('')
+  const [approvalNote, setApprovalNote] = useState('Evidence and response scope reviewed by an authorized analyst.')
+  const [outcome, setOutcome] = useState('success')
+  const [rollbackNotes, setRollbackNotes] = useState('Simulation record only; no production mutation was performed.')
+  const [message, setMessage] = useState('')
+
+  const executionRows = executions.data.items || []
+  const actionable = executionRows.filter(row => ['requested', 'approved'].includes(value(row, ['status'], '')))
+  const activeExecution = executionRows.find(row => value(row, ['execution_uuid']) === selectedExecution) || actionable[0] || executionRows[0]
+  const executionUuid = value(activeExecution, ['execution_uuid'], '')
+  const executionStatus = value(activeExecution, ['status'], '')
+  const requester = value(activeExecution, ['requested_by'], '')
+  const username = value(session.user, ['username'], '')
+  const canReview = Boolean(executionUuid) && executionStatus === 'requested' && requester !== username && hasPermission(session.user, 'response:approve')
+  const canExecute = Boolean(executionUuid) && executionStatus === 'approved' && hasPermission(session.user, 'response:execute')
+
+  async function request() {
+    const id = selected || value((playbooks.data.items || [])[0] || {}, ['playbook_uuid'])
+    if (!incidentId || !id) return
+    try {
+      const created = await api<Json>(session, `/api/v1/incidents/${incidentId}/response-executions`, {
+        method: 'POST',
+        body: JSON.stringify({ playbook_uuid: id, parameters: { requested_from: 'soc_console' } }),
+      })
+      setSelectedExecution(value(created, ['execution_uuid'], ''))
+      setMessage('Execution requested; a different authorized human must approve it before execution can be recorded.')
+      void executions.reload()
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'Request failed.')
+    }
+  }
+
+  async function review(approved: boolean) {
+    if (!executionUuid) return
+    try {
+      await api(session, `/api/v1/response-executions/${executionUuid}/approval`, {
+        method: 'POST',
+        body: JSON.stringify({ approved, note: approvalNote.trim() || null }),
+      })
+      setMessage(approved ? 'Response approved by an authorized human.' : 'Response rejected; no execution is permitted.')
+      void executions.reload()
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'Review failed.')
+    }
+  }
+
+  async function execute() {
+    if (!executionUuid) return
+    try {
+      await api(session, `/api/v1/response-executions/${executionUuid}/execute`, {
+        method: 'POST',
+        body: JSON.stringify({
+          outcome,
+          result: { simulated: true, recorded_from: 'soc_console' },
+          rollback_notes: rollbackNotes.trim() || null,
+        }),
+      })
+      setMessage('Approved simulation/integration execution recorded with outcome and rollback evidence.')
+      void executions.reload()
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'Execution record failed.')
+    }
+  }
+
   return <>
     <Header kicker="BATCH 6E · RESPONSE" title="Approval-Gated Response" subtitle="Human-authority playbooks with approval, executor, outcome and rollback evidence. ThreatLens never performs autonomous destructive actions." />
+    <ErrorBox message={playbooks.error || executions.error} />
     <Notice tone="warning">Safety boundary: every response execution is approval-gated. Built-in actions are simulation/integration-ready records, not silent endpoint, identity or firewall changes.</Notice>
-    <div className="two-col"><Panel title="Playbooks"><DataTable rows={playbooks.data.items||[]} columns={['name','action_type','risk_level','version','enabled']} /></Panel><Panel title="Request response"><div className="stack"><label>Playbook<select value={selected} onChange={e=>setSelected(e.target.value)}><option value="">Select first available</option>{(playbooks.data.items||[]).map(row=><option key={value(row,['playbook_uuid'])} value={value(row,['playbook_uuid'])}>{value(row,['name'])}</option>)}</select></label><button className="primary" disabled={!incidentId||!hasPermission(session.user,'response:request')} onClick={()=>void request()}>Request approval</button>{!incidentId&&<Empty>Select an incident first.</Empty>}{message&&<Notice>{message}</Notice>}</div></Panel></div>
-    <Panel title="Response execution ledger"><DataTable rows={executions.data.items||[]} columns={['requested_at','playbook_name','status','requested_by','approved_by','executor','completed_at']} exportName="threatlens-response-executions" /></Panel>
+    <div className="two-col">
+      <Panel title="Playbooks"><DataTable rows={playbooks.data.items || []} columns={['name','action_type','risk_level','version','enabled']} /></Panel>
+      <Panel title="Request response"><div className="stack"><label>Playbook<select value={selected} onChange={e => setSelected(e.target.value)}><option value="">Select first available</option>{(playbooks.data.items || []).map(row => <option key={value(row, ['playbook_uuid'])} value={value(row, ['playbook_uuid'])}>{value(row, ['name'])}</option>)}</select></label><button className="primary" disabled={!incidentId || !hasPermission(session.user, 'response:request')} onClick={() => void request()}>Request approval</button>{!incidentId && <Empty>Select an incident first.</Empty>}</div></Panel>
+    </div>
+    <Panel title="Human approval and execution">
+      {!activeExecution ? <Empty>No response execution is available.</Empty> : <div className="stack">
+        <label>Execution<select value={executionUuid} onChange={e => setSelectedExecution(e.target.value)}>{executionRows.map(row => <option key={value(row, ['execution_uuid'])} value={value(row, ['execution_uuid'])}>{value(row, ['playbook_name'])} · {value(row, ['status'])} · requested by {value(row, ['requested_by'])}</option>)}</select></label>
+        <Notice>Current state: <b>{executionStatus}</b>. Requester: <b>{requester}</b>. Approval and execution remain separate audited transitions.</Notice>
+        {executionStatus === 'requested' && requester === username && <Notice tone="warning">Separation of duties: the requester cannot approve this response. Sign in as another authorized analyst.</Notice>}
+        <label>Approval note<textarea rows={3} value={approvalNote} onChange={e => setApprovalNote(e.target.value)} /></label>
+        <div className="button-row"><button className="primary" disabled={!canReview} onClick={() => void review(true)}>Approve response</button><button className="secondary" disabled={!canReview} onClick={() => void review(false)}>Reject response</button></div>
+        <label>Execution outcome<select value={outcome} onChange={e => setOutcome(e.target.value)}><option value="success">Success</option><option value="partial">Partial</option><option value="failed">Failed</option><option value="cancelled">Cancelled</option></select></label>
+        <label>Rollback / safety notes<textarea rows={3} value={rollbackNotes} onChange={e => setRollbackNotes(e.target.value)} /></label>
+        <button className="primary" disabled={!canExecute} onClick={() => void execute()}>Record approved simulated execution</button>
+      </div>}
+      {message && <Notice>{message}</Notice>}
+    </Panel>
+    <Panel title="Response execution ledger"><DataTable rows={executionRows} columns={['requested_at','playbook_name','status','requested_by','approved_by','executor','completed_at']} exportName="threatlens-response-executions" /></Panel>
   </>
 }
 
