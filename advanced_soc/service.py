@@ -946,6 +946,8 @@ class AdvancedSocService:
             raise LookupError("Response execution was not found.")
         if row.status != "requested":
             raise ValueError("Only a requested response execution can be reviewed.")
+        if row.requested_by == actor:
+            raise PermissionError("The requester cannot approve their own response execution.")
         row.approved_by = actor
         row.approved_at = _now()
         if payload.approved:
