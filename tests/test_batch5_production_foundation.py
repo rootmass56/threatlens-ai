@@ -278,6 +278,10 @@ def test_batch5_frontend_uses_durable_jobs() -> None:
     assert "/assistant/jobs" in source
     assert "QUEUED" in source or "queued" in source
     assert "setInterval" in source
+    assert "const reloadHistory = history.reload" in source
+    assert "const reloadJobs = jobs.reload" in source
+    assert "[jobStatus, jobUuid, reloadHistory, reloadJobs, session]" in source
+    assert "[history, jobStatus, jobUuid, jobs, session]" not in source
 
 
 def test_batch5_job_capacity_backpressure_is_database_authoritative(job_session) -> None:
