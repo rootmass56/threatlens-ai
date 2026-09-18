@@ -227,6 +227,12 @@ def test_advanced_soc_service_end_to_end_governance(batch6_environment) -> None:
             "analyst",
         )
         assert requested["status"] == "requested"
+        with pytest.raises(PermissionError, match="requester cannot approve"):
+            service.approve_execution(
+                requested["execution_uuid"],
+                PlaybookApprovalRequest(approved=True, note="Self-approval must fail."),
+                "analyst",
+            )
         approved = service.approve_execution(
             requested["execution_uuid"],
             PlaybookApprovalRequest(approved=True, note="Evidence validated."),
@@ -344,6 +350,8 @@ def test_batch6_openapi_has_advanced_soc_and_separate_machine_auth_boundary() ->
         "/api/v1/hunts/saved",
         "/api/v1/incidents/{incident_uuid}/case-operations",
         "/api/v1/response/playbooks",
+        "/api/v1/response-executions/{execution_uuid}/approval",
+        "/api/v1/response-executions/{execution_uuid}/execute",
         "/api/v1/detections/feedback",
         "/api/v1/detections/tunings",
         "/api/v1/incidents/{incident_uuid}/graph/intelligence",
@@ -382,3 +390,14 @@ def test_batch6_migration_chain_and_models_present() -> None:
         "detection_tunings",
     }
     assert required_tables <= set(Base.metadata.tables)
+
+
+def test_batch6_response_frontend_exposes_governed_approval_and_execution() -> None:
+    source = (ROOT / "frontend" / "src" / "pages" / "AdvancedSocPages.tsx").read_text(encoding="utf-8")
+    assert "/response-executions/${executionUuid}/approval" in source
+    assert "/response-executions/${executionUuid}/execute" in source
+    assert "response:approve" in source
+    assert "response:execute" in source
+    assert "Approve response" in source
+    assert "Record approved simulated execution" in source
+    assert "requester cannot approve" in source.lower()
