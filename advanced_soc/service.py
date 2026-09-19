@@ -116,7 +116,7 @@ DEFAULT_PLAYBOOKS: tuple[dict[str, Any], ...] = (
 
 
 def _sha256(value: str | bytes) -> str:
-    payload = value.encode() if isinstance(value, str) else value
+    payload = value.encode("utf-8") if isinstance(value, str) else value
     return hashlib.sha256(payload).hexdigest()
 
 
@@ -1045,7 +1045,7 @@ class AdvancedSocService:
         if bind is not None and bind.dialect.name == "postgresql":
             # Serialize proposals for the same governed rule/type so concurrent requests
             # cannot both pass the open-proposal check before either insert commits.
-            lock_material = f"detection-tuning:{payload.rule_id}:{payload.proposal_type}".encode("utf-8")
+            lock_material = f"detection-tuning:{payload.rule_id}:{payload.proposal_type}".encode()
             lock_key = int.from_bytes(hashlib.sha256(lock_material).digest()[:8], "big", signed=True)
             self.session.scalar(select(func.pg_advisory_xact_lock(lock_key)))
         existing = self.session.scalar(
