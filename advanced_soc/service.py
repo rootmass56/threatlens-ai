@@ -116,7 +116,7 @@ DEFAULT_PLAYBOOKS: tuple[dict[str, Any], ...] = (
 
 
 def _sha256(value: str | bytes) -> str:
-    payload = value.encode("utf-8") if isinstance(value, str) else value
+    payload = value.encode() if isinstance(value, str) else value
     return hashlib.sha256(payload).hexdigest()
 
 
