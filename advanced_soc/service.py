@@ -1041,6 +1041,13 @@ class AdvancedSocService:
         return sorted(results, key=lambda x: (-x["alert_firings"], x["rule_id"]))
 
     def propose_tuning(self, payload: DetectionTuningCreate, actor: str) -> dict[str, Any]:
+        bind = self.session.get_bind()
+        if bind is not None and bind.dialect.name == "postgresql":
+            # Serialize proposals for the same governed rule/type so concurrent requests
+            # cannot both pass the open-proposal check before either insert commits.
+            lock_material = f"detection-tuning:{payload.rule_id}:{payload.proposal_type}".encode("utf-8")
+            lock_key = int.from_bytes(hashlib.sha256(lock_material).digest()[:8], "big", signed=True)
+            self.session.scalar(select(func.pg_advisory_xact_lock(lock_key)))
         existing = self.session.scalar(
             select(DetectionTuningModel)
             .where(
