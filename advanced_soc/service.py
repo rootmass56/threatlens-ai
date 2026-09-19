@@ -1041,6 +1041,28 @@ class AdvancedSocService:
         return sorted(results, key=lambda x: (-x["alert_firings"], x["rule_id"]))
 
     def propose_tuning(self, payload: DetectionTuningCreate, actor: str) -> dict[str, Any]:
+        bind = self.session.get_bind()
+        if bind is not None and bind.dialect.name == "postgresql":
+            # Serialize proposals for the same governed rule/type so concurrent requests
+            # cannot both pass the open-proposal check before either insert commits.
+            lock_material = f"detection-tuning:{payload.rule_id}:{payload.proposal_type}".encode()
+            lock_key = int.from_bytes(hashlib.sha256(lock_material).digest()[:8], "big", signed=True)
+            self.session.scalar(select(func.pg_advisory_xact_lock(lock_key)))
+        existing = self.session.scalar(
+            select(DetectionTuningModel)
+            .where(
+                DetectionTuningModel.rule_id == payload.rule_id,
+                DetectionTuningModel.proposal_type == payload.proposal_type,
+                DetectionTuningModel.status == "proposed",
+            )
+            .order_by(DetectionTuningModel.created_at.desc())
+            .limit(1)
+        )
+        if existing is not None:
+            raise FileExistsError(
+                f"An open {payload.proposal_type} tuning proposal already exists for rule {payload.rule_id}. "
+                "Review the existing proposal before creating another."
+            )
         row = DetectionTuningModel(
             tuning_uuid=str(uuid4()), rule_id=payload.rule_id, rule_version=payload.rule_version,
             proposal_type=payload.proposal_type, proposal_json=dict(payload.proposal), rationale=payload.rationale,
@@ -1057,6 +1079,8 @@ class AdvancedSocService:
             raise LookupError("Detection tuning proposal was not found.")
         if row.status != "proposed":
             raise ValueError("Only proposed detection tunings may be reviewed.")
+        if row.requested_by == actor:
+            raise PermissionError("The requester cannot review their own detection tuning proposal.")
         row.status = payload.decision
         row.reviewed_by = actor
         row.reviewed_at = _now()

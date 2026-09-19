@@ -262,22 +262,30 @@ def test_advanced_soc_service_end_to_end_governance(batch6_environment) -> None:
         )
         assert feedback["verdict"] == "true_positive"
 
-        tuning = service.propose_tuning(
-            DetectionTuningCreate(
-                rule_id=alert.rule_id or alert.detection_id,
-                rule_version="1",
-                proposal_type="threshold",
-                proposal={"count": 6},
-                rationale="Governed proposal; do not mutate runtime rules silently.",
-            ),
-            "rule_engineer",
+        proposal = DetectionTuningCreate(
+            rule_id=alert.rule_id or alert.detection_id,
+            rule_version="1",
+            proposal_type="threshold",
+            proposal={"count": 6},
+            rationale="Governed proposal; do not mutate runtime rules silently.",
         )
+        tuning = service.propose_tuning(proposal, "rule_engineer")
+        with pytest.raises(FileExistsError, match="open threshold tuning proposal"):
+            service.propose_tuning(proposal, "detection_reviewer")
+        with pytest.raises(PermissionError, match="requester cannot review"):
+            service.review_tuning(
+                tuning["tuning_uuid"],
+                DetectionTuningReview(decision="approved", review_note="Self-review must fail."),
+                "rule_engineer",
+            )
         reviewed = service.review_tuning(
             tuning["tuning_uuid"],
             DetectionTuningReview(decision="approved", review_note="Proceed through YAML + fixtures."),
-            "rule_engineer",
+            "detection_reviewer",
         )
         assert reviewed["status"] == "approved"
+        assert reviewed["requested_by"] == "rule_engineer"
+        assert reviewed["reviewed_by"] == "detection_reviewer"
         assert reviewed["patch"]["runtime_mutation"] is False
 
         graph = service.graph_intelligence(incident.incident_uuid)
@@ -401,3 +409,13 @@ def test_batch6_response_frontend_exposes_governed_approval_and_execution() -> N
     assert "Approve response" in source
     assert "Record approved simulated execution" in source
     assert "requester cannot approve" in source.lower()
+
+
+def test_batch6_detection_tuning_frontend_exposes_separate_human_review() -> None:
+    source = (ROOT / "frontend" / "src" / "pages" / "AdvancedSocPages.tsx").read_text(encoding="utf-8")
+    assert "/detections/tunings/${tuningUuid}/review" in source
+    assert "Human tuning review" in source
+    assert "Approve tuning" in source
+    assert "Reject tuning" in source
+    assert "A different detection manager must review this proposal." in source
+    assert "An open threshold proposal already exists for this rule." in source

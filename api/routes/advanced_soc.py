@@ -523,7 +523,15 @@ def propose_detection_tuning(
     principal: RequireDetectionManage,
     session: DatabaseSession,
 ) -> dict:
-    return AdvancedSocService(session).propose_tuning(payload, principal.username)
+    try:
+        return AdvancedSocService(session).propose_tuning(payload, principal.username)
+    except FileExistsError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "detection_tuning_conflict", "message": str(error)},
+        ) from error
+    except ValueError as error:
+        raise _invalid(error) from error
 
 
 @router.get("/detections/tunings")
@@ -549,6 +557,8 @@ def review_detection_tuning(
         raise _not_found(error) from error
     except ValueError as error:
         raise _invalid(error) from error
+    except PermissionError as error:
+        raise _forbidden(error) from error
 
 
 # ============================================================================
