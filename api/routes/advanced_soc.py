@@ -533,6 +533,7 @@ def propose_detection_tuning(
     except ValueError as error:
         raise _invalid(error) from error
 
+
 @router.get("/detections/tunings")
 def list_detection_tunings(
     principal: RequireDetectionManage,
@@ -558,6 +559,7 @@ def review_detection_tuning(
         raise _invalid(error) from error
     except PermissionError as error:
         raise _forbidden(error) from error
+
 
 # ============================================================================
 # 6H - graph intelligence + search/scale API
