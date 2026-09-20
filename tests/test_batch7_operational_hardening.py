@@ -262,7 +262,6 @@ def test_batch7_frontend_exposes_observability_without_public_metrics_url() -> N
         assert f"add_header {header}" in static_location
 
 
-
 def test_batch7_knowledge_reindex_is_non_blocking_and_status_remains_available() -> None:
     route = (ROOT / "api/routes/rag.py").read_text(encoding="utf-8")
     indexing = (ROOT / "rag/indexing.py").read_text(encoding="utf-8")
@@ -273,6 +272,7 @@ def test_batch7_knowledge_reindex_is_non_blocking_and_status_remains_available()
     status_source = indexing.split("    def status(self) -> dict:", 1)[1]
     assert "with self._lock:" not in status_source
     assert "last known-good snapshot" in status_source
+
 
 def test_batch7_runbook_and_acceptance_matrix_is_complete() -> None:
     for name in (
