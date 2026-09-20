@@ -237,7 +237,10 @@ def test_batch7_frontend_exposes_observability_without_public_metrics_url() -> N
     nginx = (ROOT / "frontend/nginx.conf").read_text(encoding="utf-8")
     assert "/api/v1/system/observability" in system
     assert "Observability" in system
+    assert "first metadata recovery can take several minutes" in system
     assert "location /api/" in nginx
+    assert "location = /api/v1/rag/knowledge/reindex" in nginx
+    assert "proxy_read_timeout 900s" in nginx
     assert "location /internal/" not in nginx
 
     server_prefix, after_api = nginx.split("location /api/ {", 1)

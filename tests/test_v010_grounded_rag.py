@@ -307,9 +307,36 @@ def test_knowledge_index_is_incremental_and_hash_versioned(
     assert forced.status == "indexed"
     assert forced.chunks_deleted == first.indexed_chunks
     assert forced.knowledge_version == first.knowledge_version
-    manifest = json.loads((tmp_path / "index_manifest.json").read_text(encoding="utf-8"))
+    manifest_path = tmp_path / "index_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["schema_version"] == "0.12.0"
     assert manifest["embedding_model"].startswith("threatlens-hashing-")
+
+    # Container-local files may disappear across deployments. The vector store's
+    # durable manifest must preserve status and incremental no-op behavior.
+    manifest_path.unlink()
+    status = instance.indexer.status()
+    assert status["knowledge_version"] == first.knowledge_version
+    assert status["source_count"] == first.documents_seen
+    recovered = instance.indexer.index(database_session)
+    assert recovered.status == "unchanged"
+    assert recovered.chunks_upserted == 0
+
+
+def test_sqlite_vector_store_persists_index_manifest(tmp_path: Path) -> None:
+    path = tmp_path / "vectors.sqlite3"
+    payload = {
+        "schema_version": "0.12.0",
+        "knowledge_version": "durable-version",
+        "embedding_model": "test-embedding",
+        "indexed_utc": "2026-09-20T00:00:00+00:00",
+        "sources": {"source-1": {"chunk_count": 3}},
+    }
+    first = SQLiteVectorStore(path=path, collection_name="durable-test")
+    first.write_manifest(payload)
+
+    restarted = SQLiteVectorStore(path=path, collection_name="durable-test")
+    assert restarted.read_manifest() == payload
 
 
 def test_retriever_rejects_injected_knowledge_chunks() -> None:

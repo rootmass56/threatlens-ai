@@ -15,7 +15,7 @@ export function SystemPage({ session, initialTab = 'Health' }: { session: Sessio
   useEffect(() => { setTab(initialTab) }, [initialTab])
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
-  async function reindex(force: boolean) { setBusy(true); setMessage('Re-indexing governed knowledge…'); try { const result = await api<Json>(session, '/api/v1/rag/knowledge/reindex', { method: 'POST', body: JSON.stringify({ force }) }); setMessage(`Knowledge ${value(result, ['status'])} · ${value(result, ['indexed_chunks'])} chunks`); await rag.reload(); await knowledge.reload() } catch (caught) { setMessage(caught instanceof Error ? caught.message : 'RAG re-index failed.') } finally { setBusy(false) } }
+  async function reindex(force: boolean) { setBusy(true); setMessage('Re-indexing governed knowledge… The first metadata recovery can take several minutes.'); try { const result = await api<Json>(session, '/api/v1/rag/knowledge/reindex', { method: 'POST', body: JSON.stringify({ force }) }); setMessage(`Knowledge ${value(result, ['status'])} · ${value(result, ['indexed_chunks'])} chunks`); await rag.reload(); await knowledge.reload() } catch (caught) { setMessage(caught instanceof Error ? caught.message : 'RAG re-index failed.') } finally { setBusy(false) } }
   const health = asJson(rag.data)
   return <>
     <Header kicker="RUNTIME" title="System & AI Knowledge" subtitle="Production readiness, security configuration, vector/index health and governed knowledge administration." />
