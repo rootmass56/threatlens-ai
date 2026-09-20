@@ -611,10 +611,15 @@ def generate_incident_report(
         if additional:
             story.extend([PageBreak(), Paragraph("Additional analysis events", styles["SectionHeading"]), Paragraph("These records belong to the same analysis session but are explicitly separated because they are not linked as supporting evidence for the correlated incidents above.", styles["BodyText"]), Spacer(1, 6), _timeline_table(additional, styles)])
 
-    story.extend([
-        PageBreak(), Paragraph("Response and governance", styles["SectionHeading"]),
+    story.append(PageBreak())
+    recommendation_flowables = [
+        Paragraph("Response and governance", styles["SectionHeading"]),
         Paragraph("The following actions are derived from the governed detection recommendations. Sequence and scope must be confirmed by an authorized responder.", styles["BodyText"]),
-        Spacer(1, 6), _response_plan_table(_recommendations(alerts_df), styles), Spacer(1, 8),
+        Spacer(1, 6),
+    ]
+    story.append(KeepTogether(recommendation_flowables))
+    story.extend([
+        _response_plan_table(_recommendations(alerts_df), styles), Spacer(1, 8),
         _narrative_callout("HUMAN AUTHORIZATION BOUNDARY", "ThreatLens records approval-gated response activity. This report does not execute endpoint, identity, network or firewall changes. Production actions require explicit human approval and auditable execution evidence.", styles, "Human approval required"),
     ])
     _append_methodology(story, report_id, styles)
