@@ -265,9 +265,13 @@ def test_batch7_frontend_exposes_observability_without_public_metrics_url() -> N
 def test_batch7_knowledge_reindex_is_non_blocking_and_status_remains_available() -> None:
     route = (ROOT / "api/routes/rag.py").read_text(encoding="utf-8")
     indexing = (ROOT / "rag/indexing.py").read_text(encoding="utf-8")
-    assert "BackgroundTasks" in route
+    assert "Thread(" in route
+    assert 'name="threatlens-knowledge-reindex"' in route
+    assert "daemon=True" in route
+    assert "runner.start()" in route
+    assert "rag.knowledge_reindex.started" in route
+    assert "rag.knowledge_reindex.completed" in route
     assert "status_code=status.HTTP_202_ACCEPTED" in route
-    assert "background_tasks.add_task(" in route
     assert '"reindex": _reindex_snapshot()' in route
     status_source = indexing.split("    def status(self) -> dict:", 1)[1]
     assert "with self._lock:" not in status_source
