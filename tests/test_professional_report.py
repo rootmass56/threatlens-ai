@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
-from pypdf import PdfReader
 
 from core.report_generator import _recommendations, _report_metrics, generate_incident_report
 
@@ -168,13 +167,8 @@ def test_professional_report_handles_persisted_case_evidence(tmp_path: Path) -> 
     assert b"ThreatLens AI Incident Investigation Report" in payload
     assert b"Evidence-backed incident investigation report" in payload
     assert b"MITRE ATT&CK" in payload
-    reader = PdfReader(report_path)
-    font_subtypes = {
-        str(font.get_object().get("/Subtype"))
-        for page in reader.pages
-        for font in (page["/Resources"].get("/Font") or {}).values()
-    }
-    assert "/TrueType" in font_subtypes
+    assert b"/Subtype /TrueType" in payload
+    assert b"/FontFile2" in payload
 
 
 def test_professional_report_handles_empty_analysis(tmp_path: Path) -> None:
