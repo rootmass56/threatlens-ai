@@ -11,7 +11,7 @@ os.environ.setdefault(
 )
 
 from api.config import SecuritySettings
-from api.main import create_app
+from api.main import _non_negative_pool_gauge, create_app
 from api.version import THREATLENS_VERSION
 from core.observability import JsonLogFormatter, MetricsRegistry
 
@@ -59,6 +59,13 @@ def test_batch7_metrics_registry_exports_prometheus_histogram() -> None:
     assert "threatlens_test_gauge 2" in text
     assert "threatlens_test_seconds_bucket" in text
     assert "threatlens_test_seconds_count" in text
+
+
+def test_batch7_pool_gauges_are_never_negative() -> None:
+    assert _non_negative_pool_gauge(-5) == 0.0
+    assert _non_negative_pool_gauge(0) == 0.0
+    assert _non_negative_pool_gauge(3) == 3.0
+    assert _non_negative_pool_gauge(2.5) == 2.5
 
 
 def test_batch7_json_log_formatter_is_machine_parseable() -> None:
