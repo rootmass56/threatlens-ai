@@ -204,16 +204,19 @@ class KnowledgeIndexService:
             )
 
     def status(self) -> dict:
-        with self._lock:
-            payload = self._read_manifest()
-            ready, detail = self.vector_store.ready()
-            return {
-                "knowledge_version": payload.get("knowledge_version"),
-                "embedding_model": payload.get("embedding_model"),
-                "indexed_utc": payload.get("indexed_utc"),
-                "indexed_chunks": self.vector_store.count() if ready else 0,
-                "source_count": len(payload.get("sources") or {}),
-                "manifest_path": self.manifest_path.as_posix(),
-                "vector_ready": ready,
-                "detail": detail,
-            }
+        # Status must remain available while a long embedding run is in progress.
+        # The durable manifest is replaced atomically only after a successful index,
+        # so readers can safely observe the last known-good snapshot without waiting
+        # on the writer lock.
+        payload = self._read_manifest()
+        ready, detail = self.vector_store.ready()
+        return {
+            "knowledge_version": payload.get("knowledge_version"),
+            "embedding_model": payload.get("embedding_model"),
+            "indexed_utc": payload.get("indexed_utc"),
+            "indexed_chunks": self.vector_store.count() if ready else 0,
+            "source_count": len(payload.get("sources") or {}),
+            "manifest_path": self.manifest_path.as_posix(),
+            "vector_ready": ready,
+            "detail": detail,
+        }
