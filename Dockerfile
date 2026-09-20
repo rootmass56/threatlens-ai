@@ -13,6 +13,7 @@ WORKDIR /app
 # 10.42-1+deb12u1 or newer. Keep this targeted and remove APT metadata afterward.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends --only-upgrade libpcre2-8-0 \
+    && apt-get install -y --no-install-recommends fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 # THREATLENS_H4_PCRE2_SECURITY_PATCH_END
 
