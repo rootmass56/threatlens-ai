@@ -16,6 +16,7 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import (
+    KeepTogether,
     LongTable,
     PageBreak,
     Paragraph,
@@ -556,8 +557,12 @@ def generate_incident_report(
     metrics = _report_metrics(events_df, alerts_df, incidents_df)
     details_map = _details_by_incident_uuid(incident_details)
     story: list[Any] = [
-        _title_panel(analysis_name, report_id, styles), Spacer(1, 8),
-        _metadata_grid(session_uuid, analyst, generated_at, metrics, styles), Spacer(1, 11),
+        KeepTogether([
+            _title_panel(analysis_name, report_id, styles),
+            Spacer(1, 8),
+            _metadata_grid(session_uuid, analyst, generated_at, metrics, styles),
+        ]),
+        Spacer(1, 11),
         Paragraph("Executive overview", styles["SectionHeading"]), _metric_cards(metrics, styles), Spacer(1, 8),
         _narrative_callout("OPERATIONAL ASSESSMENT", _operational_assessment(metrics), styles, "No assessment available"), Spacer(1, 8),
         _overview_table(metrics, styles), PageBreak(), Paragraph("Findings register", styles["SectionHeading"]),
