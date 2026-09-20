@@ -237,10 +237,12 @@ def test_batch7_frontend_exposes_observability_without_public_metrics_url() -> N
     nginx = (ROOT / "frontend/nginx.conf").read_text(encoding="utf-8")
     assert "/api/v1/system/observability" in system
     assert "Observability" in system
-    assert "first metadata recovery can take several minutes" in system
+    assert "continues safely in the background" in system
+    assert "Status refreshes automatically" in system
+    assert "window.setInterval" in system
     assert "location /api/" in nginx
-    assert "location = /api/v1/rag/knowledge/reindex" in nginx
-    assert "proxy_read_timeout 900s" in nginx
+    assert "location = /api/v1/rag/knowledge/reindex" not in nginx
+    assert "proxy_read_timeout 120s" in nginx
     assert "location /internal/" not in nginx
 
     server_prefix, after_api = nginx.split("location /api/ {", 1)
@@ -259,6 +261,18 @@ def test_batch7_frontend_exposes_observability_without_public_metrics_url() -> N
         assert f"add_header {header}" not in api_location
         assert f"add_header {header}" in static_location
 
+
+
+def test_batch7_knowledge_reindex_is_non_blocking_and_status_remains_available() -> None:
+    route = (ROOT / "api/routes/rag.py").read_text(encoding="utf-8")
+    indexing = (ROOT / "rag/indexing.py").read_text(encoding="utf-8")
+    assert "BackgroundTasks" in route
+    assert "status_code=status.HTTP_202_ACCEPTED" in route
+    assert "background_tasks.add_task(" in route
+    assert '"reindex": _reindex_snapshot()' in route
+    status_source = indexing.split("    def status(self) -> dict:", 1)[1]
+    assert "with self._lock:" not in status_source
+    assert "last known-good snapshot" in status_source
 
 def test_batch7_runbook_and_acceptance_matrix_is_complete() -> None:
     for name in (
