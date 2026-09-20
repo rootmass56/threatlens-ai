@@ -385,7 +385,7 @@ def _alert_table(alerts_df: pd.DataFrame, styles) -> LongTable:
     for _, row in alerts_df.iterrows():
         supporting = row.get("supporting_event_ids", row.get("supporting_event_uuids"))
         rows.append([_paragraph(row.get("detection_name"), styles["Small"]), _paragraph(row.get("severity"), styles["Small"]), _paragraph(row.get("source_ip"), styles["Small"]), _paragraph(_format_number(row.get("risk_score")), styles["Small"]), _paragraph(_format_number(row.get("confidence")), styles["Small"]), _paragraph(row.get("mitre_technique_id"), styles["Small"]), _paragraph(_evidence_summary(supporting), styles["Small"])])
-    table = LongTable(rows, repeatRows=1, colWidths=[49 * mm, 21 * mm, 31 * mm, 16 * mm, 21 * mm, 24 * mm, 92 * mm])
+    table = LongTable(rows, repeatRows=1, colWidths=[55 * mm, 21 * mm, 31 * mm, 16 * mm, 21 * mm, 24 * mm, 86 * mm])
     table.setStyle(_table_style(compact=True))
     commands: list[tuple[Any, ...]] = []
     for index, (_, row) in enumerate(alerts_df.iterrows(), start=1):
@@ -541,7 +541,7 @@ def _append_case_notes_and_evidence(story: list[Any], details: dict[str, Any] | 
         rows = [["Type", "Source reference", "SHA-256", "Registered by", "Created", "Description"]]
         for item in evidence:
             rows.append([_paragraph(item.get("evidence_type"), styles["Tiny"]), _paragraph(item.get("source_reference"), styles["Tiny"], "Not specified"), _paragraph(item.get("sha256"), styles["Tiny"], "Not supplied"), _paragraph(item.get("registered_by"), styles["Tiny"], "Not recorded"), _paragraph(_format_timestamp(item.get("created_at")), styles["Tiny"]), _paragraph(item.get("description"), styles["Tiny"])])
-        table = LongTable(rows, repeatRows=1, colWidths=[28 * mm, 37 * mm, 66 * mm, 28 * mm, 40 * mm, 55 * mm])
+        table = LongTable(rows, repeatRows=1, colWidths=[30 * mm, 52 * mm, 55 * mm, 24 * mm, 36 * mm, 57 * mm])
         table.setStyle(_table_style(compact=True))
         story.append(table)
 
