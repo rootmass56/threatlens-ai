@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+from collections import Counter
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -10,7 +11,7 @@ from xml.sax.saxutils import escape
 
 import pandas as pd
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
@@ -26,6 +27,36 @@ from reportlab.platypus import (
 )
 
 PROJECT_NAME = "ThreatLens AI"
+REPORT_TITLE = "Incident Investigation Report"
+REPORT_VERSION = "2.0"
+REPORT_CLASSIFICATION = "INTERNAL - AUTHORIZED SECURITY OPERATIONS USE"
+
+NAVY = colors.HexColor("#071C2C")
+NAVY_LIGHT = colors.HexColor("#0E3048")
+TEAL = colors.HexColor("#00A99D")
+INK = colors.HexColor("#162735")
+MUTED = colors.HexColor("#5C6F7E")
+LINE = colors.HexColor("#D5E0E7")
+SURFACE = colors.HexColor("#F3F7F9")
+SURFACE_ALT = colors.HexColor("#EAF2F5")
+WHITE = colors.white
+
+SEVERITY_COLORS = {
+    "critical": colors.HexColor("#9B1C31"),
+    "high": colors.HexColor("#C34A2C"),
+    "medium": colors.HexColor("#C47F00"),
+    "low": colors.HexColor("#276B8A"),
+    "informational": colors.HexColor("#607D8B"),
+    "unknown": MUTED,
+}
+SEVERITY_ORDER = {
+    "critical": 5,
+    "high": 4,
+    "medium": 3,
+    "low": 2,
+    "informational": 1,
+    "unknown": 0,
+}
 _MISSING_TEXT_VALUES = {"", "<na>", "nan", "nat", "none", "null"}
 
 
@@ -52,11 +83,7 @@ def _text(value: Any, default: str = "Not available") -> str:
     return escape(_display_value(value, default))
 
 
-def _paragraph(
-    value: Any,
-    style: ParagraphStyle,
-    default: str = "Not available",
-) -> Paragraph:
+def _paragraph(value: Any, style: ParagraphStyle, default: str = "Not available") -> Paragraph:
     return Paragraph(_text(value, default), style)
 
 
@@ -64,10 +91,30 @@ def _status_label(value: Any) -> str:
     return _display_value(value, "Open").replace("_", " ").title()
 
 
+def _format_timestamp(value: Any, default: str = "Not available") -> str:
+    if _is_missing(value):
+        return default
+    parsed = pd.to_datetime(value, errors="coerce", utc=True)
+    if pd.isna(parsed):
+        return _display_value(value, default)
+    return parsed.strftime("%Y-%m-%d %H:%M:%S UTC")
+
+
+def _format_number(value: Any, digits: int = 2, default: str = "Not available") -> str:
+    if _is_missing(value):
+        return default
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return _display_value(value, default)
+    if number.is_integer():
+        return str(int(number))
+    return f"{number:.{digits}f}".rstrip("0").rstrip(".")
+
+
 def _evidence_items(value: Any) -> list[str]:
     if _is_missing(value):
         return []
-
     parsed = value
     if isinstance(value, str):
         stripped = value.strip()
@@ -76,14 +123,12 @@ def _evidence_items(value: Any) -> list[str]:
                 parsed = ast.literal_eval(stripped)
             except (SyntaxError, ValueError):
                 parsed = stripped
-
     if isinstance(parsed, dict):
         iterable: Iterable[Any] = parsed.values()
     elif isinstance(parsed, (list, set, tuple)):
         iterable = parsed
     else:
         iterable = [parsed]
-
     return [text for item in iterable if not _is_missing(item) and (text := str(item).strip())]
 
 
@@ -92,7 +137,6 @@ def _evidence_summary(value: Any) -> str:
     count = len(items)
     if count == 0:
         return "No linked events"
-
     noun = "event" if count == 1 else "events"
     prefixes = [item if len(item) <= 8 else item[:8] for item in items[:2]]
     trace = ", ".join(prefixes)
@@ -101,35 +145,243 @@ def _evidence_summary(value: Any) -> str:
     return f"{count} linked {noun}: {trace}"
 
 
-def _table_style() -> TableStyle:
-    return TableStyle(
-        [
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0B2438")),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 0), (-1, -1), 8),
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("GRID", (0, 0), (-1, -1), 0.35, colors.grey),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F2F5F7")]),
-            ("LEFTPADDING", (0, 0), (-1, -1), 4),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 4),
-            ("TOPPADDING", (0, 0), (-1, -1), 4),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-        ]
-    )
+def _series_values(frame: pd.DataFrame, column: str) -> list[str]:
+    if frame.empty or column not in frame.columns:
+        return []
+    return [str(value).strip() for value in frame[column] if not _is_missing(value) and str(value).strip()]
+
+
+def _severity_counts(alerts_df: pd.DataFrame, incidents_df: pd.DataFrame) -> Counter[str]:
+    values = _series_values(alerts_df, "severity") or _series_values(incidents_df, "severity")
+    return Counter(value.lower() for value in values)
+
+
+def _highest_severity(alerts_df: pd.DataFrame, incidents_df: pd.DataFrame) -> str:
+    counts = _severity_counts(alerts_df, incidents_df)
+    if not counts:
+        return "None"
+    return max(counts, key=lambda value: SEVERITY_ORDER.get(value, 0)).title()
+
+
+def _numeric_summary(frame: pd.DataFrame, column: str) -> tuple[float | None, float | None]:
+    if frame.empty or column not in frame.columns:
+        return None, None
+    values = pd.to_numeric(frame[column], errors="coerce").dropna()
+    if values.empty:
+        return None, None
+    return float(values.max()), float(values.mean())
+
+
+def _analysis_window(events_df: pd.DataFrame, alerts_df: pd.DataFrame) -> tuple[str, str]:
+    values: list[Any] = []
+    for frame in (events_df, alerts_df):
+        if not frame.empty and "timestamp" in frame.columns:
+            values.extend(frame["timestamp"].tolist())
+    parsed = pd.to_datetime(pd.Series(values, dtype="object"), errors="coerce", utc=True).dropna()
+    if parsed.empty:
+        return "Not available", "Not available"
+    return _format_timestamp(parsed.min()), _format_timestamp(parsed.max())
+
+
+def _telemetry_sources(events_df: pd.DataFrame) -> list[str]:
+    for column in ("connector_id", "ingest_source", "dataset"):
+        values = sorted(set(_series_values(events_df, column)))
+        if values:
+            return values
+    return []
+
+
+def _attack_techniques(alerts_df: pd.DataFrame, incidents_df: pd.DataFrame) -> list[str]:
+    values: set[str] = set()
+    for frame in (alerts_df, incidents_df):
+        for column in ("mitre_technique_id", "attack_technique_id"):
+            values.update(_series_values(frame, column))
+    return sorted(values)
+
+
+def _report_identifier(session_uuid: str | None, generated_at: datetime) -> str:
+    session_component = "UNSCOPED"
+    if session_uuid:
+        compact = "".join(character for character in session_uuid.upper() if character.isalnum())
+        session_component = compact[:8] or "UNSCOPED"
+    return f"TL-IR-{generated_at:%Y%m%d}-{session_component}"
+
+
+def _report_metrics(events_df: pd.DataFrame, alerts_df: pd.DataFrame, incidents_df: pd.DataFrame) -> dict[str, Any]:
+    sources = _telemetry_sources(events_df)
+    max_risk, average_risk = _numeric_summary(incidents_df, "risk_score")
+    if max_risk is None:
+        max_risk, average_risk = _numeric_summary(alerts_df, "risk_score")
+    _, average_confidence = _numeric_summary(alerts_df, "confidence")
+    if average_confidence is None:
+        _, average_confidence = _numeric_summary(incidents_df, "confidence")
+    window_start, window_end = _analysis_window(events_df, alerts_df)
+    techniques = _attack_techniques(alerts_df, incidents_df)
+    status_counts = Counter(_status_label(value) for value in _series_values(incidents_df, "status"))
+    return {
+        "events": len(events_df),
+        "alerts": len(alerts_df),
+        "incidents": len(incidents_df),
+        "sources": sources,
+        "source_count": len(sources),
+        "highest_severity": _highest_severity(alerts_df, incidents_df),
+        "severity_counts": _severity_counts(alerts_df, incidents_df),
+        "max_risk": max_risk,
+        "average_risk": average_risk,
+        "average_confidence": average_confidence,
+        "window_start": window_start,
+        "window_end": window_end,
+        "techniques": techniques,
+        "status_counts": status_counts,
+    }
+
+
+def _build_styles():
+    styles = getSampleStyleSheet()
+    styles["BodyText"].fontName = "Helvetica"
+    styles["BodyText"].fontSize = 9
+    styles["BodyText"].leading = 13
+    styles["BodyText"].textColor = INK
+    styles.add(ParagraphStyle(name="ReportTitle", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=23, leading=27, alignment=TA_LEFT, textColor=WHITE, spaceAfter=5))
+    styles.add(ParagraphStyle(name="ReportSubtitle", parent=styles["BodyText"], fontSize=10, leading=14, textColor=colors.HexColor("#C8E8EA")))
+    styles.add(ParagraphStyle(name="Eyebrow", parent=styles["BodyText"], fontName="Helvetica-Bold", fontSize=7, leading=9, textColor=TEAL, spaceAfter=3))
+    styles.add(ParagraphStyle(name="SectionHeading", parent=styles["Heading2"], fontName="Helvetica-Bold", fontSize=15, leading=18, textColor=NAVY, spaceBefore=4, spaceAfter=7, keepWithNext=True))
+    styles.add(ParagraphStyle(name="SubsectionHeading", parent=styles["Heading3"], fontName="Helvetica-Bold", fontSize=11, leading=14, textColor=NAVY_LIGHT, spaceBefore=6, spaceAfter=5, keepWithNext=True))
+    styles.add(ParagraphStyle(name="Small", parent=styles["BodyText"], fontSize=7.5, leading=9.5))
+    styles.add(ParagraphStyle(name="Tiny", parent=styles["BodyText"], fontSize=6.5, leading=8))
+    styles.add(ParagraphStyle(name="SmallInverse", parent=styles["Small"], textColor=WHITE))
+    styles.add(ParagraphStyle(name="MetaLabel", parent=styles["Small"], fontName="Helvetica-Bold", fontSize=6.5, leading=8, textColor=MUTED))
+    styles.add(ParagraphStyle(name="MetricValue", parent=styles["BodyText"], fontName="Helvetica-Bold", fontSize=18, leading=20, alignment=TA_CENTER, textColor=NAVY))
+    styles.add(ParagraphStyle(name="MetricLabel", parent=styles["Small"], fontName="Helvetica-Bold", fontSize=6.5, leading=8, alignment=TA_CENTER, textColor=MUTED))
+    styles.add(ParagraphStyle(name="Callout", parent=styles["BodyText"], fontSize=8.5, leading=12, textColor=INK))
+    styles.add(ParagraphStyle(name="BulletBody", parent=styles["BodyText"], leftIndent=12, firstLineIndent=-8, bulletIndent=2, spaceAfter=4))
+    return styles
+
+
+def _table_style(*, compact: bool = False) -> TableStyle:
+    vertical_padding = 3 if compact else 5
+    return TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), NAVY), ("TEXTCOLOR", (0, 0), (-1, 0), WHITE),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"), ("FONTSIZE", (0, 0), (-1, -1), 7.5),
+        ("LEADING", (0, 0), (-1, -1), 9.5), ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LINEBELOW", (0, 0), (-1, 0), 0.8, TEAL), ("LINEBELOW", (0, 1), (-1, -1), 0.3, LINE),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [WHITE, SURFACE]),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5), ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), vertical_padding), ("BOTTOMPADDING", (0, 0), (-1, -1), vertical_padding),
+    ])
+
+
+def _key_value_style() -> TableStyle:
+    return TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), WHITE), ("BACKGROUND", (0, 0), (0, -1), SURFACE_ALT),
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"), ("TEXTCOLOR", (0, 0), (0, -1), NAVY_LIGHT),
+        ("FONTSIZE", (0, 0), (-1, -1), 7.5), ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("INNERGRID", (0, 0), (-1, -1), 0.35, LINE),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6), ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 5), ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+    ])
 
 
 def _draw_page(canvas, document) -> None:
     canvas.saveState()
     width, height = document.pagesize
-    canvas.setStrokeColor(colors.HexColor("#1477A8"))
-    canvas.setLineWidth(0.8)
-    canvas.rect(10 * mm, 10 * mm, width - 20 * mm, height - 20 * mm)
-    canvas.setFont("Helvetica", 8)
-    canvas.setFillColor(colors.HexColor("#425466"))
-    canvas.drawString(15 * mm, 7 * mm, f"{PROJECT_NAME} | Incident Investigation Report")
-    canvas.drawRightString(width - 15 * mm, 7 * mm, f"Page {document.page}")
+    canvas.setFillColor(NAVY)
+    canvas.rect(0, height - 11 * mm, width, 11 * mm, stroke=0, fill=1)
+    canvas.setFillColor(TEAL)
+    canvas.rect(0, height - 11 * mm, 4 * mm, 11 * mm, stroke=0, fill=1)
+    canvas.setFont("Helvetica-Bold", 8)
+    canvas.setFillColor(WHITE)
+    canvas.drawString(10 * mm, height - 7 * mm, PROJECT_NAME)
+    canvas.setFont("Helvetica", 7)
+    canvas.setFillColor(colors.HexColor("#C8E8EA"))
+    canvas.drawRightString(width - 10 * mm, height - 7 * mm, REPORT_CLASSIFICATION)
+    canvas.setStrokeColor(LINE)
+    canvas.setLineWidth(0.5)
+    canvas.line(14 * mm, 11 * mm, width - 14 * mm, 11 * mm)
+    canvas.setFont("Helvetica", 7)
+    canvas.setFillColor(MUTED)
+    canvas.drawString(14 * mm, 6.5 * mm, f"{PROJECT_NAME} | {REPORT_TITLE} v{REPORT_VERSION}")
+    canvas.drawCentredString(width / 2, 6.5 * mm, "Generated from persisted investigation evidence")
+    canvas.drawRightString(width - 14 * mm, 6.5 * mm, f"Page {document.page}")
     canvas.restoreState()
+
+
+def _metadata_cell(label: str, value: Any, styles) -> Paragraph:
+    return Paragraph(f'<font color="#5C6F7E" size="6"><b>{escape(label.upper())}</b></font><br/><font color="#162735" size="8"><b>{_text(value)}</b></font>', styles["Small"])
+
+
+def _title_panel(analysis_name: str | None, report_id: str, styles) -> Table:
+    left = [Paragraph("THREATLENS SECURITY OPERATIONS", styles["Eyebrow"]), Paragraph(REPORT_TITLE, styles["ReportTitle"]), Paragraph(_text(analysis_name, "Current Analysis"), styles["ReportSubtitle"])]
+    right = Table([[Paragraph("DOCUMENT STATUS", styles["MetaLabel"])], [Paragraph("FINAL - SYSTEM GENERATED", styles["SmallInverse"])], [Paragraph("REPORT ID", styles["MetaLabel"])], [Paragraph(_text(report_id), styles["SmallInverse"])]], colWidths=[72 * mm])
+    right.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), NAVY_LIGHT), ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#2C596D")), ("LEFTPADDING", (0, 0), (-1, -1), 7), ("RIGHTPADDING", (0, 0), (-1, -1), 7), ("TOPPADDING", (0, 0), (-1, -1), 4), ("BOTTOMPADDING", (0, 0), (-1, -1), 4)]))
+    panel = Table([[left, right]], colWidths=[182 * mm, 72 * mm])
+    panel.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), NAVY), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("BOX", (0, 0), (-1, -1), 0.8, NAVY), ("LEFTPADDING", (0, 0), (0, 0), 12), ("RIGHTPADDING", (0, 0), (0, 0), 12), ("TOPPADDING", (0, 0), (-1, -1), 11), ("BOTTOMPADDING", (0, 0), (-1, -1), 11), ("LEFTPADDING", (1, 0), (1, 0), 0), ("RIGHTPADDING", (1, 0), (1, 0), 8)]))
+    return panel
+
+
+def _metadata_grid(session_uuid: str | None, analyst: str | None, generated_at: datetime, metrics: dict[str, Any], styles) -> Table:
+    rows = [[_metadata_cell("Session UUID", session_uuid, styles), _metadata_cell("Prepared by", analyst or "Not specified", styles), _metadata_cell("Generated", _format_timestamp(generated_at), styles), _metadata_cell("Classification", "Internal", styles)], [_metadata_cell("Investigation start", metrics["window_start"], styles), _metadata_cell("Investigation end", metrics["window_end"], styles), _metadata_cell("Telemetry sources", metrics["source_count"], styles), _metadata_cell("Report version", REPORT_VERSION, styles)]]
+    table = Table(rows, colWidths=[63.5 * mm] * 4)
+    table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), WHITE), ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("INNERGRID", (0, 0), (-1, -1), 0.35, LINE), ("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 7), ("RIGHTPADDING", (0, 0), (-1, -1), 7), ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
+    return table
+
+
+def _metric_cards(metrics: dict[str, Any], styles) -> Table:
+    cards = [(str(metrics["events"]), "NORMALIZED EVENTS"), (str(metrics["alerts"]), "DETECTION ALERTS"), (str(metrics["incidents"]), "CORRELATED INCIDENTS"), (str(metrics["source_count"]), "TELEMETRY SOURCES"), (str(metrics["highest_severity"]).upper(), "HIGHEST SEVERITY")]
+    cells = [[Paragraph(_text(value), styles["MetricValue"]), Paragraph(_text(label), styles["MetricLabel"])] for value, label in cards]
+    table = Table([cells], colWidths=[50.8 * mm] * 5)
+    commands: list[tuple[Any, ...]] = [("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("BACKGROUND", (0, 0), (-1, -1), SURFACE), ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("INNERGRID", (0, 0), (-1, -1), 0.5, LINE), ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7), ("LINEABOVE", (0, 0), (-2, 0), 2.2, TEAL)]
+    commands.append(("LINEABOVE", (-1, 0), (-1, 0), 2.2, SEVERITY_COLORS.get(str(metrics["highest_severity"]).lower(), MUTED)))
+    table.setStyle(TableStyle(commands))
+    return table
+
+
+def _overview_table(metrics: dict[str, Any], styles) -> Table:
+    severity_summary = ", ".join(f"{name.title()}: {count}" for name, count in sorted(metrics["severity_counts"].items(), key=lambda item: SEVERITY_ORDER.get(item[0], 0), reverse=True)) or "No alert severity data"
+    status_summary = ", ".join(f"{name}: {count}" for name, count in sorted(metrics["status_counts"].items())) or "No correlated incidents"
+    rows = [
+        ["Risk posture", _paragraph(f"Highest severity: {metrics['highest_severity']} | Maximum risk score: {_format_number(metrics['max_risk'])} | Average detection confidence: {_format_number(metrics['average_confidence'])}", styles["Small"])],
+        ["Severity distribution", _paragraph(severity_summary, styles["Small"])],
+        ["Incident workflow", _paragraph(status_summary, styles["Small"])],
+        ["Telemetry coverage", _paragraph(", ".join(metrics["sources"]) or "Not recorded", styles["Small"])],
+        ["ATT&CK coverage", _paragraph(", ".join(metrics["techniques"]) or "No ATT&CK techniques mapped", styles["Small"])],
+    ]
+    table = Table(rows, colWidths=[42 * mm, 212 * mm])
+    table.setStyle(_key_value_style())
+    return table
+
+
+def _operational_assessment(metrics: dict[str, Any]) -> str:
+    if metrics["incidents"]:
+        return f"This analysis produced {metrics['alerts']} alert(s) and correlated them into {metrics['incidents']} incident case(s). The highest recorded severity is {metrics['highest_severity']}. Findings remain evidence-led and require an authorized analyst to validate business context, determine disposition and approve any containment or remediation action."
+    if metrics["alerts"]:
+        return f"This analysis produced {metrics['alerts']} alert(s), but no correlated incident case was created. The findings should be triaged against the evidence and local business context before closure or escalation."
+    return "No alert or incident was produced for this analysis. This result means the available telemetry did not match the enabled governed detections; it is not proof that the environment is free of malicious activity."
+
+
+def _alert_table(alerts_df: pd.DataFrame, styles) -> LongTable:
+    rows: list[list[Any]] = [["Detection", "Severity", "Source", "Risk", "Confidence", "ATT&CK", "Evidence trace"]]
+    for _, row in alerts_df.iterrows():
+        supporting = row.get("supporting_event_ids", row.get("supporting_event_uuids"))
+        rows.append([_paragraph(row.get("detection_name"), styles["Small"]), _paragraph(row.get("severity"), styles["Small"]), _paragraph(row.get("source_ip"), styles["Small"]), _paragraph(_format_number(row.get("risk_score")), styles["Small"]), _paragraph(_format_number(row.get("confidence")), styles["Small"]), _paragraph(row.get("mitre_technique_id"), styles["Small"]), _paragraph(_evidence_summary(supporting), styles["Small"])])
+    table = LongTable(rows, repeatRows=1, colWidths=[49 * mm, 21 * mm, 31 * mm, 16 * mm, 21 * mm, 24 * mm, 92 * mm])
+    table.setStyle(_table_style(compact=True))
+    commands: list[tuple[Any, ...]] = []
+    for index, (_, row) in enumerate(alerts_df.iterrows(), start=1):
+        color = SEVERITY_COLORS.get(_display_value(row.get("severity"), "unknown").lower(), MUTED)
+        commands.extend([("TEXTCOLOR", (1, index), (1, index), color), ("FONTNAME", (1, index), (1, index), "Helvetica-Bold")])
+    table.setStyle(TableStyle(commands))
+    return table
+
+
+def _incident_register(incidents_df: pd.DataFrame, styles) -> LongTable:
+    rows: list[list[Any]] = [["Incident", "Severity", "Priority", "Risk", "Status", "Assignee", "ATT&CK path"]]
+    for _, row in incidents_df.iterrows():
+        title = row.get("incident_name", row.get("title", "Incident"))
+        rows.append([_paragraph(title, styles["Small"]), _paragraph(row.get("severity"), styles["Small"]), _paragraph(row.get("priority"), styles["Small"]), _paragraph(_format_number(row.get("risk_score")), styles["Small"]), _paragraph(_status_label(row.get("status")), styles["Small"]), _paragraph(row.get("assignee"), styles["Small"], "Unassigned"), _paragraph(row.get("stage_progression"), styles["Small"], "No ordered path")])
+    table = LongTable(rows, repeatRows=1, colWidths=[59 * mm, 22 * mm, 18 * mm, 16 * mm, 27 * mm, 30 * mm, 82 * mm])
+    table.setStyle(_table_style(compact=True))
+    return table
 
 
 def _timeline_sort_key(record: dict[str, Any]) -> tuple[int, str]:
@@ -142,102 +394,40 @@ def _timeline_sort_key(record: dict[str, Any]) -> tuple[int, str]:
 
 def build_case_timeline_records(details: dict[str, Any]) -> list[dict[str, Any]]:
     """Return only events/alerts that are evidence-linked to one persisted incident."""
-
     records: list[dict[str, Any]] = []
     for event in details.get("events") or []:
-        records.append(
-            {
-                "timestamp": event.get("timestamp"),
-                "type": "Event",
-                "source_ip": event.get("source_ip"),
-                "username": event.get("username"),
-                "description": (
-                    event.get("normalized_message")
-                    or event.get("raw_message")
-                    or event.get("event_type")
-                    or "Supporting event"
-                ),
-                "event_uuid": event.get("event_uuid"),
-            }
-        )
+        records.append({"timestamp": event.get("timestamp"), "type": "Event", "source_ip": event.get("source_ip"), "username": event.get("username"), "description": event.get("normalized_message") or event.get("raw_message") or event.get("event_type") or "Supporting event", "event_uuid": event.get("event_uuid")})
     for alert in details.get("alerts") or []:
         severity = _display_value(alert.get("severity"), "Alert")
         description = _display_value(alert.get("description"), "Detection alert")
-        records.append(
-            {
-                "timestamp": alert.get("timestamp"),
-                "type": "Alert",
-                "source_ip": alert.get("source_ip"),
-                "username": alert.get("username"),
-                "description": f"{severity}: {description}",
-                "event_uuid": None,
-            }
-        )
+        records.append({"timestamp": alert.get("timestamp"), "type": "Alert", "source_ip": alert.get("source_ip"), "username": alert.get("username"), "description": f"{severity}: {description}", "event_uuid": None})
     return sorted(records, key=_timeline_sort_key)
 
 
-def additional_analysis_event_records(
-    events_df: pd.DataFrame,
-    incident_details: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
+def additional_analysis_event_records(events_df: pd.DataFrame, incident_details: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Return analysis events that are not linked to any persisted incident evidence."""
-
     if events_df.empty:
         return []
-    linked_event_uuids = {
-        str(event.get("event_uuid"))
-        for details in incident_details
-        for event in (details.get("events") or [])
-        if event.get("event_uuid")
-    }
+    linked_event_uuids = {str(event.get("event_uuid")) for details in incident_details for event in (details.get("events") or []) if event.get("event_uuid")}
     records: list[dict[str, Any]] = []
     for row in events_df.to_dict(orient="records"):
         event_uuid = str(row.get("event_uuid") or "")
         if event_uuid and event_uuid in linked_event_uuids:
             continue
-        records.append(
-            {
-                "timestamp": row.get("timestamp"),
-                "type": "Event",
-                "source_ip": row.get("source_ip"),
-                "username": row.get("username"),
-                "description": (
-                    row.get("normalized_message")
-                    or row.get("raw_message")
-                    or row.get("description")
-                    or row.get("event_type")
-                    or "Analysis event"
-                ),
-                "event_uuid": row.get("event_uuid"),
-            }
-        )
+        records.append({"timestamp": row.get("timestamp"), "type": "Event", "source_ip": row.get("source_ip"), "username": row.get("username"), "description": row.get("normalized_message") or row.get("raw_message") or row.get("description") or row.get("event_type") or "Analysis event", "event_uuid": row.get("event_uuid")})
     return sorted(records, key=_timeline_sort_key)
 
 
-def _timeline_table(records: list[dict[str, Any]], small: ParagraphStyle) -> LongTable:
-    rows = [["Timestamp", "Type", "Source", "Username", "Description"]]
+def _timeline_table(records: list[dict[str, Any]], styles) -> LongTable:
+    rows: list[list[Any]] = [["Timestamp (UTC)", "Type", "Source", "Username", "Description"]]
     for record in records:
-        rows.append(
-            [
-                _paragraph(record.get("timestamp"), small),
-                _paragraph(record.get("type"), small),
-                _paragraph(record.get("source_ip"), small),
-                _paragraph(record.get("username"), small, "No associated user"),
-                _paragraph(record.get("description"), small),
-            ]
-        )
-    table = LongTable(
-        rows,
-        repeatRows=1,
-        colWidths=[40 * mm, 20 * mm, 30 * mm, 34 * mm, 120 * mm],
-    )
-    table.setStyle(_table_style())
+        rows.append([_paragraph(_format_timestamp(record.get("timestamp")), styles["Tiny"]), _paragraph(record.get("type"), styles["Tiny"]), _paragraph(record.get("source_ip"), styles["Tiny"]), _paragraph(record.get("username"), styles["Tiny"], "No associated user"), _paragraph(record.get("description"), styles["Tiny"])])
+    table = LongTable(rows, repeatRows=1, colWidths=[42 * mm, 18 * mm, 29 * mm, 32 * mm, 133 * mm])
+    table.setStyle(_table_style(compact=True))
     return table
 
 
-def _details_by_incident_uuid(
-    incident_details: list[dict[str, Any]] | None,
-) -> dict[str, dict[str, Any]]:
+def _details_by_incident_uuid(incident_details: list[dict[str, Any]] | None) -> dict[str, dict[str, Any]]:
     mapping: dict[str, dict[str, Any]] = {}
     for details in incident_details or []:
         incident_uuid = str((details.get("incident") or {}).get("incident_uuid") or "").strip()
@@ -246,71 +436,97 @@ def _details_by_incident_uuid(
     return mapping
 
 
-def _append_case_notes_and_evidence(
-    story: list[Any],
-    details: dict[str, Any] | None,
-    styles,
-    small: ParagraphStyle,
-) -> None:
-    if details is None:
-        story.append(
-            Paragraph(
-                "Persisted case notes/evidence were unavailable while this report was generated.",
-                styles["BodyText"],
-            )
-        )
-        return
+def _incident_overview_table(row: pd.Series, styles) -> Table:
+    correlation = f"{_display_value(row.get('correlation_version'), 'Legacy')} / {_display_value(row.get('correlation_id'), 'Not available')}"
+    graph = f"Sources: {_display_value(row.get('source_count'), '0')} | Entities: {_display_value(row.get('entity_count'), '0')} | Relationships: {_display_value(row.get('relationship_count'), '0')} | Graph score: {_format_number(row.get('graph_score'), default='0')}"
+    values = [
+        ("Incident UUID", _display_value(row.get("incident_uuid"), "Not persisted")),
+        ("Severity / Priority", f"{_display_value(row.get('severity'))} / {_display_value(row.get('priority'), 'Not set')}"),
+        ("Risk / Confidence", f"{_format_number(row.get('risk_score'))} / {_format_number(row.get('confidence'))}"),
+        ("Status / Assignee", f"{_status_label(row.get('status'))} / {_display_value(row.get('assignee'), 'Unassigned')}"),
+        ("Correlation identity", correlation), ("Graph evidence", graph),
+        ("ATT&CK progression", _display_value(row.get("stage_progression"), "No ordered path")),
+    ]
+    table = Table([[label, _paragraph(value, styles["Small"])] for label, value in values], colWidths=[42 * mm, 212 * mm], splitByRow=1)
+    table.setStyle(_key_value_style())
+    return table
 
-    story.append(Paragraph("Investigation Notes", styles["Heading4"]))
+
+def _narrative_callout(title: str, content: Any, styles, default: str) -> Table:
+    body = [Paragraph(_text(title), styles["MetaLabel"]), Spacer(1, 2), _paragraph(content, styles["Callout"], default)]
+    table = Table([[body]], colWidths=[254 * mm])
+    table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), SURFACE), ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("LINEBEFORE", (0, 0), (0, -1), 3, TEAL), ("LEFTPADDING", (0, 0), (-1, -1), 9), ("RIGHTPADDING", (0, 0), (-1, -1), 9), ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7)]))
+    return table
+
+
+def _append_case_notes_and_evidence(story: list[Any], details: dict[str, Any] | None, styles) -> None:
+    if details is None:
+        story.extend([Paragraph("Case record completeness", styles["SubsectionHeading"]), _narrative_callout("LIMITATION", "Persisted case notes, registered evidence metadata and an incident-linked timeline were unavailable when this report was generated.", styles, "Not available")])
+        return
+    story.append(Paragraph("Investigation notes", styles["SubsectionHeading"]))
     notes = list(details.get("notes") or [])
     if not notes:
-        story.append(
-            Paragraph("No analyst notes are registered for this incident.", styles["BodyText"])
-        )
+        story.append(_narrative_callout("NOTE STATUS", "No analyst notes are registered for this incident.", styles, "No notes"))
     else:
-        note_rows = [["Author", "Created (UTC)", "Note"]]
+        rows: list[list[Any]] = [["Author", "Created (UTC)", "Note"]]
         for note in notes:
-            note_rows.append(
-                [
-                    _paragraph(note.get("author"), small),
-                    _paragraph(note.get("created_at"), small),
-                    _paragraph(note.get("note"), small),
-                ]
-            )
-        note_table = LongTable(
-            note_rows,
-            repeatRows=1,
-            colWidths=[35 * mm, 48 * mm, 157 * mm],
-        )
-        note_table.setStyle(_table_style())
-        story.append(note_table)
-
-    story.extend([Spacer(1, 6), Paragraph("Registered Evidence", styles["Heading4"])])
+            rows.append([_paragraph(note.get("author"), styles["Small"]), _paragraph(_format_timestamp(note.get("created_at")), styles["Small"]), _paragraph(note.get("note"), styles["Small"])])
+        table = LongTable(rows, repeatRows=1, colWidths=[34 * mm, 46 * mm, 174 * mm])
+        table.setStyle(_table_style(compact=True))
+        story.append(table)
+    story.append(Paragraph("Registered evidence", styles["SubsectionHeading"]))
     evidence = list(details.get("evidence") or [])
     if not evidence:
-        story.append(
-            Paragraph("No evidence metadata is registered for this incident.", styles["BodyText"])
-        )
+        story.append(_narrative_callout("EVIDENCE REGISTER", "No separately registered evidence metadata is attached to this incident. Incident-linked events and alerts remain listed in the evidence timeline.", styles, "No evidence"))
     else:
-        evidence_rows = [["Type", "Source", "SHA-256", "Registered by", "Created", "Description"]]
+        rows = [["Type", "Source reference", "SHA-256", "Registered by", "Created", "Description"]]
         for item in evidence:
-            evidence_rows.append(
-                [
-                    _paragraph(item.get("evidence_type"), small),
-                    _paragraph(item.get("source_reference"), small, "Not specified"),
-                    _paragraph(item.get("sha256"), small, "Not supplied"),
-                    _paragraph(item.get("registered_by"), small, "Not recorded"),
-                    _paragraph(item.get("created_at"), small),
-                    _paragraph(item.get("description"), small),
-                ]
-            )
-        evidence_table = LongTable(
-            evidence_rows,
-            repeatRows=1,
-            colWidths=[22 * mm, 42 * mm, 72 * mm, 30 * mm, 42 * mm, 56 * mm],
-        )
-        evidence_table.setStyle(_table_style())
-        story.append(evidence_table)
+            rows.append([_paragraph(item.get("evidence_type"), styles["Tiny"]), _paragraph(item.get("source_reference"), styles["Tiny"], "Not specified"), _paragraph(item.get("sha256"), styles["Tiny"], "Not supplied"), _paragraph(item.get("registered_by"), styles["Tiny"], "Not recorded"), _paragraph(_format_timestamp(item.get("created_at")), styles["Tiny"]), _paragraph(item.get("description"), styles["Tiny"])])
+        table = LongTable(rows, repeatRows=1, colWidths=[28 * mm, 37 * mm, 66 * mm, 28 * mm, 40 * mm, 55 * mm])
+        table.setStyle(_table_style(compact=True))
+        story.append(table)
+
+
+def _recommendations(alerts_df: pd.DataFrame) -> list[str]:
+    if not alerts_df.empty and "recommendation" in alerts_df.columns:
+        recommendations = sorted({str(value).strip() for value in alerts_df["recommendation"].dropna() if str(value).strip()})
+        if recommendations:
+            return recommendations
+    return ["Validate the suspicious activity against approved administrative and user behavior.", "Review related authentication, endpoint and network evidence.", "Contain confirmed malicious accounts, sessions, hosts or infrastructure.", "Document analyst decisions, evidence hashes and remediation before resolving the case."]
+
+
+def _response_plan_table(recommendations: list[str], styles) -> LongTable:
+    rows: list[list[Any]] = [["Priority", "Recommended action", "Control objective"]]
+    count = len(recommendations)
+    for index, recommendation in enumerate(recommendations):
+        if index == 0:
+            priority, objective = "P1 - Immediate", "Validate scope and establish whether containment is required."
+        elif index < max(2, count - 1):
+            priority, objective = "P2 - Near term", "Reduce exposure and preserve supporting evidence."
+        else:
+            priority, objective = "P3 - Closure", "Verify remediation, document decisions and retain the audit trail."
+        rows.append([_paragraph(priority, styles["Small"]), _paragraph(recommendation, styles["Small"]), _paragraph(objective, styles["Small"])])
+    table = LongTable(rows, repeatRows=1, colWidths=[35 * mm, 139 * mm, 80 * mm])
+    table.setStyle(_table_style())
+    return table
+
+
+def _append_methodology(story: list[Any], report_id: str, styles) -> None:
+    story.extend([PageBreak(), Paragraph("Methodology, boundaries and integrity", styles["SectionHeading"])])
+    statements = [
+        "Detections are produced by deterministic, governed security rules. The AI assistant is not used to create detections or change rule outcomes.",
+        "ATT&CK references are evidence-supported mappings from the governed detection catalogue; they describe observed technique alignment, not attacker attribution.",
+        "Correlation groups alerts by shared entities, time and ordered security stages. Correlation confidence supports prioritization and does not replace analyst judgment.",
+        "This report reflects persisted evidence available at generation time. Missing notes, evidence registrations or telemetry sources are stated as limitations rather than inferred.",
+        "The download response includes an X-Content-SHA256 digest. Preserve that digest with the report to verify file integrity after transfer.",
+        "Recommended actions are advisory. Destructive or production-changing actions require explicit human authorization and auditable execution.",
+    ]
+    for statement in statements:
+        story.append(Paragraph(f"<bullet>&bull;</bullet>{_text(statement)}", styles["BulletBody"]))
+    rows = [["Report ID", _paragraph(report_id, styles["Small"])], ["Classification", _paragraph(REPORT_CLASSIFICATION, styles["Small"])], ["Integrity mechanism", _paragraph("SHA-256 digest returned in the HTTP response header", styles["Small"])], ["Detection boundary", _paragraph("Deterministic governed rules; AI is downstream and advisory", styles["Small"])], ["Action boundary", _paragraph("Human approval required for containment and response execution", styles["Small"])]]
+    table = Table(rows, colWidths=[48 * mm, 206 * mm])
+    table.setStyle(_key_value_style())
+    story.append(table)
 
 
 def generate_incident_report(
@@ -325,242 +541,87 @@ def generate_incident_report(
     analyst: str | None = None,
     incident_details: list[dict[str, Any]] | None = None,
 ) -> str:
-    """Generate a pagination-safe technical incident report from persisted case evidence."""
-
+    """Generate a professional, pagination-safe incident report from persisted evidence."""
     Path(output_dir).mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-    unique_suffix = uuid4().hex[:12]
-    report_path = Path(output_dir) / f"threatlens_incident_report_{timestamp}_{unique_suffix}.pdf"
+    generated_at = datetime.now(UTC)
+    timestamp = generated_at.strftime("%Y%m%d_%H%M%S")
+    report_id = _report_identifier(session_uuid, generated_at)
+    report_path = Path(output_dir) / f"threatlens_incident_report_{timestamp}_{uuid4().hex[:12]}.pdf"
     document = SimpleDocTemplate(
-        str(report_path),
-        pagesize=landscape(A4),
-        leftMargin=16 * mm,
-        rightMargin=16 * mm,
-        topMargin=16 * mm,
-        bottomMargin=16 * mm,
-        title=f"{PROJECT_NAME} Incident Report",
-        author=analyst or PROJECT_NAME,
+        str(report_path), pagesize=landscape(A4), leftMargin=21.5 * mm, rightMargin=21.5 * mm,
+        topMargin=18 * mm, bottomMargin=16 * mm, title=f"{PROJECT_NAME} {REPORT_TITLE}",
+        author=analyst or PROJECT_NAME, subject=f"Evidence-backed incident investigation report for {analysis_name or 'analysis session'}",
+        keywords="ThreatLens AI, incident response, SOC, DFIR, evidence, MITRE ATT&CK", pageCompression=1,
     )
-    styles = getSampleStyleSheet()
-    styles.add(
-        ParagraphStyle(
-            name="CenterTitle",
-            parent=styles["Title"],
-            alignment=TA_CENTER,
-            textColor=colors.HexColor("#0B2438"),
-        )
-    )
-    small = ParagraphStyle(
-        name="Small",
-        parent=styles["BodyText"],
-        fontSize=8,
-        leading=10,
-    )
-    small_inverse = ParagraphStyle(
-        name="SmallInverse",
-        parent=small,
-        textColor=colors.white,
-    )
+    styles = _build_styles()
+    metrics = _report_metrics(events_df, alerts_df, incidents_df)
     details_map = _details_by_incident_uuid(incident_details)
     story: list[Any] = [
-        Paragraph(f"{PROJECT_NAME} Incident Investigation Report", styles["CenterTitle"]),
-        Spacer(1, 8),
+        KeepTogether([
+            _title_panel(analysis_name, report_id, styles),
+            Spacer(1, 8),
+            _metadata_grid(session_uuid, analyst, generated_at, metrics, styles),
+        ]),
+        Spacer(1, 11),
+        Paragraph("Executive overview", styles["SectionHeading"]), _metric_cards(metrics, styles), Spacer(1, 8),
+        _narrative_callout("OPERATIONAL ASSESSMENT", _operational_assessment(metrics), styles, "No assessment available"), Spacer(1, 8),
+        _overview_table(metrics, styles), PageBreak(), Paragraph("Findings register", styles["SectionHeading"]),
     ]
-
-    metadata = [
-        ["Analysis", _paragraph(analysis_name, small, "Current Analysis")],
-        ["Session UUID", _paragraph(session_uuid, small)],
-        ["Analyst", _paragraph(analyst, small, "Not specified")],
-        ["Generated (UTC)", _paragraph(datetime.now(UTC).isoformat(), small)],
-    ]
-    metadata_table = Table(metadata, colWidths=[35 * mm, 180 * mm])
-    metadata_table.setStyle(_table_style())
-    story.extend([metadata_table, Spacer(1, 12)])
-
-    story.append(Paragraph("Executive Summary", styles["Heading2"]))
-    summary = (
-        f"The analysis processed {len(events_df)} normalized security events, generated "
-        f"{len(alerts_df)} alerts and correlated them into {len(incidents_df)} incident case(s). "
-        "All detections are produced by deterministic security logic; ATT&CK mappings are "
-        "evidence-supported governed ATT&CK mappings; the AI assistant is not used "
-        "for detection."
-    )
-    story.extend([_paragraph(summary, styles["BodyText"]), Spacer(1, 10)])
-    story.append(Paragraph("Alert Summary", styles["Heading2"]))
     if alerts_df.empty:
-        story.append(Paragraph("No alerts were detected.", styles["BodyText"]))
+        story.append(_narrative_callout("ALERT REGISTER", "No alert was generated by the enabled governed detections for this analysis.", styles, "No alerts"))
     else:
-        alert_rows = [
-            ["Detection", "Severity", "Source", "Risk", "Confidence", "ATT&CK", "Evidence"]
-        ]
-        for _, row in alerts_df.iterrows():
-            supporting = row.get("supporting_event_ids", row.get("supporting_event_uuids"))
-            alert_rows.append(
-                [
-                    _paragraph(row.get("detection_name"), small),
-                    _paragraph(row.get("severity"), small),
-                    _paragraph(row.get("source_ip"), small),
-                    _paragraph(row.get("risk_score"), small),
-                    _paragraph(row.get("confidence"), small),
-                    _paragraph(row.get("mitre_technique_id"), small),
-                    _paragraph(_evidence_summary(supporting), small),
-                ]
-            )
-        table = LongTable(
-            alert_rows,
-            repeatRows=1,
-            colWidths=[48 * mm, 23 * mm, 32 * mm, 16 * mm, 22 * mm, 25 * mm, 75 * mm],
-        )
-        table.setStyle(_table_style())
-        story.append(table)
-
-    story.extend([Spacer(1, 12), Paragraph("Correlated Incidents", styles["Heading2"])])
+        story.extend([_paragraph("Detection alerts are listed with their observed risk, confidence, ATT&CK mapping and linked-event trace.", styles["BodyText"]), Spacer(1, 6), _alert_table(alerts_df, styles)])
+    story.extend([Spacer(1, 10), Paragraph("Incident register", styles["SectionHeading"])])
     if incidents_df.empty:
-        story.append(Paragraph("No incidents were created.", styles["BodyText"]))
+        story.append(_narrative_callout("CORRELATION RESULT", "No incident case was produced by correlation for this analysis.", styles, "No incidents"))
     else:
-        for _, row in incidents_df.iterrows():
+        story.append(_incident_register(incidents_df, styles))
+
+    if not incidents_df.empty:
+        for incident_index, (_, row) in enumerate(incidents_df.iterrows(), start=1):
             incident_uuid = _display_value(row.get("incident_uuid"), "")
             title = row.get("incident_name", row.get("title", "Incident"))
-            story.append(Paragraph(_text(title, "Incident"), styles["Heading3"]))
-            incident_rows = [
-                ["Incident UUID", _paragraph(incident_uuid, small_inverse, "Not persisted")],
-                [
-                    "Correlation",
-                    _paragraph(
-                        f"{_display_value(row.get('correlation_version'), 'Legacy')} / "
-                        f"{_display_value(row.get('correlation_id'), 'Not available')}",
-                        small,
-                    ),
-                ],
-                [
-                    "Graph Evidence",
-                    _paragraph(
-                        f"Sources: {_display_value(row.get('source_count'), '0')} | "
-                        f"Entities: {_display_value(row.get('entity_count'), '0')} | "
-                        f"Relationships: {_display_value(row.get('relationship_count'), '0')} | "
-                        f"Graph score: {_display_value(row.get('graph_score'), '0')}",
-                        small,
-                    ),
-                ],
-                [
-                    "ATT&CK Path",
-                    _paragraph(row.get("stage_progression"), small, "No ordered stage path"),
-                ],
-                [
-                    "Severity / Priority",
-                    _paragraph(
-                        f"{_display_value(row.get('severity'))} / "
-                        f"{_display_value(row.get('priority'), 'Not set')}",
-                        small,
-                    ),
-                ],
-                [
-                    "Risk / Confidence",
-                    _paragraph(
-                        f"{_display_value(row.get('risk_score'))} / "
-                        f"{_display_value(row.get('confidence'))}",
-                        small,
-                    ),
-                ],
-                [
-                    "Status / Assignee",
-                    _paragraph(
-                        f"{_status_label(row.get('status'))} / "
-                        f"{_display_value(row.get('assignee'), 'Unassigned')}",
-                        small,
-                    ),
-                ],
-                ["Summary", _paragraph(row.get("summary"), small)],
-                [
-                    "Correlation Storyline",
-                    _paragraph(row.get("storyline"), small, "No advanced storyline available"),
-                ],
-            ]
-            incident_table = Table(incident_rows, colWidths=[40 * mm, 200 * mm])
-            incident_table.setStyle(_table_style())
-            story.extend([incident_table, Spacer(1, 6)])
-            _append_case_notes_and_evidence(
-                story,
-                details_map.get(incident_uuid),
-                styles,
-                small,
-            )
-            story.append(Spacer(1, 10))
+            severity = _display_value(row.get("severity"), "Unknown")
+            story.extend([
+                PageBreak(), Paragraph(f"INCIDENT {incident_index:02d}", styles["Eyebrow"]),
+                Paragraph(_text(title, "Incident"), styles["SectionHeading"]),
+                _narrative_callout("CURRENT CASE POSTURE", f"{severity} severity | {_display_value(row.get('priority'), 'Priority not set')} | Risk {_format_number(row.get('risk_score'))} | {_status_label(row.get('status'))}", styles, "Case posture not available"),
+                Spacer(1, 7), _incident_overview_table(row, styles), Spacer(1, 7),
+                _narrative_callout("INCIDENT SUMMARY", row.get("summary"), styles, "No incident summary is available."), Spacer(1, 6),
+                _narrative_callout("CORRELATION ANALYSIS", row.get("storyline"), styles, "No advanced correlation storyline is available."),
+            ])
+            details = details_map.get(incident_uuid)
+            _append_case_notes_and_evidence(story, details, styles)
+            if details is not None:
+                story.append(Paragraph("Evidence timeline", styles["SubsectionHeading"]))
+                case_records = build_case_timeline_records(details)
+                if case_records:
+                    story.append(_timeline_table(case_records, styles))
+                else:
+                    story.append(_narrative_callout("TIMELINE STATUS", "No incident-linked timeline evidence is available.", styles, "No timeline"))
+    else:
+        story.extend([PageBreak(), Paragraph("Analysis timeline", styles["SectionHeading"])])
+        if timeline_df.empty:
+            story.append(_narrative_callout("TIMELINE STATUS", "No timeline is available for this analysis.", styles, "No timeline"))
+        else:
+            story.append(_timeline_table([dict(row) for _, row in timeline_df.iterrows()], styles))
 
     if incident_details:
-        story.extend([PageBreak(), Paragraph("Incident Evidence Timelines", styles["Heading2"])])
-        for details in incident_details:
-            incident = details.get("incident") or {}
-            story.append(
-                Paragraph(
-                    _text(incident.get("incident_name") or incident.get("title"), "Incident"),
-                    styles["Heading3"],
-                )
-            )
-            case_records = build_case_timeline_records(details)
-            if case_records:
-                story.append(_timeline_table(case_records, small))
-            else:
-                story.append(
-                    Paragraph(
-                        "No incident-linked timeline evidence is available.", styles["BodyText"]
-                    )
-                )
-            story.append(Spacer(1, 8))
-
         additional = additional_analysis_event_records(events_df, incident_details)
         if additional:
-            story.extend(
-                [
-                    Spacer(1, 6),
-                    Paragraph(
-                        "Additional Analysis Events (not linked to a correlated incident)",
-                        styles["Heading2"],
-                    ),
-                    Paragraph(
-                        "These events belong to the same analysis session but are explicitly "
-                        "separated because they are not supporting evidence for the correlated "
-                        "incidents above.",
-                        styles["BodyText"],
-                    ),
-                    Spacer(1, 6),
-                    _timeline_table(additional, small),
-                ]
-            )
-    else:
-        story.extend([PageBreak(), Paragraph("Analysis Timeline", styles["Heading2"])])
-        if timeline_df.empty:
-            story.append(Paragraph("No timeline is available.", styles["BodyText"]))
-        else:
-            generic_records = [dict(row) for _, row in timeline_df.iterrows()]
-            story.append(_timeline_table(generic_records, small))
+            story.extend([PageBreak(), Paragraph("Additional analysis events", styles["SectionHeading"]), Paragraph("These records belong to the same analysis session but are explicitly separated because they are not linked as supporting evidence for the correlated incidents above.", styles["BodyText"]), Spacer(1, 6), _timeline_table(additional, styles)])
 
-    recommendations = []
-    if not alerts_df.empty and "recommendation" in alerts_df.columns:
-        recommendations = sorted(
-            {
-                str(value).strip()
-                for value in alerts_df["recommendation"].dropna()
-                if str(value).strip()
-            }
-        )
-    if not recommendations:
-        recommendations = [
-            "Validate the suspicious activity against approved administrative and user behavior.",
-            "Review related authentication, endpoint and network evidence.",
-            "Contain confirmed malicious accounts, sessions, hosts or infrastructure.",
-            "Document analyst decisions, evidence hashes and remediation before "
-            "resolving the case.",
-        ]
+    story.append(PageBreak())
     recommendation_flowables = [
-        Spacer(1, 12),
-        Paragraph("Recommended Response Actions", styles["Heading2"]),
+        Paragraph("Response and governance", styles["SectionHeading"]),
+        Paragraph("The following actions are derived from the governed detection recommendations. Sequence and scope must be confirmed by an authorized responder.", styles["BodyText"]),
+        Spacer(1, 6),
     ]
-    for index, recommendation in enumerate(recommendations, start=1):
-        recommendation_flowables.append(
-            Paragraph(f"{index}. {_text(recommendation)}", styles["BodyText"])
-        )
     story.append(KeepTogether(recommendation_flowables))
-
+    story.extend([
+        _response_plan_table(_recommendations(alerts_df), styles), Spacer(1, 8),
+        _narrative_callout("HUMAN AUTHORIZATION BOUNDARY", "ThreatLens records approval-gated response activity. This report does not execute endpoint, identity, network or firewall changes. Production actions require explicit human approval and auditable execution evidence.", styles, "Human approval required"),
+    ])
+    _append_methodology(story, report_id, styles)
     document.build(story, onFirstPage=_draw_page, onLaterPages=_draw_page)
     return str(report_path)
