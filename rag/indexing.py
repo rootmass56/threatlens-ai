@@ -67,7 +67,13 @@ class KnowledgeIndexService:
         if callable(write_durable):
             write_durable(payload)
         try:
-            self._write_manifest(payload)
+            self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = self.manifest_path.with_suffix(self.manifest_path.suffix + ".tmp")
+            temporary.write_text(
+                json.dumps(payload, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            temporary.replace(self.manifest_path)
         except OSError:
             if not callable(write_durable):
                 raise
@@ -183,13 +189,7 @@ class KnowledgeIndexService:
                 "indexed_chunks": self.vector_store.count(),
                 "sources": sources,
             }
-            self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
-            temporary = self.manifest_path.with_suffix(self.manifest_path.suffix + ".tmp")
-            temporary.write_text(
-                json.dumps(payload, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
-            temporary.replace(self.manifest_path)
+            self._write_manifest(payload)
             status = "indexed" if changed or removed else "unchanged"
             return RagIndexResult(
                 status=status,
