@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import logging
 from datetime import UTC, datetime
-from threading import RLock
+from threading import RLock, Thread
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 
 from api.dependencies import DatabaseSession, RequireRagManage, RequireRagQuery
 from api.schemas import RagQueryRequest, RagReindexRequest
@@ -50,6 +50,12 @@ def _reserve_reindex(*, force: bool) -> bool:
         return True
 
 
+def _set_reindex_detail(detail: str) -> None:
+    with _REINDEX_STATE_LOCK:
+        if _REINDEX_STATE["state"] == "running":
+            _REINDEX_STATE["detail"] = detail
+
+
 def _finish_reindex(
     *,
     state: str,
@@ -70,9 +76,19 @@ def _finish_reindex(
 
 
 def _run_rag_reindex(*, force: bool, actor: str) -> None:
-    session = SessionLocal()
+    session = None
+    LOGGER.info(
+        "Governed knowledge re-index runner started.",
+        extra={"event": "rag.knowledge_reindex.started", "force": force},
+    )
     try:
+        _set_reindex_detail("Opening an isolated database session.")
+        session = SessionLocal()
+        _set_reindex_detail(
+            "Validating services and comparing governed knowledge sources."
+        )
         result = get_rag_runtime().indexer.index(session, force=force)
+        _set_reindex_detail("Persisting the re-index audit record.")
         ThreatLensPersistenceService(session).record_audit_event(
             actor=actor,
             action="rag.knowledge_reindexed",
@@ -90,23 +106,38 @@ def _run_rag_reindex(*, force: bool, actor: str) -> None:
             },
         )
         session.commit()
+        _finish_reindex(
+            state="completed",
+            result_status=result.status,
+            indexed_chunks=result.indexed_chunks,
+            detail="Governed knowledge re-index completed.",
+        )
+        LOGGER.info(
+            "Governed knowledge re-index runner completed.",
+            extra={
+                "event": "rag.knowledge_reindex.completed",
+                "force": force,
+                "result_status": result.status,
+                "indexed_chunks": result.indexed_chunks,
+            },
+        )
     except Exception:
-        session.rollback()
+        if session is not None:
+            try:
+                session.rollback()
+            except Exception:
+                LOGGER.exception("Could not roll back the failed re-index session.")
         LOGGER.exception("Background governed-knowledge re-index failed.")
         _finish_reindex(
             state="failed",
             detail="Knowledge re-index failed. Review the API logs before retrying.",
         )
-        return
     finally:
-        session.close()
-
-    _finish_reindex(
-        state="completed",
-        result_status=result.status,
-        indexed_chunks=result.indexed_chunks,
-        detail="Governed knowledge re-index completed.",
-    )
+        if session is not None:
+            try:
+                session.close()
+            except Exception:
+                LOGGER.exception("Could not close the governed-knowledge re-index session.")
 
 
 @router.get("/rag/health")
@@ -133,15 +164,30 @@ def rag_knowledge_status(principal: RequireRagQuery) -> dict:
 def rag_reindex(
     payload: RagReindexRequest,
     principal: RequireRagManage,
-    background_tasks: BackgroundTasks,
 ) -> dict[str, object]:
     accepted = _reserve_reindex(force=payload.force)
     if accepted:
-        background_tasks.add_task(
-            _run_rag_reindex,
-            force=payload.force,
-            actor=principal.username,
+        runner = Thread(
+            target=_run_rag_reindex,
+            kwargs={"force": payload.force, "actor": principal.username},
+            name="threatlens-knowledge-reindex",
+            daemon=True,
         )
+        try:
+            runner.start()
+        except RuntimeError as error:
+            LOGGER.exception("Could not start the governed-knowledge re-index runner.")
+            _finish_reindex(
+                state="failed",
+                detail="Knowledge re-index could not be started.",
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "code": "reindex_runner_unavailable",
+                    "message": "Knowledge re-index could not be started.",
+                },
+            ) from error
     return {
         "status": "accepted" if accepted else "running",
         "reindex": _reindex_snapshot(),

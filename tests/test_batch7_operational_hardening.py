@@ -4,6 +4,7 @@ import json
 import logging
 import os
 from pathlib import Path
+from types import SimpleNamespace
 
 os.environ.setdefault(
     "THREATLENS_JWT_SECRET", "batch7-test-secret-that-is-long-enough-123456789"
@@ -265,13 +266,97 @@ def test_batch7_frontend_exposes_observability_without_public_metrics_url() -> N
 def test_batch7_knowledge_reindex_is_non_blocking_and_status_remains_available() -> None:
     route = (ROOT / "api/routes/rag.py").read_text(encoding="utf-8")
     indexing = (ROOT / "rag/indexing.py").read_text(encoding="utf-8")
-    assert "BackgroundTasks" in route
+    assert "Thread(" in route
+    assert 'name="threatlens-knowledge-reindex"' in route
+    assert "daemon=True" in route
+    assert "runner.start()" in route
+    assert "rag.knowledge_reindex.started" in route
+    assert "rag.knowledge_reindex.completed" in route
     assert "status_code=status.HTTP_202_ACCEPTED" in route
-    assert "background_tasks.add_task(" in route
     assert '"reindex": _reindex_snapshot()' in route
     status_source = indexing.split("    def status(self) -> dict:", 1)[1]
     assert "with self._lock:" not in status_source
     assert "last known-good snapshot" in status_source
+
+
+def test_batch7_reindex_runner_completes_and_closes_its_session(monkeypatch) -> None:
+    import api.routes.rag as rag_route
+
+    class FakeSession:
+        committed = False
+        rolled_back = False
+        closed = False
+
+        def commit(self) -> None:
+            self.committed = True
+
+        def rollback(self) -> None:
+            self.rolled_back = True
+
+        def close(self) -> None:
+            self.closed = True
+
+    result = SimpleNamespace(
+        status="unchanged",
+        knowledge_version="knowledge-v1",
+        documents_seen=2,
+        documents_added_or_updated=0,
+        documents_removed=0,
+        chunks_upserted=0,
+        chunks_deleted=0,
+        indexed_chunks=10,
+    )
+    session = FakeSession()
+    audit_events: list[dict] = []
+
+    class FakePersistence:
+        def __init__(self, supplied_session) -> None:
+            assert supplied_session is session
+
+        def record_audit_event(self, **payload) -> None:
+            audit_events.append(payload)
+
+    monkeypatch.setattr(rag_route, "SessionLocal", lambda: session)
+    monkeypatch.setattr(
+        rag_route,
+        "get_rag_runtime",
+        lambda: SimpleNamespace(
+            indexer=SimpleNamespace(index=lambda supplied_session, force: result)
+        ),
+    )
+    monkeypatch.setattr(rag_route, "ThreatLensPersistenceService", FakePersistence)
+    with rag_route._REINDEX_STATE_LOCK:
+        rag_route._REINDEX_STATE["state"] = "idle"
+
+    assert rag_route._reserve_reindex(force=False) is True
+    rag_route._run_rag_reindex(force=False, actor="unit-admin")
+
+    snapshot = rag_route._reindex_snapshot()
+    assert snapshot["state"] == "completed"
+    assert snapshot["result_status"] == "unchanged"
+    assert snapshot["indexed_chunks"] == 10
+    assert session.committed is True
+    assert session.rolled_back is False
+    assert session.closed is True
+    assert audit_events[0]["actor"] == "unit-admin"
+
+
+def test_batch7_reindex_runner_reports_session_start_failure(monkeypatch) -> None:
+    import api.routes.rag as rag_route
+
+    def unavailable_session():
+        raise RuntimeError("database unavailable")
+
+    monkeypatch.setattr(rag_route, "SessionLocal", unavailable_session)
+    with rag_route._REINDEX_STATE_LOCK:
+        rag_route._REINDEX_STATE["state"] = "idle"
+
+    assert rag_route._reserve_reindex(force=False) is True
+    rag_route._run_rag_reindex(force=False, actor="unit-admin")
+
+    snapshot = rag_route._reindex_snapshot()
+    assert snapshot["state"] == "failed"
+    assert snapshot["completed_utc"] is not None
 
 
 def test_batch7_runbook_and_acceptance_matrix_is_complete() -> None:
