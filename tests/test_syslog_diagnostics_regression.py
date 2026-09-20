@@ -1,16 +1,10 @@
-from __future__ import annotations
-
-from pathlib import Path
-
 from core.connectors import build_default_connector_registry
-
-
-ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_syslog_diagnostics_reject_windows_messages_and_accept_collector_envelopes() -> None:
     registry = build_default_connector_registry()
-    windows_source = (ROOT / "data" / "sample_logs" / "windows_security_sample.jsonl").read_bytes()
+    with open("data/sample_logs/windows_security_sample.jsonl", "rb") as source_file:
+        windows_source = source_file.read()
     diagnostics = {
         item.connector.metadata.connector_id: item.validation
         for item in registry.diagnostics(windows_source, filename="windows_security_sample.jsonl")
