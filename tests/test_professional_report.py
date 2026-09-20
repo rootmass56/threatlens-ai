@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from core.report_generator import _report_metrics, generate_incident_report
+from core.report_generator import _recommendations, _report_metrics, generate_incident_report
 
 
 def _report_frames() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -101,6 +101,23 @@ def test_report_metrics_are_evidence_derived() -> None:
     assert metrics["window_end"] == "2026-09-20 01:05:00 UTC"
 
 
+def test_response_recommendations_follow_observed_risk() -> None:
+    alerts = pd.DataFrame(
+        [
+            {"risk_score": 20, "confidence": 0.9, "recommendation": "Review low-risk activity."},
+            {"risk_score": 100, "confidence": 0.8, "recommendation": "Contain critical activity."},
+            {"risk_score": 70, "confidence": 0.9, "recommendation": "Investigate high-risk activity."},
+            {"risk_score": 100, "confidence": 0.7, "recommendation": "Contain critical activity."},
+        ]
+    )
+
+    assert _recommendations(alerts) == [
+        "Contain critical activity.",
+        "Investigate high-risk activity.",
+        "Review low-risk activity.",
+    ]
+
+
 def test_professional_report_handles_persisted_case_evidence(tmp_path: Path) -> None:
     events, alerts, incidents, timeline = _report_frames()
     details = [
@@ -146,10 +163,12 @@ def test_professional_report_handles_persisted_case_evidence(tmp_path: Path) -> 
     page_count = payload.count(b"/Type /Page") - payload.count(b"/Type /Pages")
     assert payload.startswith(b"%PDF")
     assert len(payload) > 8_000
-    assert page_count >= 5
+    assert 5 <= page_count <= 6
     assert b"ThreatLens AI Incident Investigation Report" in payload
     assert b"Evidence-backed incident investigation report" in payload
     assert b"MITRE ATT&CK" in payload
+    assert b"/Subtype /TrueType" in payload
+    assert b"/FontFile2" in payload
 
 
 def test_professional_report_handles_empty_analysis(tmp_path: Path) -> None:

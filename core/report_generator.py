@@ -15,6 +15,8 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     KeepTogether,
     LongTable,
@@ -28,8 +30,12 @@ from reportlab.platypus import (
 
 PROJECT_NAME = "ThreatLens AI"
 REPORT_TITLE = "Incident Investigation Report"
-REPORT_VERSION = "2.0"
+REPORT_VERSION = "3.0"
 REPORT_CLASSIFICATION = "INTERNAL - AUTHORIZED SECURITY OPERATIONS USE"
+
+BODY_FONT = "Helvetica"
+BOLD_FONT = "Helvetica-Bold"
+_FONTS_REGISTERED = False
 
 NAVY = colors.HexColor("#071C2C")
 NAVY_LIGHT = colors.HexColor("#0E3048")
@@ -58,6 +64,21 @@ SEVERITY_ORDER = {
     "unknown": 0,
 }
 _MISSING_TEXT_VALUES = {"", "<na>", "nan", "nat", "none", "null"}
+
+
+def _register_report_fonts() -> None:
+    """Embed deterministic fonts so the report renders consistently everywhere."""
+    global BODY_FONT, BOLD_FONT, _FONTS_REGISTERED
+    if _FONTS_REGISTERED:
+        return
+    regular = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+    bold = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+    if regular.exists() and bold.exists():
+        pdfmetrics.registerFont(TTFont("ThreatLensSans", str(regular)))
+        pdfmetrics.registerFont(TTFont("ThreatLensSans-Bold", str(bold)))
+        BODY_FONT = "ThreatLensSans"
+        BOLD_FONT = "ThreatLensSans-Bold"
+    _FONTS_REGISTERED = True
 
 
 def _is_missing(value: Any) -> bool:
@@ -238,23 +259,23 @@ def _report_metrics(events_df: pd.DataFrame, alerts_df: pd.DataFrame, incidents_
 
 def _build_styles():
     styles = getSampleStyleSheet()
-    styles["BodyText"].fontName = "Helvetica"
-    styles["BodyText"].fontSize = 9
-    styles["BodyText"].leading = 13
+    styles["BodyText"].fontName = BODY_FONT
+    styles["BodyText"].fontSize = 8.3
+    styles["BodyText"].leading = 10.8
     styles["BodyText"].textColor = INK
-    styles.add(ParagraphStyle(name="ReportTitle", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=23, leading=27, alignment=TA_LEFT, textColor=WHITE, spaceAfter=5))
-    styles.add(ParagraphStyle(name="ReportSubtitle", parent=styles["BodyText"], fontSize=10, leading=14, textColor=colors.HexColor("#C8E8EA")))
-    styles.add(ParagraphStyle(name="Eyebrow", parent=styles["BodyText"], fontName="Helvetica-Bold", fontSize=7, leading=9, textColor=TEAL, spaceAfter=3))
-    styles.add(ParagraphStyle(name="SectionHeading", parent=styles["Heading2"], fontName="Helvetica-Bold", fontSize=15, leading=18, textColor=NAVY, spaceBefore=4, spaceAfter=7, keepWithNext=True))
-    styles.add(ParagraphStyle(name="SubsectionHeading", parent=styles["Heading3"], fontName="Helvetica-Bold", fontSize=11, leading=14, textColor=NAVY_LIGHT, spaceBefore=6, spaceAfter=5, keepWithNext=True))
-    styles.add(ParagraphStyle(name="Small", parent=styles["BodyText"], fontSize=7.5, leading=9.5))
-    styles.add(ParagraphStyle(name="Tiny", parent=styles["BodyText"], fontSize=6.5, leading=8))
+    styles.add(ParagraphStyle(name="ReportTitle", parent=styles["Title"], fontName=BOLD_FONT, fontSize=22, leading=25, alignment=TA_LEFT, textColor=WHITE, spaceAfter=4))
+    styles.add(ParagraphStyle(name="ReportSubtitle", parent=styles["BodyText"], fontSize=9, leading=12, textColor=colors.HexColor("#C8E8EA")))
+    styles.add(ParagraphStyle(name="Eyebrow", parent=styles["BodyText"], fontName=BOLD_FONT, fontSize=6.8, leading=8.5, textColor=TEAL, spaceAfter=2))
+    styles.add(ParagraphStyle(name="SectionHeading", parent=styles["Heading2"], fontName=BOLD_FONT, fontSize=14, leading=17, textColor=NAVY, spaceBefore=3, spaceAfter=6, keepWithNext=True))
+    styles.add(ParagraphStyle(name="SubsectionHeading", parent=styles["Heading3"], fontName=BOLD_FONT, fontSize=10, leading=12, textColor=NAVY_LIGHT, spaceBefore=5, spaceAfter=4, keepWithNext=True))
+    styles.add(ParagraphStyle(name="Small", parent=styles["BodyText"], fontSize=7.2, leading=9))
+    styles.add(ParagraphStyle(name="Tiny", parent=styles["BodyText"], fontSize=6.2, leading=7.6))
     styles.add(ParagraphStyle(name="SmallInverse", parent=styles["Small"], textColor=WHITE))
-    styles.add(ParagraphStyle(name="MetaLabel", parent=styles["Small"], fontName="Helvetica-Bold", fontSize=6.5, leading=8, textColor=MUTED))
-    styles.add(ParagraphStyle(name="MetricValue", parent=styles["BodyText"], fontName="Helvetica-Bold", fontSize=18, leading=20, alignment=TA_CENTER, textColor=NAVY))
-    styles.add(ParagraphStyle(name="MetricLabel", parent=styles["Small"], fontName="Helvetica-Bold", fontSize=6.5, leading=8, alignment=TA_CENTER, textColor=MUTED))
-    styles.add(ParagraphStyle(name="Callout", parent=styles["BodyText"], fontSize=8.5, leading=12, textColor=INK))
-    styles.add(ParagraphStyle(name="BulletBody", parent=styles["BodyText"], leftIndent=12, firstLineIndent=-8, bulletIndent=2, spaceAfter=4))
+    styles.add(ParagraphStyle(name="MetaLabel", parent=styles["Small"], fontName=BOLD_FONT, fontSize=6.2, leading=7.6, textColor=MUTED))
+    styles.add(ParagraphStyle(name="MetricValue", parent=styles["BodyText"], fontName=BOLD_FONT, fontSize=17, leading=19, alignment=TA_CENTER, textColor=NAVY))
+    styles.add(ParagraphStyle(name="MetricLabel", parent=styles["Small"], fontName=BOLD_FONT, fontSize=6.2, leading=7.5, alignment=TA_CENTER, textColor=MUTED))
+    styles.add(ParagraphStyle(name="Callout", parent=styles["BodyText"], fontSize=7.8, leading=10.3, textColor=INK))
+    styles.add(ParagraphStyle(name="BulletBody", parent=styles["BodyText"], leftIndent=12, firstLineIndent=-8, bulletIndent=2, spaceAfter=3))
     return styles
 
 
@@ -262,8 +283,8 @@ def _table_style(*, compact: bool = False) -> TableStyle:
     vertical_padding = 3 if compact else 5
     return TableStyle([
         ("BACKGROUND", (0, 0), (-1, 0), NAVY), ("TEXTCOLOR", (0, 0), (-1, 0), WHITE),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"), ("FONTSIZE", (0, 0), (-1, -1), 7.5),
-        ("LEADING", (0, 0), (-1, -1), 9.5), ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("FONTNAME", (0, 0), (-1, 0), BOLD_FONT), ("FONTSIZE", (0, 0), (-1, -1), 7.2),
+        ("LEADING", (0, 0), (-1, -1), 9), ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("LINEBELOW", (0, 0), (-1, 0), 0.8, TEAL), ("LINEBELOW", (0, 1), (-1, -1), 0.3, LINE),
         ("ROWBACKGROUNDS", (0, 1), (-1, -1), [WHITE, SURFACE]),
         ("LEFTPADDING", (0, 0), (-1, -1), 5), ("RIGHTPADDING", (0, 0), (-1, -1), 5),
@@ -274,8 +295,8 @@ def _table_style(*, compact: bool = False) -> TableStyle:
 def _key_value_style() -> TableStyle:
     return TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), WHITE), ("BACKGROUND", (0, 0), (0, -1), SURFACE_ALT),
-        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"), ("TEXTCOLOR", (0, 0), (0, -1), NAVY_LIGHT),
-        ("FONTSIZE", (0, 0), (-1, -1), 7.5), ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("FONTNAME", (0, 0), (0, -1), BOLD_FONT), ("TEXTCOLOR", (0, 0), (0, -1), NAVY_LIGHT),
+        ("FONTSIZE", (0, 0), (-1, -1), 7.2), ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("INNERGRID", (0, 0), (-1, -1), 0.35, LINE),
         ("LEFTPADDING", (0, 0), (-1, -1), 6), ("RIGHTPADDING", (0, 0), (-1, -1), 6),
         ("TOPPADDING", (0, 0), (-1, -1), 5), ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
@@ -289,16 +310,16 @@ def _draw_page(canvas, document) -> None:
     canvas.rect(0, height - 11 * mm, width, 11 * mm, stroke=0, fill=1)
     canvas.setFillColor(TEAL)
     canvas.rect(0, height - 11 * mm, 4 * mm, 11 * mm, stroke=0, fill=1)
-    canvas.setFont("Helvetica-Bold", 8)
+    canvas.setFont(BOLD_FONT, 8)
     canvas.setFillColor(WHITE)
     canvas.drawString(10 * mm, height - 7 * mm, PROJECT_NAME)
-    canvas.setFont("Helvetica", 7)
+    canvas.setFont(BODY_FONT, 6.5)
     canvas.setFillColor(colors.HexColor("#C8E8EA"))
     canvas.drawRightString(width - 10 * mm, height - 7 * mm, REPORT_CLASSIFICATION)
     canvas.setStrokeColor(LINE)
     canvas.setLineWidth(0.5)
     canvas.line(14 * mm, 11 * mm, width - 14 * mm, 11 * mm)
-    canvas.setFont("Helvetica", 7)
+    canvas.setFont(BODY_FONT, 6.5)
     canvas.setFillColor(MUTED)
     canvas.drawString(14 * mm, 6.5 * mm, f"{PROJECT_NAME} | {REPORT_TITLE} v{REPORT_VERSION}")
     canvas.drawCentredString(width / 2, 6.5 * mm, "Generated from persisted investigation evidence")
@@ -321,7 +342,7 @@ def _title_panel(analysis_name: str | None, report_id: str, styles) -> Table:
 
 def _metadata_grid(session_uuid: str | None, analyst: str | None, generated_at: datetime, metrics: dict[str, Any], styles) -> Table:
     rows = [[_metadata_cell("Session UUID", session_uuid, styles), _metadata_cell("Prepared by", analyst or "Not specified", styles), _metadata_cell("Generated", _format_timestamp(generated_at), styles), _metadata_cell("Classification", "Internal", styles)], [_metadata_cell("Investigation start", metrics["window_start"], styles), _metadata_cell("Investigation end", metrics["window_end"], styles), _metadata_cell("Telemetry sources", metrics["source_count"], styles), _metadata_cell("Report version", REPORT_VERSION, styles)]]
-    table = Table(rows, colWidths=[63.5 * mm] * 4)
+    table = Table(rows, colWidths=[70 * mm, 52 * mm, 70 * mm, 62 * mm])
     table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), WHITE), ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("INNERGRID", (0, 0), (-1, -1), 0.35, LINE), ("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 7), ("RIGHTPADDING", (0, 0), (-1, -1), 7), ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
     return table
 
@@ -369,7 +390,7 @@ def _alert_table(alerts_df: pd.DataFrame, styles) -> LongTable:
     commands: list[tuple[Any, ...]] = []
     for index, (_, row) in enumerate(alerts_df.iterrows(), start=1):
         color = SEVERITY_COLORS.get(_display_value(row.get("severity"), "unknown").lower(), MUTED)
-        commands.extend([("TEXTCOLOR", (1, index), (1, index), color), ("FONTNAME", (1, index), (1, index), "Helvetica-Bold")])
+        commands.extend([("TEXTCOLOR", (1, index), (1, index), color), ("FONTNAME", (1, index), (1, index), BOLD_FONT)])
     table.setStyle(TableStyle(commands))
     return table
 
@@ -439,23 +460,64 @@ def _details_by_incident_uuid(incident_details: list[dict[str, Any]] | None) -> 
 def _incident_overview_table(row: pd.Series, styles) -> Table:
     correlation = f"{_display_value(row.get('correlation_version'), 'Legacy')} / {_display_value(row.get('correlation_id'), 'Not available')}"
     graph = f"Sources: {_display_value(row.get('source_count'), '0')} | Entities: {_display_value(row.get('entity_count'), '0')} | Relationships: {_display_value(row.get('relationship_count'), '0')} | Graph score: {_format_number(row.get('graph_score'), default='0')}"
-    values = [
-        ("Incident UUID", _display_value(row.get("incident_uuid"), "Not persisted")),
-        ("Severity / Priority", f"{_display_value(row.get('severity'))} / {_display_value(row.get('priority'), 'Not set')}"),
-        ("Risk / Confidence", f"{_format_number(row.get('risk_score'))} / {_format_number(row.get('confidence'))}"),
-        ("Status / Assignee", f"{_status_label(row.get('status'))} / {_display_value(row.get('assignee'), 'Unassigned')}"),
-        ("Correlation identity", correlation), ("Graph evidence", graph),
-        ("ATT&CK progression", _display_value(row.get("stage_progression"), "No ordered path")),
+    rows = [
+        ["Incident UUID", _paragraph(_display_value(row.get("incident_uuid"), "Not persisted"), styles["Small"]), "Severity / Priority", _paragraph(f"{_display_value(row.get('severity'))} / {_display_value(row.get('priority'), 'Not set')}", styles["Small"])],
+        ["Status / Assignee", _paragraph(f"{_status_label(row.get('status'))} / {_display_value(row.get('assignee'), 'Unassigned')}", styles["Small"]), "Risk / Confidence", _paragraph(f"{_format_number(row.get('risk_score'))} / {_format_number(row.get('confidence'))}", styles["Small"])],
+        ["Correlation identity", _paragraph(correlation, styles["Small"]), "Graph evidence", _paragraph(graph, styles["Small"])],
+        ["ATT&CK progression", _paragraph(_display_value(row.get("stage_progression"), "No ordered path"), styles["Small"]), "", ""],
     ]
-    table = Table([[label, _paragraph(value, styles["Small"])] for label, value in values], colWidths=[42 * mm, 212 * mm], splitByRow=1)
-    table.setStyle(_key_value_style())
+    table = Table(rows, colWidths=[34 * mm, 88 * mm, 34 * mm, 98 * mm], splitByRow=1)
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), WHITE),
+        ("BACKGROUND", (0, 0), (0, -1), SURFACE_ALT),
+        ("BACKGROUND", (2, 0), (2, -2), SURFACE_ALT),
+        ("FONTNAME", (0, 0), (0, -1), BOLD_FONT),
+        ("FONTNAME", (2, 0), (2, -2), BOLD_FONT),
+        ("TEXTCOLOR", (0, 0), (0, -1), NAVY_LIGHT),
+        ("TEXTCOLOR", (2, 0), (2, -2), NAVY_LIGHT),
+        ("FONTSIZE", (0, 0), (-1, -1), 7.2),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BOX", (0, 0), (-1, -1), 0.5, LINE),
+        ("INNERGRID", (0, 0), (-1, -1), 0.35, LINE),
+        ("SPAN", (1, -1), (-1, -1)),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
     return table
 
 
-def _narrative_callout(title: str, content: Any, styles, default: str) -> Table:
+def _narrative_callout(title: str, content: Any, styles, default: str, *, accent=TEAL) -> Table:
     body = [Paragraph(_text(title), styles["MetaLabel"]), Spacer(1, 2), _paragraph(content, styles["Callout"], default)]
     table = Table([[body]], colWidths=[254 * mm])
-    table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), SURFACE), ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("LINEBEFORE", (0, 0), (0, -1), 3, TEAL), ("LEFTPADDING", (0, 0), (-1, -1), 9), ("RIGHTPADDING", (0, 0), (-1, -1), 9), ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7)]))
+    table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), SURFACE), ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("LINEBEFORE", (0, 0), (0, -1), 3, accent), ("LEFTPADDING", (0, 0), (-1, -1), 8), ("RIGHTPADDING", (0, 0), (-1, -1), 8), ("TOPPADDING", (0, 0), (-1, -1), 5), ("BOTTOMPADDING", (0, 0), (-1, -1), 5)]))
+    return table
+
+
+def _case_completeness_table(notes: list[dict[str, Any]], evidence: list[dict[str, Any]], styles) -> Table:
+    note_text = f"{len(notes)} recorded" if notes else "None recorded"
+    evidence_text = f"{len(evidence)} registered" if evidence else "None registered"
+    table = Table(
+        [["Analyst notes", _paragraph(note_text, styles["Small"]), "Registered evidence", _paragraph(evidence_text, styles["Small"])]],
+        colWidths=[32 * mm, 94 * mm, 38 * mm, 90 * mm],
+    )
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), SURFACE),
+        ("BACKGROUND", (0, 0), (0, 0), SURFACE_ALT),
+        ("BACKGROUND", (2, 0), (2, 0), SURFACE_ALT),
+        ("FONTNAME", (0, 0), (0, 0), BOLD_FONT),
+        ("FONTNAME", (2, 0), (2, 0), BOLD_FONT),
+        ("TEXTCOLOR", (0, 0), (-1, -1), INK),
+        ("FONTSIZE", (0, 0), (-1, -1), 7.2),
+        ("BOX", (0, 0), (-1, -1), 0.5, LINE),
+        ("INNERGRID", (0, 0), (-1, -1), 0.35, LINE),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
     return table
 
 
@@ -463,22 +525,19 @@ def _append_case_notes_and_evidence(story: list[Any], details: dict[str, Any] | 
     if details is None:
         story.extend([Paragraph("Case record completeness", styles["SubsectionHeading"]), _narrative_callout("LIMITATION", "Persisted case notes, registered evidence metadata and an incident-linked timeline were unavailable when this report was generated.", styles, "Not available")])
         return
-    story.append(Paragraph("Investigation notes", styles["SubsectionHeading"]))
     notes = list(details.get("notes") or [])
-    if not notes:
-        story.append(_narrative_callout("NOTE STATUS", "No analyst notes are registered for this incident.", styles, "No notes"))
-    else:
+    evidence = list(details.get("evidence") or [])
+    story.extend([Paragraph("Case completeness", styles["SubsectionHeading"]), _case_completeness_table(notes, evidence, styles)])
+    if notes:
+        story.append(Paragraph("Analyst notes", styles["SubsectionHeading"]))
         rows: list[list[Any]] = [["Author", "Created (UTC)", "Note"]]
         for note in notes:
             rows.append([_paragraph(note.get("author"), styles["Small"]), _paragraph(_format_timestamp(note.get("created_at")), styles["Small"]), _paragraph(note.get("note"), styles["Small"])])
         table = LongTable(rows, repeatRows=1, colWidths=[34 * mm, 46 * mm, 174 * mm])
         table.setStyle(_table_style(compact=True))
         story.append(table)
-    story.append(Paragraph("Registered evidence", styles["SubsectionHeading"]))
-    evidence = list(details.get("evidence") or [])
-    if not evidence:
-        story.append(_narrative_callout("EVIDENCE REGISTER", "No separately registered evidence metadata is attached to this incident. Incident-linked events and alerts remain listed in the evidence timeline.", styles, "No evidence"))
-    else:
+    if evidence:
+        story.append(Paragraph("Registered evidence", styles["SubsectionHeading"]))
         rows = [["Type", "Source reference", "SHA-256", "Registered by", "Created", "Description"]]
         for item in evidence:
             rows.append([_paragraph(item.get("evidence_type"), styles["Tiny"]), _paragraph(item.get("source_reference"), styles["Tiny"], "Not specified"), _paragraph(item.get("sha256"), styles["Tiny"], "Not supplied"), _paragraph(item.get("registered_by"), styles["Tiny"], "Not recorded"), _paragraph(_format_timestamp(item.get("created_at")), styles["Tiny"]), _paragraph(item.get("description"), styles["Tiny"])])
@@ -489,7 +548,19 @@ def _append_case_notes_and_evidence(story: list[Any], details: dict[str, Any] | 
 
 def _recommendations(alerts_df: pd.DataFrame) -> list[str]:
     if not alerts_df.empty and "recommendation" in alerts_df.columns:
-        recommendations = sorted({str(value).strip() for value in alerts_df["recommendation"].dropna() if str(value).strip()})
+        ordered = alerts_df.copy()
+        risk_values = ordered["risk_score"] if "risk_score" in ordered.columns else pd.Series(-1, index=ordered.index)
+        confidence_values = ordered["confidence"] if "confidence" in ordered.columns else pd.Series(-1, index=ordered.index)
+        ordered["_risk_sort"] = pd.to_numeric(risk_values, errors="coerce").fillna(-1)
+        ordered["_confidence_sort"] = pd.to_numeric(confidence_values, errors="coerce").fillna(-1)
+        ordered = ordered.sort_values(["_risk_sort", "_confidence_sort"], ascending=False, kind="stable")
+        recommendations: list[str] = []
+        seen: set[str] = set()
+        for value in ordered["recommendation"].dropna():
+            recommendation = str(value).strip()
+            if recommendation and recommendation not in seen:
+                recommendations.append(recommendation)
+                seen.add(recommendation)
         if recommendations:
             return recommendations
     return ["Validate the suspicious activity against approved administrative and user behavior.", "Review related authentication, endpoint and network evidence.", "Contain confirmed malicious accounts, sessions, hosts or infrastructure.", "Document analyst decisions, evidence hashes and remediation before resolving the case."]
@@ -542,6 +613,7 @@ def generate_incident_report(
     incident_details: list[dict[str, Any]] | None = None,
 ) -> str:
     """Generate a professional, pagination-safe incident report from persisted evidence."""
+    _register_report_fonts()
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     generated_at = datetime.now(UTC)
     timestamp = generated_at.strftime("%Y%m%d_%H%M%S")
@@ -582,12 +654,13 @@ def generate_incident_report(
             incident_uuid = _display_value(row.get("incident_uuid"), "")
             title = row.get("incident_name", row.get("title", "Incident"))
             severity = _display_value(row.get("severity"), "Unknown")
+            severity_accent = SEVERITY_COLORS.get(severity.lower(), MUTED)
             story.extend([
                 PageBreak(), Paragraph(f"INCIDENT {incident_index:02d}", styles["Eyebrow"]),
                 Paragraph(_text(title, "Incident"), styles["SectionHeading"]),
-                _narrative_callout("CURRENT CASE POSTURE", f"{severity} severity | {_display_value(row.get('priority'), 'Priority not set')} | Risk {_format_number(row.get('risk_score'))} | {_status_label(row.get('status'))}", styles, "Case posture not available"),
-                Spacer(1, 7), _incident_overview_table(row, styles), Spacer(1, 7),
-                _narrative_callout("INCIDENT SUMMARY", row.get("summary"), styles, "No incident summary is available."), Spacer(1, 6),
+                _narrative_callout("CURRENT CASE POSTURE", f"{severity} severity | {_display_value(row.get('priority'), 'Priority not set')} | Risk {_format_number(row.get('risk_score'))} | {_status_label(row.get('status'))}", styles, "Case posture not available", accent=severity_accent),
+                Spacer(1, 5), _incident_overview_table(row, styles), Spacer(1, 5),
+                _narrative_callout("INCIDENT SUMMARY", row.get("summary"), styles, "No incident summary is available."), Spacer(1, 4),
                 _narrative_callout("CORRELATION ANALYSIS", row.get("storyline"), styles, "No advanced correlation storyline is available."),
             ])
             details = details_map.get(incident_uuid)
@@ -609,7 +682,7 @@ def generate_incident_report(
     if incident_details:
         additional = additional_analysis_event_records(events_df, incident_details)
         if additional:
-            story.extend([PageBreak(), Paragraph("Additional analysis events", styles["SectionHeading"]), Paragraph("These records belong to the same analysis session but are explicitly separated because they are not linked as supporting evidence for the correlated incidents above.", styles["BodyText"]), Spacer(1, 6), _timeline_table(additional, styles)])
+            story.extend([Spacer(1, 10), Paragraph("Additional analysis events", styles["SectionHeading"]), Paragraph("These records belong to the same analysis session but are explicitly separated because they are not linked as supporting evidence for the correlated incidents above.", styles["BodyText"]), Spacer(1, 6), _timeline_table(additional, styles)])
 
     story.append(PageBreak())
     recommendation_flowables = [
