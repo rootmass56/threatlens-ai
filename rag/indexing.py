@@ -49,6 +49,11 @@ class KnowledgeIndexService:
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     def _read_manifest(self) -> dict:
+        read_durable = getattr(self.vector_store, "read_manifest", None)
+        if callable(read_durable):
+            payload = read_durable()
+            if isinstance(payload, dict):
+                return payload
         if not self.manifest_path.is_file():
             return {"sources": {}}
         try:
@@ -56,6 +61,16 @@ class KnowledgeIndexService:
             return payload if isinstance(payload, dict) else {"sources": {}}
         except (OSError, json.JSONDecodeError):
             return {"sources": {}}
+
+    def _write_manifest(self, payload: dict) -> None:
+        write_durable = getattr(self.vector_store, "write_manifest", None)
+        if callable(write_durable):
+            write_durable(payload)
+        try:
+            self._write_manifest(payload)
+        except OSError:
+            if not callable(write_durable):
+                raise
 
     def _unavailable(self, detail: str) -> RagIndexResult:
         ready, _ = self.vector_store.ready()
