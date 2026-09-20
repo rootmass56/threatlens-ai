@@ -27,6 +27,9 @@ data/dependency_attestation/
 # Streamlit local secrets
 .streamlit/secrets.toml
 
+# Cloudflare Wrangler local state
+.wrangler/
+
 # IDE
 .vscode/
 .idea/
