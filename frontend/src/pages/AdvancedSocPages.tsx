@@ -224,7 +224,10 @@ export function DetectionEngineeringPage({ session }: { session: Session }) {
   const tuningUuid = value(activeTuning, ['tuning_uuid'], '')
   const tuningStatus = value(activeTuning, ['status'], '')
   const requester = value(activeTuning, ['requested_by'], '')
+  const reviewedBy = value(activeTuning, ['reviewed_by'], '')
+  const reviewedAt = value(activeTuning, ['reviewed_at'], '')
   const username = value(session.user, ['username'], '')
+  const awaitingReview = tuningStatus === 'proposed'
   const duplicateOpen = openTunings.find(
     row => value(row, ['rule_id']) === rule.trim() && value(row, ['proposal_type']) === 'threshold',
   )
@@ -329,19 +332,23 @@ export function DetectionEngineeringPage({ session }: { session: Session }) {
             })}
           </select>
         </label>
-        <Notice>
-          Current state: {tuningStatus || 'unknown'}. Requester: {requester || '—'}.
-          {requester === username
-            ? ' A different detection manager must review this proposal.'
-            : ' Approval and rejection are separate audited transitions.'}
+        <Notice tone={tuningStatus === 'approved' ? 'success' : tuningStatus === 'rejected' ? 'warning' : 'info'}>
+          Current state: <b>{tuningStatus || 'unknown'}</b>. Requester: <b>{requester || '—'}</b>.
+          {awaitingReview
+            ? requester === username
+              ? ' A different detection manager must review this proposal.'
+              : ' Approval and rejection are separate audited transitions.'
+            : ` Reviewed by ${reviewedBy || 'an authorized detection manager'}${reviewedAt ? ` on ${reviewedAt}` : ''}. No further review action is available.`}
         </Notice>
-        <label>Review note
-          <textarea rows={3} value={reviewNote} onChange={event => setReviewNote(event.target.value)} />
-        </label>
-        <div>
-          <button className="primary" disabled={!canReview} onClick={() => void review('approved')}>Approve tuning</button>
-          <button disabled={!canReview} onClick={() => void review('rejected')}>Reject tuning</button>
-        </div>
+        {awaitingReview && <>
+          <label>Review note
+            <textarea rows={3} value={reviewNote} onChange={event => setReviewNote(event.target.value)} />
+          </label>
+          <div className="mode-row">
+            <button className="primary" disabled={!canReview} onClick={() => void review('approved')}>Approve tuning</button>
+            <button className="secondary" disabled={!canReview} onClick={() => void review('rejected')}>Reject tuning</button>
+          </div>
+        </>}
       </div> : <Empty>No tuning proposals are available.</Empty>}
       {message && <Notice>{message}</Notice>}
     </Panel>
