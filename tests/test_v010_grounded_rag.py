@@ -119,7 +119,7 @@ def settings(tmp_path: Path, *, enabled: bool = True) -> RagSettings:
     return RagSettings(
         enabled=enabled,
         ollama_base_url="http://127.0.0.1:11434",
-        llm_model="qwen3:4b",
+        llm_model="qwen3.5:4b",
         embedding_model="qwen3-embedding:0.6b",
         vector_backend="memory",
         embedding_backend="hashing",
@@ -684,7 +684,7 @@ def test_ollama_generator_respects_configured_profile_for_multi_technique_source
     monkeypatch.setattr("rag.llm.requests.post", fake_post)
     generator = OllamaInvestigationGenerator(
         base_url="http://127.0.0.1:11434",
-        model_name="qwen3:4b",
+        model_name="qwen3.5:4b",
         connect_timeout=1,
         read_timeout=1,
         num_ctx=4096,
@@ -1041,7 +1041,7 @@ def test_ollama_generator_classifies_context_length_exhaustion(
     monkeypatch.setattr("rag.llm.requests.post", lambda *args, **kwargs: Response())
     generator = OllamaInvestigationGenerator(
         base_url="http://127.0.0.1:11434",
-        model_name="qwen3:4b",
+        model_name="qwen3.5:4b",
         connect_timeout=1,
         read_timeout=1,
         num_ctx=4096,

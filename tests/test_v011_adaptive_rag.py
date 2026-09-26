@@ -83,7 +83,7 @@ def _settings(tmp_path: Path) -> RagSettings:
     return RagSettings(
         enabled=True,
         ollama_base_url="http://127.0.0.1:11434",
-        llm_model="qwen3:4b",
+        llm_model="qwen3.5:4b",
         embedding_model="qwen3-embedding:0.6b",
         vector_backend="memory",
         embedding_backend="hashing",
@@ -101,7 +101,7 @@ def _settings(tmp_path: Path) -> RagSettings:
         ollama_num_predict=900,
         exact_knowledge_limit=8,
         include_analyst_notes=True,
-        deep_llm_model="qwen3:8b",
+        deep_llm_model="qwen3.5:9b",
         deep_read_timeout_seconds=600,
         deep_ollama_num_ctx=8192,
         deep_ollama_num_predict=1400,
@@ -150,10 +150,10 @@ def test_v011_model_profiles_use_benchmarked_budgets(tmp_path: Path) -> None:
     profiles = build_model_profiles(_settings(tmp_path))
     standard = profiles[RagAnalysisMode.STANDARD]
     deep = profiles[RagAnalysisMode.DEEP]
-    assert standard.model_name == "qwen3:4b"
+    assert standard.model_name == "qwen3.5:4b"
     assert standard.num_predict == 900
     assert standard.read_timeout_seconds == 360
-    assert deep.model_name == "qwen3:8b"
+    assert deep.model_name == "qwen3.5:9b"
     assert deep.num_ctx == 8192
     assert deep.num_predict == 1400
     assert deep.read_timeout_seconds == 600
@@ -176,11 +176,11 @@ def test_v011_auto_routes_routine_question_to_standard() -> None:
         question="Why does this incident matter?",
         plan=RagQueryPlan(),
         details={"alerts": [], "events": []},
-        standard_model="qwen3:4b",
-        deep_model="qwen3:8b",
+        standard_model="qwen3.5:4b",
+        deep_model="qwen3.5:9b",
     )
     assert decision.resolved_mode == RagAnalysisMode.STANDARD
-    assert decision.requested_model == "qwen3:4b"
+    assert decision.requested_model == "qwen3.5:4b"
     assert decision.complexity_score < 5
 
 
@@ -194,11 +194,11 @@ def test_v011_auto_routes_complex_hybrid_question_to_deep() -> None:
             requires_source_separation=True,
         ),
         details={"alerts": [{}] * 7, "events": [{}] * 14},
-        standard_model="qwen3:4b",
-        deep_model="qwen3:8b",
+        standard_model="qwen3.5:4b",
+        deep_model="qwen3.5:9b",
     )
     assert decision.resolved_mode == RagAnalysisMode.DEEP
-    assert decision.requested_model == "qwen3:8b"
+    assert decision.requested_model == "qwen3.5:9b"
     assert decision.complexity_score >= 5
     assert "evidence_knowledge_source_separation" in decision.reasons
 
@@ -209,8 +209,8 @@ def test_v011_manual_standard_override_is_deterministic() -> None:
         question="Compare everything in depth",
         plan=RagQueryPlan(attack_ids=["T1110.001", "T1059.001", "T1003.001"]),
         details={"alerts": [{}] * 20, "events": [{}] * 50},
-        standard_model="qwen3:4b",
-        deep_model="qwen3:8b",
+        standard_model="qwen3.5:4b",
+        deep_model="qwen3.5:9b",
     )
     assert decision.resolved_mode == RagAnalysisMode.STANDARD
     assert decision.reasons == ["analyst_override_standard"]
@@ -222,8 +222,8 @@ def test_v011_manual_deep_override_is_deterministic() -> None:
         question="Summarize this incident",
         plan=RagQueryPlan(),
         details={},
-        standard_model="qwen3:4b",
-        deep_model="qwen3:8b",
+        standard_model="qwen3.5:4b",
+        deep_model="qwen3.5:9b",
     )
     assert decision.resolved_mode == RagAnalysisMode.DEEP
     assert decision.reasons == ["analyst_override_deep"]
@@ -242,14 +242,14 @@ def test_v011_client_and_ui_expose_mode_without_direct_model_access() -> None:
     assert '"analysis_mode": analysis_mode' in client_source
     assert 'options=("auto", "standard", "deep")' in ui_source
     assert "Auto — Recommended" in ui_source
-    assert "Deep Analysis — Qwen3:8B" in ui_source
+    assert "Deep Analysis — Qwen3.5:9B" in ui_source
     assert "ollama" not in ui_source.lower()
     assert "chromadb" not in ui_source.lower()
 
 
 def test_v011_health_exposes_standard_and_deep_profiles(tmp_path: Path) -> None:
-    standard = FakeGenerator("qwen3:4b")
-    deep = FakeGenerator("qwen3:8b")
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = FakeGenerator("qwen3.5:9b")
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.vector_store.upsert([], [])
     health = runtime.health()
@@ -257,14 +257,14 @@ def test_v011_health_exposes_standard_and_deep_profiles(tmp_path: Path) -> None:
         RagAnalysisMode.STANDARD,
         RagAnalysisMode.DEEP,
     ]
-    assert [item.model for item in health.model_profiles] == ["qwen3:4b", "qwen3:8b"]
+    assert [item.model for item in health.model_profiles] == ["qwen3.5:4b", "qwen3.5:9b"]
 
 
 def test_v011_manual_deep_query_uses_deep_generator(database_session, tmp_path: Path) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b")
-    deep = FakeGenerator("qwen3:8b")
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = FakeGenerator("qwen3.5:9b")
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.indexer.index(database_session)
     response = runtime.query(
@@ -274,7 +274,7 @@ def test_v011_manual_deep_query_uses_deep_generator(database_session, tmp_path: 
         question="Explain this incident",
         analysis_mode=RagAnalysisMode.DEEP,
     )
-    assert response.served_model == "qwen3:8b"
+    assert response.served_model == "qwen3.5:9b"
     assert response.resolved_mode == RagAnalysisMode.DEEP
     assert not response.fallback_used
     assert deep.calls == 1
@@ -286,8 +286,8 @@ def test_v012_successful_model_synthesis_uses_deterministic_technique_layer(
 ) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b")
-    deep = FakeGenerator("qwen3:8b")
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = FakeGenerator("qwen3.5:9b")
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.indexer.index(database_session)
 
@@ -331,8 +331,8 @@ def test_v011_unavailable_deep_model_falls_back_to_standard(
 ) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b")
-    deep = FakeGenerator("qwen3:8b", available=False)
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = FakeGenerator("qwen3.5:9b", available=False)
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.indexer.index(database_session)
     response = runtime.query(
@@ -343,8 +343,8 @@ def test_v011_unavailable_deep_model_falls_back_to_standard(
         analysis_mode="deep",
     )
     assert response.status in {RagResponseStatus.ANSWERED, RagResponseStatus.PARTIALLY_SUPPORTED}
-    assert response.requested_model == "qwen3:8b"
-    assert response.served_model == "qwen3:4b"
+    assert response.requested_model == "qwen3.5:9b"
+    assert response.served_model == "qwen3.5:4b"
     assert response.fallback_used
     assert standard.calls == 1
     assert deep.calls == 0
@@ -355,8 +355,8 @@ def test_v011_deep_generation_failure_is_regenerated_and_grounded_with_standard(
 ) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b")
-    deep = FakeGenerator("qwen3:8b", fail_generation=True)
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = FakeGenerator("qwen3.5:9b", fail_generation=True)
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.indexer.index(database_session)
     response = runtime.query(
@@ -366,7 +366,7 @@ def test_v011_deep_generation_failure_is_regenerated_and_grounded_with_standard(
         question="Explain this incident",
         analysis_mode="deep",
     )
-    assert response.served_model == "qwen3:4b"
+    assert response.served_model == "qwen3.5:4b"
     assert response.fallback_used
     assert response.grounding_score == 1.0
     assert "do-not-surface" not in (response.fallback_reason or "")
@@ -379,8 +379,8 @@ def test_v011_standard_failure_does_not_silently_escalate_to_deep(
 ) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b", fail_generation=True)
-    deep = FakeGenerator("qwen3:8b")
+    standard = FakeGenerator("qwen3.5:4b", fail_generation=True)
+    deep = FakeGenerator("qwen3.5:9b")
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.indexer.index(database_session)
     response = runtime.query(
@@ -403,8 +403,8 @@ def test_v011_both_model_generation_failures_use_deterministic_grounded_fallback
 ) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b", fail_generation=True)
-    deep = FakeGenerator("qwen3:8b", fail_generation=True)
+    standard = FakeGenerator("qwen3.5:4b", fail_generation=True)
+    deep = FakeGenerator("qwen3.5:9b", fail_generation=True)
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.indexer.index(database_session)
     response = runtime.query(
@@ -428,8 +428,8 @@ def test_v011_guarded_long_deep_failure_skips_stacked_standard_request(
 ) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b")
-    deep = FakeGenerator("qwen3:8b", fail_generation=True)
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = FakeGenerator("qwen3.5:9b", fail_generation=True)
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     object.__setattr__(runtime.settings, "standard_fallback_max_primary_seconds", 0)
     runtime.indexer.index(database_session)
@@ -455,8 +455,8 @@ def test_v011_prompt_injection_is_blocked_before_either_model(
 ) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b")
-    deep = FakeGenerator("qwen3:8b")
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = FakeGenerator("qwen3.5:9b")
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     response = runtime.query(
         database_session,
@@ -474,8 +474,8 @@ def test_v011_prompt_injection_is_blocked_before_either_model(
 def test_v011_history_persists_auditable_routing_metadata(database_session, tmp_path: Path) -> None:
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b")
-    deep = FakeGenerator("qwen3:8b", available=False)
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = FakeGenerator("qwen3.5:9b", available=False)
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.indexer.index(database_session)
     runtime.query(
@@ -489,8 +489,8 @@ def test_v011_history_persists_auditable_routing_metadata(database_session, tmp_
     item = runtime.history(database_session, incident_uuid=incident_uuid, limit=1)[0]
     assert item.requested_mode == RagAnalysisMode.DEEP
     assert item.resolved_mode == RagAnalysisMode.DEEP
-    assert item.requested_model == "qwen3:8b"
-    assert item.served_model == "qwen3:4b"
+    assert item.requested_model == "qwen3.5:9b"
+    assert item.served_model == "qwen3.5:4b"
     assert item.fallback_used
     assert item.generation_latency_ms >= 0.0
 
@@ -498,8 +498,8 @@ def test_v011_history_persists_auditable_routing_metadata(database_session, tmp_
 def test_v011_safe_model_error_removes_raw_response_tail(tmp_path: Path) -> None:
     runtime = _runtime(
         tmp_path,
-        standard=FakeGenerator("qwen3:4b"),
-        deep=FakeGenerator("qwen3:8b"),
+        standard=FakeGenerator("qwen3.5:4b"),
+        deep=FakeGenerator("qwen3.5:9b"),
     )
     cleaned = runtime._safe_model_error(
         RuntimeError("validation failed; response_tail=secret-looking raw model output")
@@ -775,7 +775,7 @@ def test_v011_alias_cleanup_removes_grouped_and_ranged_internal_aliases(monkeypa
     monkeypatch.setattr("rag.llm.requests.post", lambda *args, **kwargs: Response())
     generator = OllamaInvestigationGenerator(
         base_url="http://127.0.0.1:11434",
-        model_name="qwen3:4b",
+        model_name="qwen3.5:4b",
         connect_timeout=1,
         read_timeout=1,
     )
@@ -811,8 +811,8 @@ def test_v011_fallback_reason_never_exposes_local_transport_details(
 
     service, _, _ = persist_sample_analysis(database_session)
     incident_uuid = service.list_incident_cases()[0]["incident_uuid"]
-    standard = FakeGenerator("qwen3:4b")
-    deep = TimeoutGenerator("qwen3:8b")
+    standard = FakeGenerator("qwen3.5:4b")
+    deep = TimeoutGenerator("qwen3.5:9b")
     runtime = _runtime(tmp_path, standard=standard, deep=deep)
     runtime.indexer.index(database_session)
     response = runtime.query(

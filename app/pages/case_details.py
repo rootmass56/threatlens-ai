@@ -401,8 +401,8 @@ def render_case_details(application_service: ThreatLensApiClient) -> None:
                 horizontal=True,
                 format_func=lambda value: {
                     "auto": "Auto — Recommended",
-                    "standard": "Standard — Qwen3:4B",
-                    "deep": "Deep Analysis — Qwen3:8B",
+                    "standard": "Standard — Qwen3.5:4B",
+                    "deep": "Deep Analysis — Qwen3.5:9B",
                 }[value],
                 help=(
                     "Auto uses a deterministic complexity router. Standard prioritizes lower "
