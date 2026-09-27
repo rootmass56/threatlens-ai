@@ -1,8 +1,16 @@
 # ThreatLens AI v0.14.0
 
-> **Released as `v1.0.0`** — production-style, evidence-first SOC investigation platform with deterministic detections, incident correlation, MITRE ATT&CK context, attack graphs, threat intelligence, threat hunting, auditable case operations, and grounded RAG/LLM investigations.
+> **Released as `v1.0.0` · current source line `0.14.0`** — a production-style, evidence-first SOC investigation platform with deterministic detections, incident correlation, MITRE ATT&CK context, attack graphs, threat intelligence, threat hunting, auditable case operations, and grounded RAG/LLM investigations.
 
-[Public showcase](https://threatlens-ai-showcase.pages.dev) · [Architecture](docs/FINAL_ARCHITECTURE.md) · [Feature guide](docs/FINAL_FEATURE_GUIDE.md) · [Demo & interview guide](docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md) · [Security model](docs/FINAL_SECURITY_MODEL.md) · [Release tag](../../releases/tag/v1.0.0)
+[Public showcase](https://threatlens-ai-showcase.pages.dev) · [Architecture](docs/FINAL_ARCHITECTURE.md) · [Feature guide](docs/FINAL_FEATURE_GUIDE.md) · [Demo & interview guide](docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md) · [Security model](docs/FINAL_SECURITY_MODEL.md) · [Release tag](https://github.com/rootmass56/threatlens-ai/releases/tag/v1.0.0)
+
+| Project status | Accepted contract |
+| --- | --- |
+| Published release | `v1.0.0` |
+| Internal source version | `0.14.0` |
+| Primary runtime | `compose.batch7.yml` |
+| Local console | `http://127.0.0.1:8080` |
+| Quality gates | Pytest, Ruff, TypeScript, npm audit, Gitleaks, Trivy and CodeQL |
 
 ## Why ThreatLens AI
 
@@ -100,17 +108,34 @@ Detailed architecture: [`docs/FINAL_ARCHITECTURE.md`](docs/FINAL_ARCHITECTURE.md
 **Operations:** Docker Compose, Prometheus, Grafana, PostgreSQL/Redis exporters  
 **DevSecOps:** GitHub Actions, Pytest, Ruff, CodeQL, Gitleaks, Trivy, dependency audit, SBOM
 
+## Repository map
+
+| Path | Responsibility |
+| --- | --- |
+| `api/` | Authenticated FastAPI boundary, RBAC and request validation |
+| `core/`, `correlation/`, `attack/` | Deterministic analytics, incident correlation and ATT&CK context |
+| `database/`, `migrations/` | Persistence model and Alembic schema history |
+| `jobs/` | Durable Redis/PostgreSQL-backed AI investigation work |
+| `rag/` | Governed retrieval, grounding, model routing and citation validation |
+| `frontend/` | React/TypeScript SOC console served through Nginx |
+| `rules/` | Governed detections and positive/negative/boundary fixtures |
+| `ops/`, `monitoring/` | Security audits, load checks, metrics and dashboards |
+| `demo/`, `presentation/`, `showcase/` | Reproducible portfolio evidence and public presentation assets |
+| `docs/` | Current operating guides plus clearly identified engineering history |
+
 ## Local production-style runtime
 
 Prerequisites: Docker Desktop / Docker Engine, PowerShell, and the required local Ollama models documented in the deployment guide.
 
 ```powershell
-Copy-Item .env.example .env.batch7.local
-# Configure local secrets in .env.batch7.local; never commit it.
+Set-ExecutionPolicy -Scope Process Bypass -Force
+.\scripts\bootstrap_batch7_env.ps1
 
 .\START_THREATLENS.ps1
 .\CHECK_THREATLENS.ps1 -RequireObservability -RequireAI
 ```
+
+The bootstrap command creates the ignored `.env.batch7.local` file with random local secrets. `.env.example` is for direct development defaults and must not be copied over the Batch 7 secret bootstrap output.
 
 SOC console: `http://127.0.0.1:8080`
 
@@ -132,7 +157,9 @@ The accepted runtime uses:
 - **Deep Analysis:** `qwen3.5:9b`
 - **Embedding:** `qwen3-embedding:0.6b`
 - **Vector backend:** pgvector
-- **Accepted knowledge baseline:** 1007 indexed chunks
+- **Accepted v1.0.0 knowledge baseline:** 1007 indexed chunks
+
+The chunk count is release evidence rather than a permanent constant. A governed re-index on a later `main` revision can legitimately report a different count.
 
 Grounded responses are constrained by authorized evidence, governed knowledge and post-generation citation validation. Unsupported attribution, cross-incident leakage, prompt-injection behavior and fallback paths were explicitly tested during release hardening.
 
@@ -149,6 +176,8 @@ See [`SECURITY.md`](SECURITY.md) and [`docs/FINAL_SECURITY_MODEL.md`](docs/FINAL
 The final `v1.0.0` release was merged through the protected `main` workflow after the required CI and CodeQL checks passed. The accepted release includes runtime/RAG health validation, adversarial AI/RAG checks, controlled infrastructure recovery, concurrency/idempotency repair, performance testing, end-to-end SOC UAT, presentation assets and final documentation acceptance.
 
 Release history is retained in Git tags and repository history; current users should start with the final documentation rather than historical batch artifacts.
+
+`compose.batch5.yml`, `compose.batch6.yml` and their matching migration/verification helpers remain only because current regression and upgrade contracts exercise them. New deployments must use the Batch 7 launcher and Compose file.
 
 ## Documentation
 
@@ -176,4 +205,3 @@ The internal source lineage remains `0.14.0` for compatibility with the accepted
 ## Responsible use
 
 ThreatLens AI is an educational and defensive security engineering project. Use it only with systems, telemetry and environments you are authorized to assess. AI output is investigative assistance, not independent proof of compromise.
-

@@ -2,7 +2,7 @@
 
 ## Release line
 
-Batch 7 (`v0.14.x`) operationally hardens the frozen `v0.13.0` SOC capability baseline. The final public/cloud exposure remains a Batch-8 deployment gate and must not be inferred from local Docker readiness.
+Batch 7 (`v0.14.x`) operationally hardens the frozen `v0.13.0` SOC capability baseline and is published as project release `v1.0.0`. The supported runtime is local Docker Compose; temporary internet-demo exposure is supervised and must not be confused with a permanently hosted SOC service.
 
 ## Security boundaries
 
@@ -22,4 +22,4 @@ For the private development repository, report security findings directly to the
 
 ## Batch-7 validation
 
-Run `python -m ops.security.batch7_security_audit` and the Batch-7 release gate before freezing `v0.14.0`. CI additionally performs secret, dependency, static-code, container and CodeQL scanning.
+Run `python -m ops.security.batch7_security_audit` and the Batch 7 release contract before merging source-line maintenance. CI additionally performs secret, dependency, static-code, container and CodeQL scanning.
