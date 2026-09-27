@@ -38,7 +38,7 @@
       "version": "84.0.0"
     },
     {
-      "bom-ref": "pkg:pypi/wheel@0.47.0",
+      "bom-ref": "pkg:pypi/wheel@0.48.0",
       "name": "wheel",
       "properties": [
         {
@@ -50,13 +50,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/wheel@0.47.0",
+      "purl": "pkg:pypi/wheel@0.48.0",
       "scope": "required",
       "type": "library",
-      "version": "0.47.0"
+      "version": "0.48.0"
     },
     {
-      "bom-ref": "pkg:pypi/alembic@1.18.4",
+      "bom-ref": "pkg:pypi/alembic@1.20.0",
       "name": "alembic",
       "properties": [
         {
@@ -68,10 +68,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/alembic@1.18.4",
+      "purl": "pkg:pypi/alembic@1.20.0",
       "scope": "required",
       "type": "library",
-      "version": "1.18.4"
+      "version": "1.20.0"
     },
     {
       "bom-ref": "pkg:pypi/argon2-cffi@25.1.0",
@@ -182,7 +182,7 @@
       "version": "6.5.2"
     },
     {
-      "bom-ref": "pkg:pypi/psycopg@3.3.4",
+      "bom-ref": "pkg:pypi/psycopg@3.3.6",
       "name": "psycopg",
       "properties": [
         {
@@ -194,13 +194,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/psycopg@3.3.4",
+      "purl": "pkg:pypi/psycopg@3.3.6",
       "scope": "required",
       "type": "library",
-      "version": "3.3.4"
+      "version": "3.3.6"
     },
     {
-      "bom-ref": "pkg:pypi/pydantic@2.13.4",
+      "bom-ref": "pkg:pypi/pydantic@2.13.5",
       "name": "pydantic",
       "properties": [
         {
@@ -212,13 +212,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/pydantic@2.13.4",
+      "purl": "pkg:pypi/pydantic@2.13.5",
       "scope": "required",
       "type": "library",
-      "version": "2.13.4"
+      "version": "2.13.5"
     },
     {
-      "bom-ref": "pkg:pypi/pyjwt@2.13.0",
+      "bom-ref": "pkg:pypi/pyjwt@2.15.0",
       "name": "PyJWT",
       "properties": [
         {
@@ -230,13 +230,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/pyjwt@2.13.0",
+      "purl": "pkg:pypi/pyjwt@2.15.0",
       "scope": "required",
       "type": "library",
-      "version": "2.13.0"
+      "version": "2.15.0"
     },
     {
-      "bom-ref": "pkg:pypi/python-dotenv@1.2.2",
+      "bom-ref": "pkg:pypi/python-dotenv@1.2.3",
       "name": "python-dotenv",
       "properties": [
         {
@@ -248,10 +248,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/python-dotenv@1.2.2",
+      "purl": "pkg:pypi/python-dotenv@1.2.3",
       "scope": "required",
       "type": "library",
-      "version": "1.2.2"
+      "version": "1.2.3"
     },
     {
       "bom-ref": "pkg:pypi/python-multipart@0.0.32",
@@ -290,7 +290,7 @@
       "version": "6.0.3"
     },
     {
-      "bom-ref": "pkg:pypi/redis@6.4.0",
+      "bom-ref": "pkg:pypi/redis@8.1.0",
       "name": "redis",
       "properties": [
         {
@@ -302,13 +302,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/redis@6.4.0",
+      "purl": "pkg:pypi/redis@8.1.0",
       "scope": "required",
       "type": "library",
-      "version": "6.4.0"
+      "version": "8.1.0"
     },
     {
-      "bom-ref": "pkg:pypi/reportlab@4.4.9",
+      "bom-ref": "pkg:pypi/reportlab@5.0.1",
       "name": "reportlab",
       "properties": [
         {
@@ -320,10 +320,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/reportlab@4.4.9",
+      "purl": "pkg:pypi/reportlab@5.0.1",
       "scope": "required",
       "type": "library",
-      "version": "4.4.9"
+      "version": "5.0.1"
     },
     {
       "bom-ref": "pkg:pypi/requests@2.34.2",
@@ -344,7 +344,7 @@
       "version": "2.34.2"
     },
     {
-      "bom-ref": "pkg:pypi/sqlalchemy@2.0.50",
+      "bom-ref": "pkg:pypi/sqlalchemy@2.0.54",
       "name": "SQLAlchemy",
       "properties": [
         {
@@ -356,13 +356,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/sqlalchemy@2.0.50",
+      "purl": "pkg:pypi/sqlalchemy@2.0.54",
       "scope": "required",
       "type": "library",
-      "version": "2.0.50"
+      "version": "2.0.54"
     },
     {
-      "bom-ref": "pkg:pypi/starlette@1.3.1",
+      "bom-ref": "pkg:pypi/starlette@1.7.0",
       "name": "starlette",
       "properties": [
         {
@@ -374,13 +374,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/starlette@1.3.1",
+      "purl": "pkg:pypi/starlette@1.7.0",
       "scope": "required",
       "type": "library",
-      "version": "1.3.1"
+      "version": "1.7.0"
     },
     {
-      "bom-ref": "pkg:pypi/streamlit@1.61.1",
+      "bom-ref": "pkg:pypi/streamlit@1.64.0",
       "name": "streamlit",
       "properties": [
         {
@@ -392,13 +392,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/streamlit@1.61.1",
+      "purl": "pkg:pypi/streamlit@1.64.0",
       "scope": "required",
       "type": "library",
-      "version": "1.61.1"
+      "version": "1.64.0"
     },
     {
-      "bom-ref": "pkg:pypi/uvicorn@0.48.0",
+      "bom-ref": "pkg:pypi/uvicorn@0.53.0",
       "name": "uvicorn",
       "properties": [
         {
@@ -410,13 +410,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/uvicorn@0.48.0",
+      "purl": "pkg:pypi/uvicorn@0.53.0",
       "scope": "required",
       "type": "library",
-      "version": "0.48.0"
+      "version": "0.53.0"
     },
     {
-      "bom-ref": "pkg:pypi/httpx2@2.12.0",
+      "bom-ref": "pkg:pypi/httpx2@2.13.1",
       "name": "httpx2",
       "properties": [
         {
@@ -428,13 +428,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/httpx2@2.12.0",
+      "purl": "pkg:pypi/httpx2@2.13.1",
       "scope": "optional",
       "type": "library",
-      "version": "2.12.0"
+      "version": "2.13.1"
     },
     {
-      "bom-ref": "pkg:pypi/pytest@9.0.3",
+      "bom-ref": "pkg:pypi/pytest@9.1.1",
       "name": "pytest",
       "properties": [
         {
@@ -446,13 +446,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/pytest@9.0.3",
+      "purl": "pkg:pypi/pytest@9.1.1",
       "scope": "optional",
       "type": "library",
-      "version": "9.0.3"
+      "version": "9.1.1"
     },
     {
-      "bom-ref": "pkg:pypi/pytest-cov@7.0.0",
+      "bom-ref": "pkg:pypi/pytest-cov@7.1.0",
       "name": "pytest-cov",
       "properties": [
         {
@@ -464,13 +464,13 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/pytest-cov@7.0.0",
+      "purl": "pkg:pypi/pytest-cov@7.1.0",
       "scope": "optional",
       "type": "library",
-      "version": "7.0.0"
+      "version": "7.1.0"
     },
     {
-      "bom-ref": "pkg:pypi/ruff@0.15.22",
+      "bom-ref": "pkg:pypi/ruff@0.16.8",
       "name": "ruff",
       "properties": [
         {
@@ -482,10 +482,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/ruff@0.15.22",
+      "purl": "pkg:pypi/ruff@0.16.8",
       "scope": "optional",
       "type": "library",
-      "version": "0.15.22"
+      "version": "0.16.8"
     }
   ],
   "metadata": {
@@ -501,7 +501,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:4ab15539-47fd-81b0-db7d-df2a4eb5977b",
+  "serialNumber": "urn:uuid:f8812afc-4dd5-2777-f9e8-8de43c932379",
   "specVersion": "1.6",
   "version": 1
 }

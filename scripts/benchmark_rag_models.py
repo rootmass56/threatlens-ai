@@ -12,7 +12,7 @@ from database.session import SessionLocal
 from rag.config import get_rag_settings
 from rag.service import RagRuntime
 
-DEFAULT_MODELS = ("qwen3:4b", "qwen3:8b")
+DEFAULT_MODELS = ("qwen3.5:4b", "qwen3.5:9b")
 
 
 def _select_case(title: str | None) -> dict:
@@ -108,7 +108,7 @@ def main() -> None:
         "--models",
         nargs="+",
         default=list(DEFAULT_MODELS),
-        help="Ollama model names to compare (default: qwen3:4b qwen3:8b).",
+        help="Ollama model names to compare (default: qwen3.5:4b qwen3.5:9b).",
     )
     parser.add_argument(
         "--incident-title",

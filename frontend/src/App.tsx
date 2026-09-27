@@ -317,7 +317,7 @@ export default function App() {
 
   return <div className="app-shell">
     <aside>
-      <div className="brand"><div className="brand-mark small">TL</div><div><strong>ThreatLens AI</strong><small>Industrial SOC · v0.13</small></div></div>
+      <div className="brand"><div className="brand-mark small">TL</div><div><strong>ThreatLens AI</strong><small>Industrial SOC · v0.14.0</small></div></div>
       <nav>{allowedGroups.map(group => <div className="nav-group" key={group.label}><small>{group.label}</small>{group.items.map(([id, label, icon]) => <button key={id} className={page === id ? 'active' : ''} onClick={() => navigate(id)}><span>{icon}</span>{label}</button>)}</div>)}</nav>
       <div className="aside-foot"><Status>API connected</Status><small>Evidence-first · Zero-trust RAG · Feature-parity console</small></div>
     </aside>

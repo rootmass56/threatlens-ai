@@ -466,14 +466,14 @@ def test_release_constraints_pin_direct_and_build_dependencies() -> None:
     required = {
         "pip==26.2.1",
         "setuptools==84.0.0",
-        "wheel==0.47.0",
-        "streamlit==1.61.1",
+        "wheel==0.48.0",
+        "streamlit==1.64.0",
         "fastapi==0.141.1",
-        "starlette==1.3.1",
-        "sqlalchemy==2.0.50",
-        "alembic==1.18.4",
-        "pytest==9.0.3",
-        "ruff==0.15.22",
+        "starlette==1.7.0",
+        "sqlalchemy==2.0.54",
+        "alembic==1.20.0",
+        "pytest==9.1.1",
+        "ruff==0.16.8",
     }
     normalized_lines = {line.casefold() for line in text.splitlines()}
     assert {item.casefold() for item in required}.issubset(normalized_lines)
@@ -481,12 +481,12 @@ def test_release_constraints_pin_direct_and_build_dependencies() -> None:
     setup = Path("scripts/setup.ps1").read_text(encoding="utf-8")
     assert "pip==26.2.1" in setup
     assert "setuptools==84.0.0" in setup
-    assert "wheel==0.47.0" in setup
+    assert "wheel==0.48.0" in setup
     assert setup.count("-c constraints-windows-py311.txt") == 3
     assert "--no-build-isolation" in setup
 
     pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
-    assert 'requires = ["setuptools==84.0.0", "wheel==0.47.0"]' in pyproject
+    assert 'requires = ["setuptools==84.0.0", "wheel==0.48.0"]' in pyproject
 
 
 def test_current_release_docs_and_runtime_copy_are_not_stale() -> None:

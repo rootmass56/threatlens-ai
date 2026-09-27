@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Final
 
 ROOT_DIR: Final[Path] = Path(__file__).resolve().parents[1]
-CURRENT_MANIFEST: Final[str] = "RELEASE_MANIFEST_v0.12.0.json"
+CURRENT_MANIFEST: Final[str] = "RELEASE_MANIFEST_v0.14.0.json"
 
 _EXCLUDED_DIR_NAMES: Final[frozenset[str]] = frozenset(
     {

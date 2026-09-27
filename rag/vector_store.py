@@ -38,6 +38,10 @@ class VectorStore(Protocol):
 
     def ready(self) -> tuple[bool, str | None]: ...
 
+    def read_manifest(self) -> dict | None: ...
+
+    def write_manifest(self, payload: dict) -> None: ...
+
 
 def _dot(left: list[float], right: list[float]) -> float:
     return sum(a * b for a, b in zip(left, right, strict=False))
@@ -62,6 +66,7 @@ class MemoryVectorStore:
 
     def __init__(self) -> None:
         self._records: dict[str, tuple[KnowledgeChunk, list[float]]] = {}
+        self._manifest: dict | None = None
 
     def upsert(
         self,
@@ -124,6 +129,14 @@ class MemoryVectorStore:
     def ready(self) -> tuple[bool, str | None]:
         return True, None
 
+    def read_manifest(self) -> dict | None:
+        if self._manifest is None:
+            return None
+        return json.loads(json.dumps(self._manifest))
+
+    def write_manifest(self, payload: dict) -> None:
+        self._manifest = json.loads(json.dumps(payload))
+
 
 class SQLiteVectorStore:
     """ThreatLens-owned persistent vector store backed only by Python's sqlite3.
@@ -161,10 +174,17 @@ class SQLiteVectorStore:
             """
             CREATE TABLE IF NOT EXISTS vector_store_meta (
                 collection_name TEXT PRIMARY KEY,
-                schema_version TEXT NOT NULL
+                schema_version TEXT NOT NULL,
+                manifest_json TEXT
             )
             """
         )
+        columns = {
+            str(row["name"])
+            for row in connection.execute("PRAGMA table_info(vector_store_meta)").fetchall()
+        }
+        if "manifest_json" not in columns:
+            connection.execute("ALTER TABLE vector_store_meta ADD COLUMN manifest_json TEXT")
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS vector_chunks (
@@ -411,6 +431,33 @@ class SQLiteVectorStore:
             self._error = str(error)
             return False, self._error
 
+    def read_manifest(self) -> dict | None:
+        with self._lock:
+            self._require()
+            with self._connect() as connection:
+                row = connection.execute(
+                    "SELECT manifest_json FROM vector_store_meta WHERE collection_name=?",
+                    (self.collection_name,),
+                ).fetchone()
+        if row is None or not row["manifest_json"]:
+            return None
+        try:
+            payload = json.loads(str(row["manifest_json"]))
+        except (TypeError, json.JSONDecodeError):
+            return None
+        return payload if isinstance(payload, dict) else None
+
+    def write_manifest(self, payload: dict) -> None:
+        serialized = json.dumps(payload, sort_keys=True, default=str)
+        with self._lock:
+            self._require()
+            with self._connect() as connection:
+                connection.execute(
+                    "UPDATE vector_store_meta SET manifest_json=? WHERE collection_name=?",
+                    (serialized, self.collection_name),
+                )
+                connection.commit()
+
 
 class PgVectorStore:
     """Production PostgreSQL vector store using the pgvector extension.
@@ -472,8 +519,15 @@ class PgVectorStore:
                     collection_name TEXT PRIMARY KEY,
                     schema_version TEXT NOT NULL,
                     dimensions INTEGER NOT NULL,
+                    manifest_json JSONB,
                     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
                 )
+                """
+            )
+            cursor.execute(
+                """
+                ALTER TABLE threatlens_vector_store_meta
+                ADD COLUMN IF NOT EXISTS manifest_json JSONB
                 """
             )
             cursor.execute(
@@ -728,3 +782,34 @@ class PgVectorStore:
         except Exception as error:  # pragma: no cover - external PostgreSQL dependent
             self._error = str(error)
             return False, self._error
+
+    def read_manifest(self) -> dict | None:
+        self._require()
+        with self._connect() as connection, connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT manifest_json FROM threatlens_vector_store_meta "
+                "WHERE collection_name=%s",
+                (self.collection_name,),
+            )
+            row = cursor.fetchone()
+        if row is None or row[0] is None:
+            return None
+        payload = row[0]
+        if isinstance(payload, str):
+            try:
+                payload = json.loads(payload)
+            except json.JSONDecodeError:
+                return None
+        return payload if isinstance(payload, dict) else None
+
+    def write_manifest(self, payload: dict) -> None:
+        self._require()
+        serialized = json.dumps(payload, sort_keys=True, default=str)
+        with self._connect() as connection, connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE threatlens_vector_store_meta "
+                "SET manifest_json=%s::jsonb, updated_at=NOW() "
+                "WHERE collection_name=%s",
+                (serialized, self.collection_name),
+            )
+            connection.commit()

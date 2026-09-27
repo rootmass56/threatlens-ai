@@ -39,6 +39,17 @@ from jobs.queue import RedisJobQueue
 LOGGER = logging.getLogger("threatlens.api")
 
 
+def _non_negative_pool_gauge(value: object) -> float:
+    """Translate SQLAlchemy pool counters into operational gauge values.
+
+    QueuePool.overflow() is negative while the base pool is still filling; that
+    value is meaningful internally but there cannot be negative overflow
+    connections in operator-facing telemetry.
+    """
+
+    return max(0.0, float(value))
+
+
 def _error_payload(
     request: Request,
     *,
@@ -130,11 +141,11 @@ def create_app(settings: SecuritySettings | None = None) -> FastAPI:
             checked_in = getattr(pool, "checkedin", None)
             overflow = getattr(pool, "overflow", None)
             if callable(checked_out):
-                METRICS.set_gauge("threatlens_db_pool_checked_out", float(checked_out()))
+                METRICS.set_gauge("threatlens_db_pool_checked_out", _non_negative_pool_gauge(checked_out()))
             if callable(checked_in):
-                METRICS.set_gauge("threatlens_db_pool_checked_in", float(checked_in()))
+                METRICS.set_gauge("threatlens_db_pool_checked_in", _non_negative_pool_gauge(checked_in()))
             if callable(overflow):
-                METRICS.set_gauge("threatlens_db_pool_overflow", float(overflow()))
+                METRICS.set_gauge("threatlens_db_pool_overflow", _non_negative_pool_gauge(overflow()))
         except Exception:
             LOGGER.debug("Could not collect SQLAlchemy pool gauges", exc_info=True)
 

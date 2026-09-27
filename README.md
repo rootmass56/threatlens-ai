@@ -1,8 +1,16 @@
 # ThreatLens AI v0.14.0
 
-> **Released as `v1.0.0`** — production-style, evidence-first SOC investigation platform with deterministic detections, incident correlation, MITRE ATT&CK context, attack graphs, threat intelligence, threat hunting, auditable case operations, and grounded RAG/LLM investigations.
+> **Released as `v1.0.0` · current source line `0.14.0`** — a production-style, evidence-first SOC investigation platform with deterministic detections, incident correlation, MITRE ATT&CK context, attack graphs, threat intelligence, threat hunting, auditable case operations, and grounded RAG/LLM investigations.
 
-[Public showcase](https://threatlens-ai-showcase.pages.dev) · [Architecture](docs/FINAL_ARCHITECTURE.md) · [Feature guide](docs/FINAL_FEATURE_GUIDE.md) · [Demo & interview guide](docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md) · [Security model](docs/FINAL_SECURITY_MODEL.md) · [Release tag](../../releases/tag/v1.0.0)
+[Public showcase](https://threatlens-ai-showcase.pages.dev) · [Architecture](docs/FINAL_ARCHITECTURE.md) · [Feature guide](docs/FINAL_FEATURE_GUIDE.md) · [Demo & interview guide](docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md) · [Security model](docs/FINAL_SECURITY_MODEL.md) · [Release tag](https://github.com/rootmass56/threatlens-ai/releases/tag/v1.0.0)
+
+| Project status | Accepted contract |
+| --- | --- |
+| Published release | `v1.0.0` |
+| Internal source version | `0.14.0` |
+| Primary runtime | `compose.batch7.yml` |
+| Local console | `http://127.0.0.1:8080` |
+| Quality gates | Pytest, Ruff, TypeScript, npm audit, Gitleaks, Trivy and CodeQL |
 
 ## Why ThreatLens AI
 
@@ -10,16 +18,44 @@ ThreatLens AI is built around one rule: **deterministic persisted evidence remai
 
 The AI layer does not establish incident facts. It consumes authorized persisted evidence and governed knowledge, validates citations after generation, and exposes explicit fallback and grounding behavior.
 
-## Accepted Golden Demo
+## Enhanced Golden Demo v2 — Final Portfolio Investigation
 
-| Signal | Accepted result |
-| --- | ---: |
-| Normalized events | **10** |
-| Deterministic alerts | **8** |
-| Correlated incidents | **5** |
-| Quarantined records | **0** |
+> **Final recruiter/interview scenario.** Enhanced v2 is a separately namespaced, idempotent post-release scenario. It does not modify the frozen `v1.0.0` tag or the accepted v1 demo.
 
-The accepted demo follows the complete investigation story: telemetry → detections → alerts → correlated incidents → case evidence → ATT&CK/attack graph → threat intelligence/hunting → grounded AI → audit trail.
+| **29**<br>Normalized events | **26**<br>Deterministic alerts | **2**<br>Critical incidents | **0**<br>Quarantined records |
+| :---: | :---: | :---: | :---: |
+| Five telemetry connectors | 23 representative signals after deduplication | One intrusion plus linked defense-impairment activity | 100% valid fixture parsing |
+
+The scenario traces an Entra identity compromise through Windows authentication, encoded PowerShell, LSASS access, process injection, RDP lateral movement, redundant persistence, payload transfer, C2, DNS tunneling and evidence destruction. Its locked coverage includes **19 ATT&CK techniques**, **21 resolved entities**, **139 scored relationships**, and a persisted **76-node / 300-edge attack graph**.
+
+It then proves the operational investigation layer: IOC provenance and enrichment-only boundaries, a saved hunt and execution, a P1 case profile/task, evidence SHA-256 and verified custody, true-positive feedback, a human-approved simulated response, a grounded deep-analysis query, and append-only audit history.
+
+Run the final workflow with `.\START_THREATLENS_ENHANCED_DEMO_V2.ps1`.
+
+[Enhanced v2 contract and walkthrough](demo/README_ENHANCED_DEMO_V2.md) · [Machine-readable acceptance contract](demo/enhanced-v2-contract.json)
+
+## Frozen v1 Acceptance Demo — Verified End-to-End Investigation
+
+> **Deterministic release-acceptance fixture—not a scale benchmark.** The frozen Golden Demo is a reproducible, multi-source dataset with known outcomes. These values describe that fixture, not lifetime platform totals or maximum throughput.
+
+| **10**<br>Normalized events | **8**<br>Deterministic alerts | **5**<br>Correlated incidents | **0**<br>Quarantined records |
+| :---: | :---: | :---: | :---: |
+| Telemetry parsed and persisted | Governed rules produced evidence | Alerts grouped into durable investigations | Every record in the valid fixture followed the accepted path |
+
+**Evidence path**
+
+`Telemetry` → `Normalization` → `Detections` → `Alerts` → `Correlation` → `Incidents` → `Case evidence` → `ATT&CK + attack graph` → `Threat intelligence + hunting` → `Grounded AI` → `Audit trail`
+
+**What this proves**
+
+- Deterministic evidence and incident state exist before any LLM is invoked.
+- The same persisted investigation continues through case evidence, ATT&CK context, attack graphs, threat-intelligence enrichment, bounded hunting, grounded AI and audit history.
+- AI operates only on authorized evidence and governed knowledge, with post-generation citation validation and explicit fallback behavior.
+- Malformed and invalid inputs were tested separately against quarantine/error contracts; the `0` above describes the accepted valid fixture, not the absence of quarantine controls.
+
+Reproduce the presentation workflow with `.\START_THREATLENS_DEMO.ps1`.
+
+[Golden Demo contract](demo/README_GOLDEN_DEMO.md) · [Validation evidence](docs/FINAL_TESTING_AND_VALIDATION.md) · [Recruiter walkthrough](docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md)
 
 ## Core capabilities
 
@@ -72,25 +108,44 @@ Detailed architecture: [`docs/FINAL_ARCHITECTURE.md`](docs/FINAL_ARCHITECTURE.md
 **Operations:** Docker Compose, Prometheus, Grafana, PostgreSQL/Redis exporters  
 **DevSecOps:** GitHub Actions, Pytest, Ruff, CodeQL, Gitleaks, Trivy, dependency audit, SBOM
 
+## Repository map
+
+| Path | Responsibility |
+| --- | --- |
+| `api/` | Authenticated FastAPI boundary, RBAC and request validation |
+| `core/`, `correlation/`, `attack/` | Deterministic analytics, incident correlation and ATT&CK context |
+| `database/`, `migrations/` | Persistence model and Alembic schema history |
+| `jobs/` | Durable Redis/PostgreSQL-backed AI investigation work |
+| `rag/` | Governed retrieval, grounding, model routing and citation validation |
+| `frontend/` | React/TypeScript SOC console served through Nginx |
+| `rules/` | Governed detections and positive/negative/boundary fixtures |
+| `ops/`, `monitoring/` | Security audits, load checks, metrics and dashboards |
+| `demo/`, `presentation/`, `showcase/` | Reproducible portfolio evidence and public presentation assets |
+| `docs/` | Current operating guides plus clearly identified engineering history |
+
 ## Local production-style runtime
 
 Prerequisites: Docker Desktop / Docker Engine, PowerShell, and the required local Ollama models documented in the deployment guide.
 
 ```powershell
-Copy-Item .env.example .env.batch7.local
-# Configure local secrets in .env.batch7.local; never commit it.
+Set-ExecutionPolicy -Scope Process Bypass -Force
+.\scripts\bootstrap_batch7_env.ps1
 
 .\START_THREATLENS.ps1
 .\CHECK_THREATLENS.ps1 -RequireObservability -RequireAI
 ```
 
+The bootstrap command creates the ignored `.env.batch7.local` file with random local secrets. `.env.example` is for direct development defaults and must not be copied over the Batch 7 secret bootstrap output.
+
 SOC console: `http://127.0.0.1:8080`
 
-For the deterministic presentation workflow:
+For the final Enhanced v2 presentation workflow:
 
 ```powershell
-.\START_THREATLENS_DEMO.ps1
+.\START_THREATLENS_ENHANCED_DEMO_V2.ps1
 ```
+
+The frozen v1 acceptance fixture remains available through `.\START_THREATLENS_DEMO.ps1`.
 
 Deployment and operations: [`docs/FINAL_DEPLOYMENT_AND_OPERATIONS.md`](docs/FINAL_DEPLOYMENT_AND_OPERATIONS.md)
 
@@ -102,7 +157,9 @@ The accepted runtime uses:
 - **Deep Analysis:** `qwen3.5:9b`
 - **Embedding:** `qwen3-embedding:0.6b`
 - **Vector backend:** pgvector
-- **Accepted knowledge baseline:** 1007 indexed chunks
+- **Accepted v1.0.0 knowledge baseline:** 1007 indexed chunks
+
+The chunk count is release evidence rather than a permanent constant. A governed re-index on a later `main` revision can legitimately report a different count.
 
 Grounded responses are constrained by authorized evidence, governed knowledge and post-generation citation validation. Unsupported attribution, cross-incident leakage, prompt-injection behavior and fallback paths were explicitly tested during release hardening.
 
@@ -120,6 +177,8 @@ The final `v1.0.0` release was merged through the protected `main` workflow afte
 
 Release history is retained in Git tags and repository history; current users should start with the final documentation rather than historical batch artifacts.
 
+`compose.batch5.yml`, `compose.batch6.yml` and their matching migration/verification helpers remain only because current regression and upgrade contracts exercise them. New deployments must use the Batch 7 launcher and Compose file.
+
 ## Documentation
 
 | Purpose | Document |
@@ -130,6 +189,7 @@ Release history is retained in Git tags and repository history; current users sh
 | RAG / AI architecture | [`FINAL_RAG_AI_ARCHITECTURE.md`](docs/FINAL_RAG_AI_ARCHITECTURE.md) |
 | Testing & validation | [`FINAL_TESTING_AND_VALIDATION.md`](docs/FINAL_TESTING_AND_VALIDATION.md) |
 | Feature guide | [`FINAL_FEATURE_GUIDE.md`](docs/FINAL_FEATURE_GUIDE.md) |
+| Enhanced Golden Demo v2 | [`README_ENHANCED_DEMO_V2.md`](demo/README_ENHANCED_DEMO_V2.md) |
 | Demo / interview walkthrough | [`FINAL_DEMO_AND_INTERVIEW_GUIDE.md`](docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md) |
 | Troubleshooting | [`FINAL_TROUBLESHOOTING.md`](docs/FINAL_TROUBLESHOOTING.md) |
 | Known limitations | [`FINAL_LIMITATIONS.md`](docs/FINAL_LIMITATIONS.md) |

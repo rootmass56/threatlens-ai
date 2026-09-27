@@ -129,6 +129,13 @@ def test_v012_pgvector_schema_version_is_release_scoped() -> None:
     assert PgVectorStore._SCHEMA_VERSION == "0.12.0"
 
 
+def test_v012_pgvector_persists_manifest_metadata_with_collection() -> None:
+    source = (ROOT / "rag" / "vector_store.py").read_text(encoding="utf-8")
+    assert "manifest_json JSONB" in source
+    assert "ADD COLUMN IF NOT EXISTS manifest_json JSONB" in source
+    assert "SET manifest_json=%s::jsonb, updated_at=NOW()" in source
+
+
 def test_v012_alembic_batch_mode_is_sqlite_only() -> None:
     source = (ROOT / "migrations" / "env.py").read_text(encoding="utf-8")
     assert 'render_as_batch=connection.dialect.name == "sqlite"' in source
@@ -154,8 +161,8 @@ def test_v012_docker_runs_fastapi_as_non_root() -> None:
 
 def test_v012_frontend_package_is_react_vite_typescript() -> None:
     package = json.loads((ROOT / "frontend" / "package.json").read_text(encoding="utf-8"))
-    assert package["dependencies"]["react"] == "19.2.8"
-    assert package["devDependencies"]["vite"] == "8.2.2"
+    assert package["dependencies"]["react"] == "19.3.0"
+    assert package["devDependencies"]["vite"] == "8.3.0"
     assert package["devDependencies"]["typescript"] == "7.0.2"
 
 

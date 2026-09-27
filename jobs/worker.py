@@ -23,6 +23,7 @@ class LeaseHeartbeat:
     settings: JobSettings
     job_uuid: str
     worker_id: str
+    queue: RedisJobQueue
 
     def __post_init__(self) -> None:
         self._stop = threading.Event()
@@ -49,6 +50,13 @@ class LeaseHeartbeat:
                 LOGGER.exception("AI job lease heartbeat failed job=%s", self.job_uuid)
             finally:
                 session.close()
+            try:
+                # The main worker loop cannot refresh Redis presence while a
+                # local model query is running.  Keep the worker discoverable
+                # for the full job duration instead of letting its TTL expire.
+                self.queue.heartbeat_worker(self.worker_id)
+            except QueueUnavailable as error:
+                LOGGER.warning("Worker presence heartbeat failed: %s", error)
 
 
 def _worker_id() -> str:
@@ -108,7 +116,7 @@ def _process(job_uuid: str, *, worker_id: str, settings: JobSettings, queue: Red
         if job is None:
             return
         incident_uuid = job.incident.incident_uuid
-        heartbeat = LeaseHeartbeat(settings, job.job_uuid, worker_id)
+        heartbeat = LeaseHeartbeat(settings, job.job_uuid, worker_id, queue)
         heartbeat.start()
         response = get_rag_runtime().query(
             session,
