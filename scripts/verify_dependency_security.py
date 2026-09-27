@@ -55,7 +55,7 @@ def verify_source_contract(payload: dict) -> None:
     constraints = _exact_lines(ROOT_DIR / "constraints-windows-py311.txt")
     # BATCH7G_LINUX_SECURITY_OVERLAY_GUARD
     linux_constraints = _exact_lines(ROOT_DIR / "constraints-linux-py311.txt")
-    expected_linux_constraints = {"msgpack": "1.2.1", "setuptools": "84.0.0"}
+    expected_linux_constraints = {"msgpack": "1.2.2", "setuptools": "84.0.0"}
     if linux_constraints != expected_linux_constraints:
         raise SystemExit(
             "Linux security overlay differs from the reviewed Batch-7 constraints: "

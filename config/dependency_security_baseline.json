@@ -1,40 +1,40 @@
 {
   "schema_version": 1,
   "release": "0.14.0",
-  "reviewed_utc": "2026-09-27T13:40:21Z",
+  "reviewed_utc": "2026-09-27T16:04:58Z",
   "python_target": "CPython 3.11 on Windows x86-64 and Linux production container",
   "build": {
     "pip": "26.2.1",
     "setuptools": "84.0.0",
-    "wheel": "0.47.0"
+    "wheel": "0.48.0"
   },
   "runtime": {
-    "streamlit": "1.61.1",
+    "streamlit": "1.64.0",
     "fastapi": "0.141.1",
-    "starlette": "1.3.1",
-    "uvicorn": "0.48.0",
+    "starlette": "1.7.0",
+    "uvicorn": "0.53.0",
     "argon2-cffi": "25.1.0",
-    "PyJWT": "2.13.0",
+    "PyJWT": "2.15.0",
     "python-multipart": "0.0.32",
     "email-validator": "2.3.0",
     "pandas": "2.2.3",
     "plotly": "6.5.2",
     "reportlab": "5.0.1",
-    "python-dotenv": "1.2.2",
-    "pydantic": "2.13.4",
+    "python-dotenv": "1.2.3",
+    "pydantic": "2.13.5",
     "PyYAML": "6.0.3",
     "requests": "2.34.2",
-    "SQLAlchemy": "2.0.50",
-    "alembic": "1.18.4",
-    "psycopg": "3.3.4",
+    "SQLAlchemy": "2.0.54",
+    "alembic": "1.20.0",
+    "psycopg": "3.3.6",
     "pgvector": "0.5.0",
     "redis": "8.1.0"
   },
   "development": {
-    "pytest": "9.0.3",
-    "pytest-cov": "7.0.0",
-    "ruff": "0.15.22",
-    "httpx2": "2.12.0"
+    "pytest": "9.1.1",
+    "pytest-cov": "7.1.0",
+    "ruff": "0.16.8",
+    "httpx2": "2.13.1"
   },
   "forbidden_packages": [
     "chromadb"
@@ -92,7 +92,7 @@
   "runtime_mitigations": [
     {
       "component": "streamlit",
-      "version": "1.61.1",
+      "version": "1.64.0",
       "issue": "streamlit/streamlit#16391",
       "status": "mitigated",
       "controls": [
@@ -106,7 +106,7 @@
   ],
   "release_candidate_notes": [
     "A fresh online OSV audit and Windows/Linux resolved dependency attestation are required before final production freeze.",
-    "v0.14 preserves the reviewed Batch-6 runtime dependency set and adds operational hardening without adding Python runtime dependencies.",
+    "v0.14 retains the reviewed direct Python dependency roster and refreshes maintenance pins without adding Python runtime dependencies.",
     "External observability and security scanners run as pinned containers or CI tooling and are not imported by the application runtime."
   ]
 }

@@ -220,8 +220,8 @@ def test_batch7_supply_chain_and_cicd_assets_exist() -> None:
         assert pattern in dockerignore
     release_verifier = (ROOT / "scripts/verify_batch7_release.py").read_text(encoding="utf-8")
     assert 'if not containerized:\n        sbom = json.loads(' in release_verifier
-    assert "httpx2==2.12.0" in (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
-    assert '"httpx2==2.12.0"' in (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    assert "httpx2==2.13.1" in (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
+    assert '"httpx2==2.13.1"' in (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
 
 def test_batch7_reviewed_dependency_and_sbom_contract() -> None:
