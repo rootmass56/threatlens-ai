@@ -50,7 +50,7 @@ if (-not (Test-Path $activateScript)) {
 
 . $activateScript
 
-Invoke-NativeChecked -Description "Python packaging tool installation" -Command { python -m pip install "pip==26.2.1" "setuptools==84.0.0" "wheel==0.47.0" }
+Invoke-NativeChecked -Description "Python packaging tool installation" -Command { python -m pip install "pip==26.2.1" "setuptools==84.0.0" "wheel==0.48.0" }
 Invoke-NativeChecked -Description "Runtime dependency installation" -Command { python -m pip install -r requirements.txt -c constraints-windows-py311.txt }
 Invoke-NativeChecked -Description "Development dependency installation" -Command { python -m pip install -r requirements-dev.txt -c constraints-windows-py311.txt }
 Invoke-NativeChecked -Description "ThreatLens editable installation" -Command { python -m pip install -c constraints-windows-py311.txt --no-build-isolation -e . }

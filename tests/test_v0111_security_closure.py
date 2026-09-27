@@ -36,7 +36,7 @@ def test_v0111_patched_dependency_versions_are_pinned() -> None:
     dev = Path("requirements-dev.txt").read_text(encoding="utf-8")
     assert "python-multipart==0.0.32" in runtime
     assert "requests==2.34.2" in runtime
-    assert "pytest==9.0.3" in dev
+    assert "pytest==9.1.1" in dev
 
 
 def test_v0111_default_vector_backend_is_builtin_sqlite(monkeypatch) -> None:

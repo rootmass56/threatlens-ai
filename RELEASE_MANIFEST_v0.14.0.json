@@ -61,7 +61,7 @@
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/batch7-ci.yml",
-      "sha256": "f76d9716dd558fa26c2cb4dfbbf872b731f576048dfc417cc7ea8137080f6785",
+      "sha256": "e1ce37342869a12c65b5257f61c1652abf544d838d56087718a295328439d8ea",
       "size_bytes": 6313
     },
     {
@@ -121,7 +121,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "Dockerfile",
-      "sha256": "8bfd6dc769629bbfe7879902d883aa11c9eb49f0392cacc2bb51249f2f5205b2",
+      "sha256": "1e2c26d54541348f620f761dd805fb45b7aa1f7cf0928af51cb07f5ed677914e",
       "size_bytes": 1642
     },
     {
@@ -571,8 +571,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "config/dependency_security_baseline.json",
-      "sha256": "5fa4caea20887ba0c9caa496c36201c87530c5c6b07b44c2561f81ee408e638d",
-      "size_bytes": 3060
+      "sha256": "22ea60ff685fcbbad9766db1a0e29bfe0acc4e2c585463cf6e6723fd80c631e9",
+      "size_bytes": 3058
     },
     {
       "content_mode": "utf8-lf",
@@ -589,14 +589,14 @@
     {
       "content_mode": "utf8-lf",
       "path": "constraints-linux-py311.txt",
-      "sha256": "185f4845ff0b6717b67f42fde3b1b5da0769929de64af643e51c8182aa8d9d3e",
+      "sha256": "b592a0d5ad24df094bc57eb1fbc908d43a7c3586dd4746c7bba6b4a588c049fa",
       "size_bytes": 294
     },
     {
       "content_mode": "utf8-lf",
       "path": "constraints-windows-py311.txt",
-      "sha256": "f5e952bf789f56e5b34c36d48e4cf0f99703b055eaabf2b3abe255a904dcce29",
-      "size_bytes": 865
+      "sha256": "42e8b2c04362b818edf8cafabe840747d7e0fcee089b00e0f2ea7618484a0d82",
+      "size_bytes": 864
     },
     {
       "content_mode": "utf8-lf",
@@ -2365,8 +2365,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "pyproject.toml",
-      "sha256": "f388de6d1519e4700c9ad0d1a2dc8c198dd155fe86b3148a7e5c9a591bb45907",
-      "size_bytes": 1615
+      "sha256": "b8ef989cbe8606c97bcd13d39424a6e913c32e98255a53a1ab003d421b40deb4",
+      "size_bytes": 1614
     },
     {
       "content_mode": "utf8-lf",
@@ -2497,13 +2497,13 @@
     {
       "content_mode": "utf8-lf",
       "path": "requirements-dev.txt",
-      "sha256": "5b28bb6220d68db68b44f32c955342f391f31cb03343c1433fe779903414ff94",
-      "size_bytes": 61
+      "sha256": "25bb420bc8955be8ddcf34cbec756918be613d2ec8028a9d34bc23da7d31b842",
+      "size_bytes": 60
     },
     {
       "content_mode": "utf8-lf",
       "path": "requirements.txt",
-      "sha256": "a4fb9971902078f8798b5eee48fe229b41e40deab4a97df0f84f5c4d4d237db0",
+      "sha256": "19cfc59796fe56ce463be82e1e7ea46706706d2c31c31e3238ba0feb8758ef98",
       "size_bytes": 362
     },
     {
@@ -3901,8 +3901,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "sbom/source-dependencies-v0.14.0.cdx.json",
-      "sha256": "1401190582feb82b55fc488dadb1bc50bdb1fde9ec5ed34e73581417c663458e",
-      "size_bytes": 13683
+      "sha256": "dc453fb3f585de77cbf80f746b1e63dc20bf8e7f1535b7a55c19acffcc9a1e29",
+      "size_bytes": 13680
     },
     {
       "content_mode": "utf8-lf",
@@ -4003,8 +4003,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/generate_release_manifest.py",
-      "sha256": "c5689f003be1d1e87903da5165545aaa758c5566776ea3f57abd67ce74353928",
-      "size_bytes": 7693
+      "sha256": "ad2db0713d4ba14417e61104a6a3dfe7fe0c45eee36975c61ba5b0a97ba71722",
+      "size_bytes": 7692
     },
     {
       "content_mode": "utf8-lf",
@@ -4081,7 +4081,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/setup.ps1",
-      "sha256": "9960f1bc2860abe2ba9c9589039b19b3839512d68e4aae36e36b22559f636184",
+      "sha256": "b918189dd7c9dc680bb502d5d6b9e5d201c23b1bc9bfe069d92645aeb1f427a7",
       "size_bytes": 5399
     },
     {
@@ -4249,7 +4249,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/verify_dependency_security.py",
-      "sha256": "c8320e20ea059d7fe75dbc41ce45bb86a3bc28dd17f97f84df05f33c84dfa7f1",
+      "sha256": "5a3b42e756457e0f44eef53eb956cc329ef995ccbffa3946b240c753e0f4859e",
       "size_bytes": 8234
     },
     {
@@ -4411,7 +4411,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_batch7_operational_hardening.py",
-      "sha256": "60028b3e63059ad6be13b8104f8fbbc048a66d4f168d713bc01fc5667a413d07",
+      "sha256": "38c04eab2ceb77a9268aa7b9e6f1586cde431658d507aa245ebe38486ee22091",
       "size_bytes": 14845
     },
     {
@@ -4489,8 +4489,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_runtime_dependencies.py",
-      "sha256": "bbe9232b66b24697c7d9939874b52a727be80b80861dfbd0fb4bb63a6cad76dd",
-      "size_bytes": 1330
+      "sha256": "1afd2828cd8847f352ac05c3020ecf5e7aece1bcfbb0fc65c97b9597d172200c",
+      "size_bytes": 1329
     },
     {
       "content_mode": "utf8-lf",
@@ -4507,7 +4507,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_v0111_security_closure.py",
-      "sha256": "1e64ddd9b6903820494b701b5dfbdc89c437c71f2a5a026e22660fdd8ce124f9",
+      "sha256": "46248eb7310372da18c369873ecc95c60f0d589c1785481d4ce0a4a2b456046a",
       "size_bytes": 5605
     },
     {
@@ -4603,8 +4603,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_v094_concurrency_configuration.py",
-      "sha256": "fde06dbb7fe5e85564eae5892b58fd3ce5d808dc557c20ef9bb4450e0ac76c3d",
-      "size_bytes": 18394
+      "sha256": "b36766b85c8038de64794120106e8db51b497276d474b0aae670fd5f2814db3d",
+      "size_bytes": 18393
     },
     {
       "content_mode": "utf8-lf",
@@ -4637,36 +4637,36 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-27T13:40:38.665722+00:00",
+  "generated_utc": "2026-09-27T16:53:58.332012+00:00",
   "governed_test_matrix": {
     "collected_tests": 334,
     "runtime_pins": {
-      "PyJWT": "2.13.0",
+      "PyJWT": "2.15.0",
       "PyYAML": "6.0.3",
-      "alembic": "1.18.4",
+      "alembic": "1.20.0",
       "argon2-cffi": "25.1.0",
       "email-validator": "2.3.0",
       "fastapi": "0.141.1",
-      "httpx2": "2.12.0",
+      "httpx2": "2.13.1",
       "pandas": "2.2.3",
       "pgvector": "0.5.0",
       "pip": "26.2.1",
       "plotly": "6.5.2",
-      "psycopg": "3.3.4",
-      "pydantic": "2.13.4",
-      "pytest": "9.0.3",
-      "pytest-cov": "7.0.0",
-      "python-dotenv": "1.2.2",
+      "psycopg": "3.3.6",
+      "pydantic": "2.13.5",
+      "pytest": "9.1.1",
+      "pytest-cov": "7.1.0",
+      "python-dotenv": "1.2.3",
       "python-multipart": "0.0.32",
       "reportlab": "5.0.1",
       "requests": "2.34.2",
-      "ruff": "0.15.22",
+      "ruff": "0.16.8",
       "setuptools": "84.0.0",
-      "sqlalchemy": "2.0.50",
-      "starlette": "1.3.1",
-      "streamlit": "1.61.1",
-      "uvicorn": "0.48.0",
-      "wheel": "0.47.0"
+      "sqlalchemy": "2.0.54",
+      "starlette": "1.7.0",
+      "streamlit": "1.64.0",
+      "uvicorn": "0.53.0",
+      "wheel": "0.48.0"
     },
     "validation_command": "python -m pytest -q"
   },

@@ -2,35 +2,35 @@
 # Direct runtime/dev dependencies and build tooling are release-pinned.
 pip==26.2.1
 setuptools==84.0.0
-wheel==0.47.0
-streamlit==1.61.1
+wheel==0.48.0
+streamlit==1.64.0
 fastapi==0.141.1
-starlette==1.3.1
-uvicorn==0.48.0
+starlette==1.7.0
+uvicorn==0.53.0
 argon2-cffi==25.1.0
-PyJWT==2.13.0
+PyJWT==2.15.0
 python-multipart==0.0.32
 email-validator==2.3.0
 pandas==2.2.3
 plotly==6.5.2
 reportlab==5.0.1
-python-dotenv==1.2.2
-pydantic==2.13.4
+python-dotenv==1.2.3
+pydantic==2.13.5
 PyYAML==6.0.3
 requests==2.34.2
-SQLAlchemy==2.0.50
-alembic==1.18.4
-pytest==9.0.3
-pytest-cov==7.0.0
-ruff==0.15.22
-httpx2==2.12.0
+SQLAlchemy==2.0.54
+alembic==1.20.0
+pytest==9.1.1
+pytest-cov==7.1.0
+ruff==0.16.8
+httpx2==2.13.1
 
-psycopg==3.3.4
+psycopg==3.3.6
 pgvector==0.5.0
 redis==8.1.0
 
 # THREATLENS_BATCH7F_PYTHON_SECURITY_CONSTRAINTS_BEGIN
 # Security pins generated only from fixable Trivy Python-package findings.
 # Advisory FixedVersion is a minimum floor; reviewed newer direct pins win.
-msgpack==1.2.1
+msgpack==1.2.2
 # THREATLENS_BATCH7F_PYTHON_SECURITY_CONSTRAINTS_END
