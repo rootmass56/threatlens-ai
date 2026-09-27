@@ -335,8 +335,8 @@ def test_batch5_migration_and_runtime_dependencies_are_declared() -> None:
     assert '"ai_investigation_jobs"' in source
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8")
-    assert '"redis==6.4.0"' in pyproject
-    assert "redis==6.4.0" in requirements
+    assert '"redis==8.1.0"' in pyproject
+    assert "redis==8.1.0" in requirements
     assert '"jobs*"' in pyproject
 
 

@@ -290,7 +290,7 @@
       "version": "6.0.3"
     },
     {
-      "bom-ref": "pkg:pypi/redis@6.4.0",
+      "bom-ref": "pkg:pypi/redis@8.1.0",
       "name": "redis",
       "properties": [
         {
@@ -302,10 +302,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/redis@6.4.0",
+      "purl": "pkg:pypi/redis@8.1.0",
       "scope": "required",
       "type": "library",
-      "version": "6.4.0"
+      "version": "8.1.0"
     },
     {
       "bom-ref": "pkg:pypi/reportlab@4.4.9",
@@ -501,7 +501,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:4ab15539-47fd-81b0-db7d-df2a4eb5977b",
+  "serialNumber": "urn:uuid:2cb82b9f-ebe0-5323-91c3-0fcf8b96612e",
   "specVersion": "1.6",
   "version": 1
 }
