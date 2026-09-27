@@ -194,6 +194,94 @@ def test_batch5_worker_claim_lease_and_completion(job_session) -> None:
     assert refreshed.lease_expires_at is None
 
 
+def test_batch5_worker_claim_waits_for_transient_delivery_lock(
+    job_session, monkeypatch
+) -> None:
+    service = AiJobService(job_session, _settings())
+    captured: dict[str, bool] = {}
+
+    def capture_claim(statement, *args, **kwargs):
+        del args, kwargs
+        captured["skip_locked"] = bool(statement._for_update_arg.skip_locked)
+        return None
+
+    monkeypatch.setattr(job_session, "scalar", capture_claim)
+
+    assert service.claim("missing-job", worker_id="worker-a") is None
+    assert captured == {"skip_locked": False}
+
+
+def test_batch5_delivery_reconciliation_includes_orphaned_delivered_jobs(
+    job_session
+) -> None:
+    settings = replace(_settings(), recovery_interval_seconds=30)
+    service = AiJobService(job_session, settings)
+
+    pending, _ = service.create(
+        incident_uuid="22222222-2222-4222-8222-222222222222",
+        actor="pending-analyst",
+        question="Recover a pending delivery.",
+        analysis_mode="standard",
+    )
+    orphaned, _ = service.create(
+        incident_uuid="22222222-2222-4222-8222-222222222222",
+        actor="orphaned-analyst",
+        question="Recover an orphaned delivered job.",
+        analysis_mode="standard",
+    )
+    fresh, _ = service.create(
+        incident_uuid="22222222-2222-4222-8222-222222222222",
+        actor="fresh-analyst",
+        question="Leave a fresh delivered job alone.",
+        analysis_mode="standard",
+    )
+    service.mark_enqueued(orphaned)
+    orphaned.enqueued_at = datetime.now(UTC) - timedelta(seconds=31)
+    service.mark_enqueued(fresh)
+    job_session.commit()
+
+    reconciled = service.pending_delivery()
+    reconciled_ids = {job.job_uuid for job in reconciled}
+
+    assert pending.job_uuid in reconciled_ids
+    assert orphaned.job_uuid in reconciled_ids
+    assert fresh.job_uuid not in reconciled_ids
+
+
+def test_batch5_delivery_update_does_not_overwrite_concurrent_claim(
+    job_session
+) -> None:
+    service = AiJobService(job_session, _settings())
+    job, _ = service.create(
+        incident_uuid="22222222-2222-4222-8222-222222222222",
+        actor="admin",
+        question="Preserve a concurrent worker claim.",
+        analysis_mode="standard",
+    )
+    job_session.commit()
+
+    # Keep the queued instance in this session stale while another session
+    # claims and commits the same job, matching the API/worker race.
+    concurrent_factory = sessionmaker(
+        bind=job_session.get_bind(),
+        expire_on_commit=False,
+    )
+    with concurrent_factory() as concurrent_session:
+        concurrent_service = AiJobService(concurrent_session, _settings())
+        claimed = concurrent_service.claim(job.job_uuid, worker_id="worker-a")
+        assert claimed is not None
+        concurrent_session.commit()
+
+    assert job.status == AiJobStatus.QUEUED.value
+    service.mark_enqueued(job)
+    job_session.commit()
+
+    job_session.refresh(job)
+    assert job.status == AiJobStatus.RUNNING.value
+    assert job.queue_delivery_state == "claimed"
+    assert job.worker_id == "worker-a"
+
+
 def test_batch5_queued_job_can_cancel_but_running_job_cannot(job_session) -> None:
     service = AiJobService(job_session, _settings())
     queued, _ = service.create(
@@ -262,6 +350,7 @@ def test_batch5_api_and_worker_surfaces_exist() -> None:
     assert '"/assistant/jobs/{job_uuid}/cancel"' in route
     assert "LeaseHeartbeat" in worker
     assert "recover_stale" in worker
+    assert "self.queue.heartbeat_worker(self.worker_id)" in worker
 
 
 def test_batch5_container_stack_is_declared() -> None:
