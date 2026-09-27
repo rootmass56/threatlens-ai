@@ -35,11 +35,17 @@ Do not add the operational `.env` file, credentials, private repository URLs, li
 
 The metrics shown on the public page are accepted local project validation results. They are intentionally labeled as local acceptance/benchmark evidence rather than universal production guarantees.
 
-The public Golden Demo story remains:
+The final public portfolio story is Enhanced Golden Demo v2:
 
-- 10 normalized events
-- 8 alerts
-- 5 correlated incidents
-- 0 quarantined records
+- 29 raw/normalized events from 5 telemetry connectors
+- 26 deterministic alerts and 23 representative signals after deduplication
+- 2 Critical, multi-source, multi-stage incidents
+- 0 quarantined records with 100% parse success
+- 19 ATT&CK techniques across 8 tactics
+- 76 attack-graph nodes and 300 edges
+
+The frozen v1 release-acceptance demo remains preserved at 10 normalized events, 8 alerts,
+5 correlated incidents, and 0 quarantined records. Enhanced v2 is a separately namespaced,
+idempotent post-release scenario.
 
 AI remains downstream of deterministic persisted evidence in every public description.

@@ -107,30 +107,251 @@ export function CaseOperationsPage({ session, incidentId }: { session: Session; 
 }
 
 export function ResponsePage({ session, incidentId }: { session: Session; incidentId: string }) {
-  const playbooks=useResource<ListResponse>(session,'/api/v1/response/playbooks',{items:[]})
-  const execPath=incidentId?`/api/v1/incidents/${incidentId}/response-executions`:'/api/v1/health/live'
-  const executions=useResource<ListResponse>(session,execPath,{items:[]},Boolean(incidentId))
-  const [selected,setSelected]=useState(''); const [message,setMessage]=useState('')
-  async function request(){const id=selected||value((playbooks.data.items||[])[0]||{},['playbook_uuid']);if(!incidentId||!id)return;try{await api(session,`/api/v1/incidents/${incidentId}/response-executions`,{method:'POST',body:JSON.stringify({playbook_uuid:id,parameters:{requested_from:'soc_console'}})});setMessage('Execution requested; an authorized human must approve it before any execution record can be completed.');void executions.reload()}catch(caught){setMessage(caught instanceof Error?caught.message:'Request failed.')}}
+  const playbooks = useResource<ListResponse>(session, '/api/v1/response/playbooks', { items: [] })
+  const execPath = incidentId ? `/api/v1/incidents/${incidentId}/response-executions` : '/api/v1/health/live'
+  const executions = useResource<ListResponse>(session, execPath, { items: [] }, Boolean(incidentId))
+  const [selected, setSelected] = useState('')
+  const [selectedExecution, setSelectedExecution] = useState('')
+  const [approvalNote, setApprovalNote] = useState('Evidence and response scope reviewed by an authorized analyst.')
+  const [outcome, setOutcome] = useState('success')
+  const [rollbackNotes, setRollbackNotes] = useState('Simulation record only; no production mutation was performed.')
+  const [message, setMessage] = useState('')
+
+  const executionRows = executions.data.items || []
+  const actionable = executionRows.filter(row => ['requested', 'approved'].includes(value(row, ['status'], '')))
+  const activeExecution = executionRows.find(row => value(row, ['execution_uuid']) === selectedExecution) || actionable[0] || executionRows[0]
+  const executionUuid = value(activeExecution, ['execution_uuid'], '')
+  const executionStatus = value(activeExecution, ['status'], '')
+  const requester = value(activeExecution, ['requested_by'], '')
+  const username = value(session.user, ['username'], '')
+  const canReview = Boolean(executionUuid) && executionStatus === 'requested' && requester !== username && hasPermission(session.user, 'response:approve')
+  const canExecute = Boolean(executionUuid) && executionStatus === 'approved' && hasPermission(session.user, 'response:execute')
+
+  async function request() {
+    const id = selected || value((playbooks.data.items || [])[0] || {}, ['playbook_uuid'])
+    if (!incidentId || !id) return
+    try {
+      const created = await api<Json>(session, `/api/v1/incidents/${incidentId}/response-executions`, {
+        method: 'POST',
+        body: JSON.stringify({ playbook_uuid: id, parameters: { requested_from: 'soc_console' } }),
+      })
+      setSelectedExecution(value(created, ['execution_uuid'], ''))
+      setMessage('Execution requested; a different authorized human must approve it before execution can be recorded.')
+      void executions.reload()
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'Request failed.')
+    }
+  }
+
+  async function review(approved: boolean) {
+    if (!executionUuid) return
+    try {
+      await api(session, `/api/v1/response-executions/${executionUuid}/approval`, {
+        method: 'POST',
+        body: JSON.stringify({ approved, note: approvalNote.trim() || null }),
+      })
+      setMessage(approved ? 'Response approved by an authorized human.' : 'Response rejected; no execution is permitted.')
+      void executions.reload()
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'Review failed.')
+    }
+  }
+
+  async function execute() {
+    if (!executionUuid) return
+    try {
+      await api(session, `/api/v1/response-executions/${executionUuid}/execute`, {
+        method: 'POST',
+        body: JSON.stringify({
+          outcome,
+          result: { simulated: true, recorded_from: 'soc_console' },
+          rollback_notes: rollbackNotes.trim() || null,
+        }),
+      })
+      setMessage('Approved simulation/integration execution recorded with outcome and rollback evidence.')
+      void executions.reload()
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'Execution record failed.')
+    }
+  }
+
   return <>
     <Header kicker="BATCH 6E · RESPONSE" title="Approval-Gated Response" subtitle="Human-authority playbooks with approval, executor, outcome and rollback evidence. ThreatLens never performs autonomous destructive actions." />
+    <ErrorBox message={playbooks.error || executions.error} />
     <Notice tone="warning">Safety boundary: every response execution is approval-gated. Built-in actions are simulation/integration-ready records, not silent endpoint, identity or firewall changes.</Notice>
-    <div className="two-col"><Panel title="Playbooks"><DataTable rows={playbooks.data.items||[]} columns={['name','action_type','risk_level','version','enabled']} /></Panel><Panel title="Request response"><div className="stack"><label>Playbook<select value={selected} onChange={e=>setSelected(e.target.value)}><option value="">Select first available</option>{(playbooks.data.items||[]).map(row=><option key={value(row,['playbook_uuid'])} value={value(row,['playbook_uuid'])}>{value(row,['name'])}</option>)}</select></label><button className="primary" disabled={!incidentId||!hasPermission(session.user,'response:request')} onClick={()=>void request()}>Request approval</button>{!incidentId&&<Empty>Select an incident first.</Empty>}{message&&<Notice>{message}</Notice>}</div></Panel></div>
-    <Panel title="Response execution ledger"><DataTable rows={executions.data.items||[]} columns={['requested_at','playbook_name','status','requested_by','approved_by','executor','completed_at']} exportName="threatlens-response-executions" /></Panel>
+    <div className="two-col">
+      <Panel title="Playbooks"><DataTable rows={playbooks.data.items || []} columns={['name','action_type','risk_level','version','enabled']} /></Panel>
+      <Panel title="Request response"><div className="stack"><label>Playbook<select value={selected} onChange={e => setSelected(e.target.value)}><option value="">Select first available</option>{(playbooks.data.items || []).map(row => <option key={value(row, ['playbook_uuid'])} value={value(row, ['playbook_uuid'])}>{value(row, ['name'])}</option>)}</select></label><button className="primary" disabled={!incidentId || !hasPermission(session.user, 'response:request')} onClick={() => void request()}>Request approval</button>{!incidentId && <Empty>Select an incident first.</Empty>}</div></Panel>
+    </div>
+    <Panel title="Human approval and execution">
+      {!activeExecution ? <Empty>No response execution is available.</Empty> : <div className="stack">
+        <label>Execution<select value={executionUuid} onChange={e => setSelectedExecution(e.target.value)}>{executionRows.map(row => <option key={value(row, ['execution_uuid'])} value={value(row, ['execution_uuid'])}>{value(row, ['playbook_name'])} · {value(row, ['status'])} · requested by {value(row, ['requested_by'])}</option>)}</select></label>
+        <Notice>Current state: <b>{executionStatus}</b>. Requester: <b>{requester}</b>. Approval and execution remain separate audited transitions.</Notice>
+        {executionStatus === 'requested' && requester === username && <Notice tone="warning">Separation of duties: the requester cannot approve this response. Sign in as another authorized analyst.</Notice>}
+        <label>Approval note<textarea rows={3} value={approvalNote} onChange={e => setApprovalNote(e.target.value)} /></label>
+        <div className="button-row"><button className="primary" disabled={!canReview} onClick={() => void review(true)}>Approve response</button><button className="secondary" disabled={!canReview} onClick={() => void review(false)}>Reject response</button></div>
+        <label>Execution outcome<select value={outcome} onChange={e => setOutcome(e.target.value)}><option value="success">Success</option><option value="partial">Partial</option><option value="failed">Failed</option><option value="cancelled">Cancelled</option></select></label>
+        <label>Rollback / safety notes<textarea rows={3} value={rollbackNotes} onChange={e => setRollbackNotes(e.target.value)} /></label>
+        <button className="primary" disabled={!canExecute} onClick={() => void execute()}>Record approved simulated execution</button>
+      </div>}
+      {message && <Notice>{message}</Notice>}
+    </Panel>
+    <Panel title="Response execution ledger"><DataTable rows={executionRows} columns={['requested_at','playbook_name','status','requested_by','approved_by','executor','completed_at']} exportName="threatlens-response-executions" /></Panel>
   </>
 }
 
 export function DetectionEngineeringPage({ session }: { session: Session }) {
-  const metrics=useResource<ListResponse>(session,'/api/v1/detections/effectiveness',{items:[]})
-  const tunings=useResource<ListResponse>(session,'/api/v1/detections/tunings',{items:[]},hasPermission(session.user,'detection:manage'))
-  const [rule,setRule]=useState(''); const [rationale,setRationale]=useState('Reduce documented false-positive noise while preserving the governed detection boundary.'); const [message,setMessage]=useState('')
-  async function propose(){if(!rule)return;try{await api(session,'/api/v1/detections/tunings',{method:'POST',body:JSON.stringify({rule_id:rule,proposal_type:'threshold',proposal:{review_required:true},rationale})});setMessage('Tuning proposal recorded. Runtime YAML was NOT mutated.');void tunings.reload()}catch(caught){setMessage(caught instanceof Error?caught.message:'Proposal failed.')}}
-  const rows=metrics.data.items||[]
+  const metrics = useResource<ListResponse>(session, '/api/v1/detections/effectiveness', { items: [] })
+  const tunings = useResource<ListResponse>(
+    session,
+    '/api/v1/detections/tunings',
+    { items: [] },
+    hasPermission(session.user, 'detection:manage'),
+  )
+  const [rule, setRule] = useState('')
+  const [rationale, setRationale] = useState(
+    'Reduce documented false-positive noise while preserving the governed detection boundary.',
+  )
+  const [selectedTuning, setSelectedTuning] = useState('')
+  const [reviewNote, setReviewNote] = useState('Evidence, fixture impact and rollback scope reviewed by an authorized detection manager.')
+  const [message, setMessage] = useState('')
+
+  const rows = metrics.data.items || []
+  const tuningRows = tunings.data.items || []
+  const openTunings = tuningRows.filter(row => value(row, ['status']) === 'proposed')
+  const activeTuning =
+    tuningRows.find(row => value(row, ['tuning_uuid']) === selectedTuning) || openTunings[0] || tuningRows[0]
+  const tuningUuid = value(activeTuning, ['tuning_uuid'], '')
+  const tuningStatus = value(activeTuning, ['status'], '')
+  const requester = value(activeTuning, ['requested_by'], '')
+  const reviewedBy = value(activeTuning, ['reviewed_by'], '')
+  const reviewedAt = value(activeTuning, ['reviewed_at'], '')
+  const username = value(session.user, ['username'], '')
+  const awaitingReview = tuningStatus === 'proposed'
+  const duplicateOpen = openTunings.find(
+    row => value(row, ['rule_id']) === rule.trim() && value(row, ['proposal_type']) === 'threshold',
+  )
+  const canReview =
+    Boolean(tuningUuid) &&
+    tuningStatus === 'proposed' &&
+    requester !== username &&
+    hasPermission(session.user, 'detection:manage')
+
+  async function propose() {
+    if (!rule.trim() || duplicateOpen) return
+    try {
+      const created = await api<Json>(session, '/api/v1/detections/tunings', {
+        method: 'POST',
+        body: JSON.stringify({
+          rule_id: rule.trim(),
+          proposal_type: 'threshold',
+          proposal: { review_required: true },
+          rationale,
+        }),
+      })
+      setSelectedTuning(value(created, ['tuning_uuid'], ''))
+      setMessage('Tuning proposal recorded. Runtime YAML was NOT mutated; a different detection manager must review it.')
+      void tunings.reload()
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'Proposal failed.')
+    }
+  }
+
+  async function review(decision: 'approved' | 'rejected') {
+    if (!tuningUuid) return
+    try {
+      await api(session, `/api/v1/detections/tunings/${tuningUuid}/review`, {
+        method: 'POST',
+        body: JSON.stringify({ decision, review_note: reviewNote.trim() || null }),
+      })
+      setMessage(
+        decision === 'approved'
+          ? 'Tuning approved as a governed patch record; runtime YAML remains unchanged.'
+          : 'Tuning rejected; no runtime mutation occurred.',
+      )
+      void tunings.reload()
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'Review failed.')
+    }
+  }
+
   return <>
-    <Header kicker="BATCH 6F · DETECTION ENGINEERING" title="Detection Feedback & Tuning" subtitle="Analyst dispositions, rule effectiveness and governed tuning proposals that never silently mutate deterministic rule YAML." />
-    <ErrorBox message={metrics.error||tunings.error}/><div className="metric-grid three"><Metric label="Rules with firings" number={String(rows.length)} note="Persisted alert evidence" /><Metric label="Reviewed feedback" number={String(rows.reduce((n,r)=>n+Number(r.reviewed||0),0))} note="Analyst outcomes" /><Metric label="Open tunings" number={String((tunings.data.items||[]).filter(r=>value(r,['status'])==='proposed').length)} note="Governance queue" accent /></div>
-    <Panel title="Rule effectiveness"><DataTable rows={rows} columns={['rule_id','alert_firings','reviewed','true_positive','false_positive','precision_observed','feedback_coverage']} exportName="threatlens-detection-effectiveness" /></Panel>
-    <div className="two-col"><Panel title="Governed tuning proposal"><div className="stack"><label>Rule ID<input value={rule} onChange={e=>setRule(e.target.value)}/></label><label>Rationale<textarea rows={4} value={rationale} onChange={e=>setRationale(e.target.value)}/></label><button className="primary" disabled={!hasPermission(session.user,'detection:manage')} onClick={()=>void propose()}>Propose tuning</button>{message&&<Notice>{message}</Notice>}</div></Panel><Panel title="Tuning history"><DataTable rows={tunings.data.items||[]} columns={['created_at','rule_id','proposal_type','status','requested_by','reviewed_by']} /></Panel></div>
+    <Header
+      kicker="BATCH 6F · DETECTION ENGINEERING"
+      title="Detection Feedback & Tuning"
+      subtitle="Analyst dispositions, rule effectiveness and governed tuning proposals that never silently mutate deterministic rule YAML."
+    />
+    <ErrorBox message={metrics.error || tunings.error} />
+    <div className="metric-grid three">
+      <Metric label="Rules with firings" number={String(rows.length)} note="Persisted alert evidence" />
+      <Metric
+        label="Reviewed feedback"
+        number={String(rows.reduce((n, row) => n + Number(row.reviewed || 0), 0))}
+        note="Analyst outcomes"
+      />
+      <Metric label="Open tunings" number={String(openTunings.length)} note="Governance queue" accent />
+    </div>
+    <Panel title="Rule effectiveness">
+      <DataTable
+        rows={rows}
+        columns={['rule_id', 'alert_firings', 'reviewed', 'true_positive', 'false_positive', 'precision_observed', 'feedback_coverage']}
+        exportName="threatlens-detection-effectiveness"
+      />
+    </Panel>
+    <div className="two-col">
+      <Panel title="Governed tuning proposal">
+        <div className="stack">
+          <label>Rule ID<input value={rule} onChange={event => setRule(event.target.value)} /></label>
+          <label>Rationale<textarea rows={4} value={rationale} onChange={event => setRationale(event.target.value)} /></label>
+          <button
+            className="primary"
+            disabled={!hasPermission(session.user, 'detection:manage') || !rule.trim() || Boolean(duplicateOpen)}
+            onClick={() => void propose()}
+          >
+            Propose tuning
+          </button>
+          {duplicateOpen && <Notice>An open threshold proposal already exists for this rule. Review it before creating another.</Notice>}
+        </div>
+      </Panel>
+      <Panel title="Tuning history">
+        <DataTable
+          rows={tuningRows}
+          columns={['created_at', 'rule_id', 'proposal_type', 'status', 'requested_by', 'reviewed_by']}
+        />
+      </Panel>
+    </div>
+    <Panel title="Human tuning review">
+      {tuningRows.length ? <div className="stack">
+        <label>Proposal
+          <select value={selectedTuning || tuningUuid} onChange={event => setSelectedTuning(event.target.value)}>
+            {tuningRows.map(row => {
+              const id = value(row, ['tuning_uuid'])
+              return <option key={id} value={id}>
+                {value(row, ['rule_id'])} · {value(row, ['proposal_type'])} · {value(row, ['status'])} · requested by {value(row, ['requested_by'])}
+              </option>
+            })}
+          </select>
+        </label>
+        <Notice tone={tuningStatus === 'approved' ? 'success' : tuningStatus === 'rejected' ? 'warning' : 'info'}>
+          Current state: <b>{tuningStatus || 'unknown'}</b>. Requester: <b>{requester || '—'}</b>.
+          {awaitingReview
+            ? requester === username
+              ? ' A different detection manager must review this proposal.'
+              : ' Approval and rejection are separate audited transitions.'
+            : ` Reviewed by ${reviewedBy || 'an authorized detection manager'}${reviewedAt ? ` on ${reviewedAt}` : ''}. No further review action is available.`}
+        </Notice>
+        {awaitingReview && <>
+          <label>Review note
+            <textarea rows={3} value={reviewNote} onChange={event => setReviewNote(event.target.value)} />
+          </label>
+          <div className="mode-row">
+            <button className="primary" disabled={!canReview} onClick={() => void review('approved')}>Approve tuning</button>
+            <button className="secondary" disabled={!canReview} onClick={() => void review('rejected')}>Reject tuning</button>
+          </div>
+        </>}
+      </div> : <Empty>No tuning proposals are available.</Empty>}
+      {message && <Notice>{message}</Notice>}
+    </Panel>
   </>
 }
 

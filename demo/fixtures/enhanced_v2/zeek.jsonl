@@ -1,0 +1,3 @@
+{"ts":"2026-09-15T08:22:02Z","uid":"EV2-ZEEK-001","id.orig_h":"10.20.30.40","id.orig_p":52101,"id.resp_h":"198.51.100.88","id.resp_p":80,"proto":"tcp","host":"telemetry-gate.example","uri":"/updater.ps1","method":"GET","status_code":200}
+{"ts":"2026-09-15T09:02:02Z","uid":"EV2-ZEEK-002","id.orig_h":"10.20.30.40","id.orig_p":53001,"id.resp_h":"198.51.100.53","id.resp_p":53,"proto":"udp","query":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.evil.example","qtype_name":"A","rcode_name":"NOERROR"}
+{"ts":"2026-09-15T09:04:00Z","uid":"EV2-ZEEK-003","id.orig_h":"10.20.30.40","id.orig_p":52104,"id.resp_h":"198.51.100.88","id.resp_p":443,"proto":"tcp","server_name":"control-node.top","version":"TLSv13","cipher":"TLS_AES_256_GCM_SHA384"}

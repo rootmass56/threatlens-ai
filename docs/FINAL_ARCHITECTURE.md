@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document describes the accepted production-style local architecture at source version **0.14.0**. The v1.0.0 release label remains reserved for final Phase 10 acceptance.
+This document describes the accepted production-style local architecture at source version **0.14.0**, published in the immutable **v1.0.0** project release.
 
 ## Architectural principle
 
@@ -186,6 +186,6 @@ Neither should be confused with a permanently hosted public production console.
 
 Current source version: **0.14.0**.
 
-Final release target: **v1.0.0 after Phase 10 acceptance/freeze**.
+Published project release: **v1.0.0**, frozen after successful Phase 10 acceptance.
 
 Historical architecture documents remain useful evidence of earlier releases but are not the current architecture contract.

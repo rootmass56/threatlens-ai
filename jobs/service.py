@@ -5,7 +5,7 @@ import json
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -168,22 +168,49 @@ class AiJobService:
         )
 
     def mark_enqueued(self, job: AiInvestigationJobModel) -> None:
-        if job.status == AiJobStatus.QUEUED.value:
-            job.queue_delivery_state = "delivered"
-            job.enqueued_at = _utcnow()
+        if job.status != AiJobStatus.QUEUED.value:
+            return
+
+        # The worker may claim the row immediately after Redis accepts the
+        # item while this session still holds a stale ``queued`` instance.
+        # A normal ORM attribute assignment would then overwrite ``claimed``
+        # with ``delivered`` after the worker commits.  Make the transition a
+        # database-side compare-and-set so PostgreSQL re-evaluates the queued
+        # predicate after any concurrent row lock is released.
+        delivered_at = _utcnow()
+        self.session.execute(
+            update(AiInvestigationJobModel)
+            .where(
+                AiInvestigationJobModel.id == job.id,
+                AiInvestigationJobModel.status == AiJobStatus.QUEUED.value,
+            )
+            .values(
+                queue_delivery_state="delivered",
+                enqueued_at=delivered_at,
+            )
+            .execution_options(synchronize_session="fetch")
+        )
+        self.session.refresh(job)
 
     def mark_queue_pending(self, job: AiInvestigationJobModel) -> None:
         if job.status == AiJobStatus.QUEUED.value:
             job.queue_delivery_state = "pending"
 
     def claim(self, job_uuid: str, *, worker_id: str) -> AiInvestigationJobModel | None:
+        # A queue producer marks delivery immediately after RPUSH.  That short
+        # transaction can still hold the job row when a fast worker receives
+        # the Redis item.  SKIP LOCKED would turn that transient lock into a
+        # false "job missing" result and permanently discard the popped item.
+        # Waiting for this one specific row is safe: distinct jobs do not
+        # contend, while duplicate deliveries remain harmless because the
+        # status predicate is re-evaluated after the lock is released.
         stmt = (
             select(AiInvestigationJobModel)
             .where(
                 AiInvestigationJobModel.job_uuid == job_uuid,
                 AiInvestigationJobModel.status == AiJobStatus.QUEUED.value,
             )
-            .with_for_update(skip_locked=True)
+            .with_for_update()
         )
         job = self.session.scalar(stmt)
         if job is None:
@@ -259,12 +286,30 @@ class AiJobService:
             job.lease_expires_at = None
 
     def pending_delivery(self, *, limit: int = 100) -> list[AiInvestigationJobModel]:
+        # "delivered" records can be orphaned if a worker pops a Redis item
+        # but exits (or an older SKIP LOCKED consumer misses the row) before
+        # claiming it.  Reconcile sufficiently old delivered rows as well as
+        # explicitly pending rows.  RedisJobQueue.enqueue de-duplicates items
+        # already present in the bounded queue, and database claim semantics
+        # make any remaining duplicate delivery harmless.
+        delivered_before = _utcnow() - timedelta(
+            seconds=max(self.settings.recovery_interval_seconds, 1)
+        )
         return list(
             self.session.scalars(
                 select(AiInvestigationJobModel)
                 .where(
                     AiInvestigationJobModel.status == AiJobStatus.QUEUED.value,
-                    AiInvestigationJobModel.queue_delivery_state == "pending",
+                    or_(
+                        AiInvestigationJobModel.queue_delivery_state == "pending",
+                        and_(
+                            AiInvestigationJobModel.queue_delivery_state == "delivered",
+                            or_(
+                                AiInvestigationJobModel.enqueued_at.is_(None),
+                                AiInvestigationJobModel.enqueued_at < delivered_before,
+                            ),
+                        ),
+                    ),
                 )
                 .order_by(AiInvestigationJobModel.created_at.asc())
                 .limit(limit)

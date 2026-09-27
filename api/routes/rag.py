@@ -1,14 +1,143 @@
 
 from __future__ import annotations
 
+import logging
+from datetime import UTC, datetime
+from threading import RLock, Thread
+
 from fastapi import APIRouter, HTTPException, status
 
 from api.dependencies import DatabaseSession, RequireRagManage, RequireRagQuery
 from api.schemas import RagQueryRequest, RagReindexRequest
 from database.service import ThreatLensPersistenceService
+from database.session import SessionLocal
 from rag.runtime import get_rag_runtime
 
 router = APIRouter(tags=["rag"])
+LOGGER = logging.getLogger("threatlens.rag.reindex")
+_REINDEX_STATE_LOCK = RLock()
+_REINDEX_STATE: dict[str, object] = {
+    "state": "idle",
+    "force": None,
+    "started_utc": None,
+    "completed_utc": None,
+    "result_status": None,
+    "indexed_chunks": None,
+    "detail": None,
+}
+
+
+def _reindex_snapshot() -> dict[str, object]:
+    with _REINDEX_STATE_LOCK:
+        return dict(_REINDEX_STATE)
+
+
+def _reserve_reindex(*, force: bool) -> bool:
+    with _REINDEX_STATE_LOCK:
+        if _REINDEX_STATE["state"] == "running":
+            return False
+        _REINDEX_STATE.update(
+            {
+                "state": "running",
+                "force": force,
+                "started_utc": datetime.now(UTC).isoformat(),
+                "completed_utc": None,
+                "result_status": None,
+                "indexed_chunks": None,
+                "detail": "Governed knowledge re-index is running in the background.",
+            }
+        )
+        return True
+
+
+def _set_reindex_detail(detail: str) -> None:
+    with _REINDEX_STATE_LOCK:
+        if _REINDEX_STATE["state"] == "running":
+            _REINDEX_STATE["detail"] = detail
+
+
+def _finish_reindex(
+    *,
+    state: str,
+    result_status: str | None = None,
+    indexed_chunks: int | None = None,
+    detail: str | None = None,
+) -> None:
+    with _REINDEX_STATE_LOCK:
+        _REINDEX_STATE.update(
+            {
+                "state": state,
+                "completed_utc": datetime.now(UTC).isoformat(),
+                "result_status": result_status,
+                "indexed_chunks": indexed_chunks,
+                "detail": detail,
+            }
+        )
+
+
+def _run_rag_reindex(*, force: bool, actor: str) -> None:
+    session = None
+    LOGGER.info(
+        "Governed knowledge re-index runner started.",
+        extra={"event": "rag.knowledge_reindex.started", "force": force},
+    )
+    try:
+        _set_reindex_detail("Opening an isolated database session.")
+        session = SessionLocal()
+        _set_reindex_detail(
+            "Validating services and comparing governed knowledge sources."
+        )
+        result = get_rag_runtime().indexer.index(session, force=force)
+        _set_reindex_detail("Persisting the re-index audit record.")
+        ThreatLensPersistenceService(session).record_audit_event(
+            actor=actor,
+            action="rag.knowledge_reindexed",
+            entity_type="rag_knowledge",
+            entity_id=result.knowledge_version,
+            details={
+                "status": result.status,
+                "force": force,
+                "documents_seen": result.documents_seen,
+                "documents_added_or_updated": result.documents_added_or_updated,
+                "documents_removed": result.documents_removed,
+                "chunks_upserted": result.chunks_upserted,
+                "chunks_deleted": result.chunks_deleted,
+                "indexed_chunks": result.indexed_chunks,
+            },
+        )
+        session.commit()
+        _finish_reindex(
+            state="completed",
+            result_status=result.status,
+            indexed_chunks=result.indexed_chunks,
+            detail="Governed knowledge re-index completed.",
+        )
+        LOGGER.info(
+            "Governed knowledge re-index runner completed.",
+            extra={
+                "event": "rag.knowledge_reindex.completed",
+                "force": force,
+                "result_status": result.status,
+                "indexed_chunks": result.indexed_chunks,
+            },
+        )
+    except Exception:
+        if session is not None:
+            try:
+                session.rollback()
+            except Exception:
+                LOGGER.exception("Could not roll back the failed re-index session.")
+        LOGGER.exception("Background governed-knowledge re-index failed.")
+        _finish_reindex(
+            state="failed",
+            detail="Knowledge re-index failed. Review the API logs before retrying.",
+        )
+    finally:
+        if session is not None:
+            try:
+                session.close()
+            except Exception:
+                LOGGER.exception("Could not close the governed-knowledge re-index session.")
 
 
 @router.get("/rag/health")
@@ -21,33 +150,48 @@ def rag_health(principal: RequireRagQuery) -> dict:
 def rag_knowledge_status(principal: RequireRagQuery) -> dict:
     del principal
     runtime = get_rag_runtime()
-    return {"health": runtime.health().model_dump(mode="json"), "index": runtime.indexer.status()}
+    return {
+        "health": runtime.health().model_dump(mode="json"),
+        "index": runtime.indexer.status(),
+        "reindex": _reindex_snapshot(),
+    }
 
 
-@router.post("/rag/knowledge/reindex")
+@router.post(
+    "/rag/knowledge/reindex",
+    status_code=status.HTTP_202_ACCEPTED,
+)
 def rag_reindex(
     payload: RagReindexRequest,
     principal: RequireRagManage,
-    session: DatabaseSession,
-) -> dict:
-    result = get_rag_runtime().indexer.index(session, force=payload.force)
-    ThreatLensPersistenceService(session).record_audit_event(
-        actor=principal.username,
-        action="rag.knowledge_reindexed",
-        entity_type="rag_knowledge",
-        entity_id=result.knowledge_version,
-        details={
-            "status": result.status,
-            "force": payload.force,
-            "documents_seen": result.documents_seen,
-            "documents_added_or_updated": result.documents_added_or_updated,
-            "documents_removed": result.documents_removed,
-            "chunks_upserted": result.chunks_upserted,
-            "chunks_deleted": result.chunks_deleted,
-            "indexed_chunks": result.indexed_chunks,
-        },
-    )
-    return result.model_dump(mode="json")
+) -> dict[str, object]:
+    accepted = _reserve_reindex(force=payload.force)
+    if accepted:
+        runner = Thread(
+            target=_run_rag_reindex,
+            kwargs={"force": payload.force, "actor": principal.username},
+            name="threatlens-knowledge-reindex",
+            daemon=True,
+        )
+        try:
+            runner.start()
+        except RuntimeError as error:
+            LOGGER.exception("Could not start the governed-knowledge re-index runner.")
+            _finish_reindex(
+                state="failed",
+                detail="Knowledge re-index could not be started.",
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "code": "reindex_runner_unavailable",
+                    "message": "Knowledge re-index could not be started.",
+                },
+            ) from error
+    return {
+        "status": "accepted" if accepted else "running",
+        "reindex": _reindex_snapshot(),
+    }
 
 
 @router.post("/incidents/{incident_uuid}/assistant/query")

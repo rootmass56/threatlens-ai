@@ -129,6 +129,13 @@ def test_v012_pgvector_schema_version_is_release_scoped() -> None:
     assert PgVectorStore._SCHEMA_VERSION == "0.12.0"
 
 
+def test_v012_pgvector_persists_manifest_metadata_with_collection() -> None:
+    source = (ROOT / "rag" / "vector_store.py").read_text(encoding="utf-8")
+    assert "manifest_json JSONB" in source
+    assert "ADD COLUMN IF NOT EXISTS manifest_json JSONB" in source
+    assert "SET manifest_json=%s::jsonb, updated_at=NOW()" in source
+
+
 def test_v012_alembic_batch_mode_is_sqlite_only() -> None:
     source = (ROOT / "migrations" / "env.py").read_text(encoding="utf-8")
     assert 'render_as_batch=connection.dialect.name == "sqlite"' in source

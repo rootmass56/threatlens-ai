@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import numbers
 import re
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
@@ -110,9 +111,29 @@ def _match_expression(actual: Any, operator: str, expected: Any) -> bool:
     actual_text = str(actual)
     actual_lower = actual_text.lower()
     if operator == "equals":
-        return any(actual_lower == str(value).lower() for value in values)
+        return any(
+            (
+                isinstance(actual, numbers.Number)
+                and not isinstance(actual, bool)
+                and isinstance(value, numbers.Number)
+                and not isinstance(value, bool)
+                and float(actual) == float(value)
+            )
+            or actual_lower == str(value).lower()
+            for value in values
+        )
     if operator == "not_equals":
-        return all(actual_lower != str(value).lower() for value in values)
+        return all(
+            not (
+                isinstance(actual, numbers.Number)
+                and not isinstance(actual, bool)
+                and isinstance(value, numbers.Number)
+                and not isinstance(value, bool)
+                and float(actual) == float(value)
+            )
+            and actual_lower != str(value).lower()
+            for value in values
+        )
     if operator == "contains":
         return any(str(value).lower() in actual_lower for value in values)
     if operator == "not_contains":

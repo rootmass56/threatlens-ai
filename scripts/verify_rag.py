@@ -67,7 +67,7 @@ def _settings(root: Path) -> RagSettings:
     return RagSettings(
         enabled=True,
         ollama_base_url="http://127.0.0.1:11434",
-        llm_model="qwen3:4b",
+        llm_model="qwen3.5:4b",
         embedding_model="qwen3-embedding:0.6b",
         vector_backend="memory",
         embedding_backend="hashing",

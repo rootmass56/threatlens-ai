@@ -49,6 +49,11 @@ class KnowledgeIndexService:
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     def _read_manifest(self) -> dict:
+        read_durable = getattr(self.vector_store, "read_manifest", None)
+        if callable(read_durable):
+            payload = read_durable()
+            if isinstance(payload, dict):
+                return payload
         if not self.manifest_path.is_file():
             return {"sources": {}}
         try:
@@ -56,6 +61,22 @@ class KnowledgeIndexService:
             return payload if isinstance(payload, dict) else {"sources": {}}
         except (OSError, json.JSONDecodeError):
             return {"sources": {}}
+
+    def _write_manifest(self, payload: dict) -> None:
+        write_durable = getattr(self.vector_store, "write_manifest", None)
+        if callable(write_durable):
+            write_durable(payload)
+        try:
+            self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = self.manifest_path.with_suffix(self.manifest_path.suffix + ".tmp")
+            temporary.write_text(
+                json.dumps(payload, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            temporary.replace(self.manifest_path)
+        except OSError:
+            if not callable(write_durable):
+                raise
 
     def _unavailable(self, detail: str) -> RagIndexResult:
         ready, _ = self.vector_store.ready()
@@ -168,13 +189,7 @@ class KnowledgeIndexService:
                 "indexed_chunks": self.vector_store.count(),
                 "sources": sources,
             }
-            self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
-            temporary = self.manifest_path.with_suffix(self.manifest_path.suffix + ".tmp")
-            temporary.write_text(
-                json.dumps(payload, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
-            temporary.replace(self.manifest_path)
+            self._write_manifest(payload)
             status = "indexed" if changed or removed else "unchanged"
             return RagIndexResult(
                 status=status,
@@ -189,16 +204,19 @@ class KnowledgeIndexService:
             )
 
     def status(self) -> dict:
-        with self._lock:
-            payload = self._read_manifest()
-            ready, detail = self.vector_store.ready()
-            return {
-                "knowledge_version": payload.get("knowledge_version"),
-                "embedding_model": payload.get("embedding_model"),
-                "indexed_utc": payload.get("indexed_utc"),
-                "indexed_chunks": self.vector_store.count() if ready else 0,
-                "source_count": len(payload.get("sources") or {}),
-                "manifest_path": self.manifest_path.as_posix(),
-                "vector_ready": ready,
-                "detail": detail,
-            }
+        # Status must remain available while a long embedding run is in progress.
+        # The durable manifest is replaced atomically only after a successful index,
+        # so readers can safely observe the last known-good snapshot without waiting
+        # on the writer lock.
+        payload = self._read_manifest()
+        ready, detail = self.vector_store.ready()
+        return {
+            "knowledge_version": payload.get("knowledge_version"),
+            "embedding_model": payload.get("embedding_model"),
+            "indexed_utc": payload.get("indexed_utc"),
+            "indexed_chunks": self.vector_store.count() if ready else 0,
+            "source_count": len(payload.get("sources") or {}),
+            "manifest_path": self.manifest_path.as_posix(),
+            "vector_ready": ready,
+            "detail": detail,
+        }

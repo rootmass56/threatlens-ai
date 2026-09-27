@@ -2,6 +2,22 @@
 
 ## v0.14.0 — Batch 7 Operational Hardening (Release Candidate)
 
+### Post-v1.0.0 maintenance
+
+- Prevent durable AI jobs from being orphaned when Redis delivery races a locked database row.
+- Preserve worker claim state when API delivery bookkeeping completes concurrently.
+- Keep worker-presence heartbeats active during long local-model inference.
+- Align supported Standard and Deep utilities with `qwen3.5:4b` and `qwen3.5:9b`.
+- Make governed knowledge re-indexing asynchronous and keep status endpoints responsive.
+- Normalize operator-facing database-pool metrics and improve report/UI review workflows.
+- Keep local Cloudflare Wrangler state out of version control.
+
+### Published project release mapping
+
+- Published the accepted `0.14.0` internal source line through the protected `main` workflow.
+- Froze the evidence-first authority model, final documentation, validation evidence and portfolio demonstration contract.
+- Retained internal `0.14.0` version identifiers for runtime and compatibility continuity.
+
 - Added structured JSON logging and request correlation for API/worker runtime.
 - Added bounded Prometheus-format application metrics and protected operational status view.
 - Added optional Prometheus, Grafana, PostgreSQL exporter and Redis exporter Compose profile.
