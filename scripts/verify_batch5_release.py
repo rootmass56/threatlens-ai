@@ -65,7 +65,7 @@ def main() -> int:
         "constraints-windows-py311.txt": constraints,
         "pyproject.toml": pyproject,
     }.items():
-        require("redis==6.4.0" in source, f"redis pin missing from {source_name}.")
+        require("redis==8.1.0" in source, f"redis pin missing from {source_name}.")
     require('"jobs*"' in pyproject, "jobs package is missing from setuptools discovery.")
 
     compose = (ROOT / "compose.batch5.yml").read_text(encoding="utf-8")

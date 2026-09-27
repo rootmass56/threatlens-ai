@@ -137,7 +137,7 @@ def main(containerized: bool = False) -> None:
     require(baseline["release"] == "0.14.0", "Dependency baseline is not v0.14.0.")
     direct = sum(len(baseline[name]) for name in ("build", "runtime", "development"))
     require(direct == 27, f"Expected 27 reviewed direct dependencies, got {direct}")
-    require(baseline["runtime"].get("redis") == "6.4.0", "Redis 6.4.0 baseline missing.")
+    require(baseline["runtime"].get("redis") == "8.1.0", "Redis 8.1.0 baseline missing.")
 
     if not containerized:
         sbom = json.loads((ROOT / "sbom/source-dependencies-v0.14.0.cdx.json").read_text())

@@ -27,7 +27,7 @@ def test_security_api_runtime_and_test_versions_are_pinned() -> None:
         "alembic": "1.18.4",
         "psycopg": "3.3.4",
         "pgvector": "0.5.0",
-        "redis": "6.4.0",
+        "redis": "8.1.0",
         "PyYAML": "6.0.3",
         "pytest": "9.0.3",
         "pytest-cov": "7.0.0",

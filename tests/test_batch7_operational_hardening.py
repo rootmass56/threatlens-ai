@@ -227,7 +227,7 @@ def test_batch7_supply_chain_and_cicd_assets_exist() -> None:
 def test_batch7_reviewed_dependency_and_sbom_contract() -> None:
     baseline = json.loads((ROOT / "config/dependency_security_baseline.json").read_text())
     assert baseline["release"] == "0.14.0"
-    assert baseline["runtime"]["redis"] == "6.4.0"
+    assert baseline["runtime"]["redis"] == "8.1.0"
     expected = {
         (name, version)
         for scope in ("build", "runtime", "development")

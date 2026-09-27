@@ -61,19 +61,19 @@
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/batch7-ci.yml",
-      "sha256": "382678d7446d2920d9063e4d8bf5f6d7f4130fda77f0d2904e44a70e0abda68b",
+      "sha256": "f76d9716dd558fa26c2cb4dfbbf872b731f576048dfc417cc7ea8137080f6785",
       "size_bytes": 6313
     },
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/batch7-ghcr.yml",
-      "sha256": "c56726a6351409c7f303c8bae0d61bbd3992ad44e6a422b114fb12870ae7b72a",
+      "sha256": "4a1b6b0736c82d3e935343ce0631b54ef749c8ac4413343fc5b0d049cbf61b70",
       "size_bytes": 2945
     },
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/codeql.yml",
-      "sha256": "541d617d546ee2211a45f6cf0945b6e3fc7597a60872f03591be96484f70e57b",
+      "sha256": "9bfcb6fe373765f5e76acbbb5827db522dba303a82bf3d9e1cddcaf0b64b6171",
       "size_bytes": 1372
     },
     {
@@ -571,7 +571,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "config/dependency_security_baseline.json",
-      "sha256": "3760de2466c5741aa56f78438ba587f9f1a2b95945bdfd33f62d1e8207376d44",
+      "sha256": "20c4194c3d4d4a1e592b3e18ed6067bd64bb2f9b036e8b9a33cc32e85063ab3a",
       "size_bytes": 3060
     },
     {
@@ -595,7 +595,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "constraints-windows-py311.txt",
-      "sha256": "c8cfc733e139fc6f1a7bc77e22abee0336b53236ce2ae43ace76d31ec3cea318",
+      "sha256": "86e5d4b243be47535cc2cf59864fd23051e746185a6c6f49974f2d26d5925536",
       "size_bytes": 866
     },
     {
@@ -2365,7 +2365,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "pyproject.toml",
-      "sha256": "a41bb507a5b5a9fa2ac327b490f20f87bcaded114d27da0c975c2cb79051e46a",
+      "sha256": "35cd754d563ff505a39db7b112734af4b29c1b26b72b50dcd3311fefd42bf632",
       "size_bytes": 1615
     },
     {
@@ -2503,7 +2503,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "requirements.txt",
-      "sha256": "9a1f812851ea21cd3426c558c01461308167da7c4713437a3342b1b46539a870",
+      "sha256": "687ea9359dffab90fe782cb0ab21fff9819c16900682cf8b839ae4f6415e60f8",
       "size_bytes": 362
     },
     {
@@ -3901,7 +3901,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "sbom/source-dependencies-v0.14.0.cdx.json",
-      "sha256": "5d809b4f9a26d1a40da7609986669d5ec33667623f16b016fc0f3c2c151fb1d4",
+      "sha256": "ad52bb7a927368a79ab977c82788d66626aa1314e18c7caed05974f36a91cd6c",
       "size_bytes": 13683
     },
     {
@@ -4195,7 +4195,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/verify_batch5_release.py",
-      "sha256": "8ba78662bd7ddaf3000ba1f6018b74a4a39dd2acb7ee4c239376ce8f4ae14cd0",
+      "sha256": "891e157bc783505d97619d7a627a083c6ac4f53188f809038dbfd12fed39b447",
       "size_bytes": 4186
     },
     {
@@ -4231,7 +4231,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/verify_batch7_release.py",
-      "sha256": "d5c10c018f395d07b475e88297b40407da47ce81f6e145cec17d1ef531e3ee6f",
+      "sha256": "72743cfb88c82294cf0d800e5800c0b95f07dff6407dbcca23f4f68a18c6017c",
       "size_bytes": 6381
     },
     {
@@ -4399,7 +4399,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_batch5_production_foundation.py",
-      "sha256": "3292374c46efd6b05fff3403c618fe42e30c4d2f6d873f945cdeda48c7ceb0b1",
+      "sha256": "367f0709e8a32060da36227aeac79aee3ee51fd6d38a73825d70cb7e67775110",
       "size_bytes": 16216
     },
     {
@@ -4411,7 +4411,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_batch7_operational_hardening.py",
-      "sha256": "06d717c55b18032f939c669803424b31e1389920bb781655fe445120cc10d95c",
+      "sha256": "60028b3e63059ad6be13b8104f8fbbc048a66d4f168d713bc01fc5667a413d07",
       "size_bytes": 14845
     },
     {
@@ -4489,7 +4489,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_runtime_dependencies.py",
-      "sha256": "42030889e2d8e6b66cb06a08df44bd73462596fb0f669110e2b9fff7805f6ff7",
+      "sha256": "cce76570a22252702c3f953ef072b88da3a06fe2bd510383826c5ccae67dd55f",
       "size_bytes": 1330
     },
     {
@@ -4637,7 +4637,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-27T04:41:58.059054+00:00",
+  "generated_utc": "2026-09-27T10:27:45.655619+00:00",
   "governed_test_matrix": {
     "collected_tests": 334,
     "runtime_pins": {
