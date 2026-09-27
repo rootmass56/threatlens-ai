@@ -1,6 +1,6 @@
 # ThreatLens AI documentation
 
-Start with the **final documentation set** below. Older versioned documents are retained only as engineering history and should not be treated as the current architecture or deployment contract.
+Start with the **current documentation set** below. Versioned milestone documents are engineering history and must not be treated as the current architecture or deployment contract.
 
 ## Current documentation
 
@@ -18,8 +18,10 @@ Start with the **final documentation set** below. Older versioned documents are 
 
 Operational procedures live under [`runbooks/`](runbooks/). Use the final deployment/operations guide as the entry point before invoking historical migration or batch-specific procedures.
 
-## Historical material
+## Compatibility and historical material
 
-Files with version suffixes such as `_v0.9`, `_v0.10` or `_v0.11`, and batch-specific handoff/audit documents, describe earlier implementation milestones. They remain in Git history for traceability but are not the current release contract.
+Files with version suffixes such as `_v0.9`, `_v0.10` or `_v0.11`, and batch-specific handoff/audit documents, describe earlier implementation milestones. They are retained only where they support governed regressions, migration evidence or the RAG knowledge contract. Superseded generated OpenAPI snapshots and SBOMs are available from immutable tags and Git history instead of being duplicated on current `main`.
+
+`openapi_v0.12.0.json` remains as the React feature-parity compatibility baseline used by the current verifier. It is not a claim that the full Batch 7 API still has the v0.12 endpoint count.
 
 The published project release is **v1.0.0**. The accepted internal source lineage remains **0.14.0** for compatibility with the frozen runtime/version contract.

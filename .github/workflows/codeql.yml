@@ -2,7 +2,7 @@ name: Batch 7 CodeQL
 
 on:
   push:
-    branches: [main, "batch7/v0.14.0-release-candidate"]
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:

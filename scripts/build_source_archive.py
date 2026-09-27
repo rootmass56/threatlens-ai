@@ -57,7 +57,7 @@ def build_archive(output: Path, report: Path | None = None) -> dict[str, object]
     payload: dict[str, object] = {
         "product": "ThreatLens AI",
         "release": THREATLENS_VERSION,
-        "release_title": "Full React Feature-Parity Release Candidate",
+        "release_title": "Batch 7 Operational Hardening",
         "generated_utc": datetime.now(UTC).isoformat(),
         "archive": str(output),
         "archive_sha256": _sha256(output),
@@ -67,13 +67,9 @@ def build_archive(output: Path, report: Path | None = None) -> dict[str, object]
         "zip_integrity": "passed" if corrupt is None else f"failed:{corrupt}",
         "manifest_records": len(manifest.get("files") or []),
         "manifest_version": manifest.get("version"),
-        "governed_windows_test_target": 271,
-        "platform_independent_test_target": 270,
+        "governed_test_count": 334,
         "feature_parity_policy": "15/15 legacy analyst surfaces migrated/superseded",
-        "deployment_status": (
-            "release candidate; deployment freeze requires Windows gate + UAT + "
-            "staging/live deployment"
-        ),
+        "deployment_status": "published as v1.0.0; current source line remains 0.14.0",
     }
     if report is not None:
         report = report.resolve()
