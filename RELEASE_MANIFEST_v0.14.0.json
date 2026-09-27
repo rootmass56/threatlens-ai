@@ -571,7 +571,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "config/dependency_security_baseline.json",
-      "sha256": "20c4194c3d4d4a1e592b3e18ed6067bd64bb2f9b036e8b9a33cc32e85063ab3a",
+      "sha256": "5fa4caea20887ba0c9caa496c36201c87530c5c6b07b44c2561f81ee408e638d",
       "size_bytes": 3060
     },
     {
@@ -595,8 +595,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "constraints-windows-py311.txt",
-      "sha256": "86e5d4b243be47535cc2cf59864fd23051e746185a6c6f49974f2d26d5925536",
-      "size_bytes": 866
+      "sha256": "f5e952bf789f56e5b34c36d48e4cf0f99703b055eaabf2b3abe255a904dcce29",
+      "size_bytes": 865
     },
     {
       "content_mode": "utf8-lf",
@@ -2365,7 +2365,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "pyproject.toml",
-      "sha256": "35cd754d563ff505a39db7b112734af4b29c1b26b72b50dcd3311fefd42bf632",
+      "sha256": "f388de6d1519e4700c9ad0d1a2dc8c198dd155fe86b3148a7e5c9a591bb45907",
       "size_bytes": 1615
     },
     {
@@ -2503,7 +2503,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "requirements.txt",
-      "sha256": "687ea9359dffab90fe782cb0ab21fff9819c16900682cf8b839ae4f6415e60f8",
+      "sha256": "a4fb9971902078f8798b5eee48fe229b41e40deab4a97df0f84f5c4d4d237db0",
       "size_bytes": 362
     },
     {
@@ -3901,7 +3901,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "sbom/source-dependencies-v0.14.0.cdx.json",
-      "sha256": "ad52bb7a927368a79ab977c82788d66626aa1314e18c7caed05974f36a91cd6c",
+      "sha256": "1401190582feb82b55fc488dadb1bc50bdb1fde9ec5ed34e73581417c663458e",
       "size_bytes": 13683
     },
     {
@@ -4003,7 +4003,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/generate_release_manifest.py",
-      "sha256": "fefe7d0f85e0dbdd6ca3bb43bbce2bcc02cbfbb7e4bfac83146890b573488002",
+      "sha256": "c5689f003be1d1e87903da5165545aaa758c5566776ea3f57abd67ce74353928",
       "size_bytes": 7693
     },
     {
@@ -4489,7 +4489,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_runtime_dependencies.py",
-      "sha256": "cce76570a22252702c3f953ef072b88da3a06fe2bd510383826c5ccae67dd55f",
+      "sha256": "bbe9232b66b24697c7d9939874b52a727be80b80861dfbd0fb4bb63a6cad76dd",
       "size_bytes": 1330
     },
     {
@@ -4637,7 +4637,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-27T10:27:45.655619+00:00",
+  "generated_utc": "2026-09-27T13:40:38.665722+00:00",
   "governed_test_matrix": {
     "collected_tests": 334,
     "runtime_pins": {
@@ -4658,7 +4658,7 @@
       "pytest-cov": "7.0.0",
       "python-dotenv": "1.2.2",
       "python-multipart": "0.0.32",
-      "reportlab": "4.4.9",
+      "reportlab": "5.0.1",
       "requests": "2.34.2",
       "ruff": "0.15.22",
       "setuptools": "84.0.0",

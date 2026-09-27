@@ -308,7 +308,7 @@
       "version": "8.1.0"
     },
     {
-      "bom-ref": "pkg:pypi/reportlab@4.4.9",
+      "bom-ref": "pkg:pypi/reportlab@5.0.1",
       "name": "reportlab",
       "properties": [
         {
@@ -320,10 +320,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/reportlab@4.4.9",
+      "purl": "pkg:pypi/reportlab@5.0.1",
       "scope": "required",
       "type": "library",
-      "version": "4.4.9"
+      "version": "5.0.1"
     },
     {
       "bom-ref": "pkg:pypi/requests@2.34.2",
@@ -501,7 +501,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:2cb82b9f-ebe0-5323-91c3-0fcf8b96612e",
+  "serialNumber": "urn:uuid:c303f47a-56c4-c1f2-0616-995224538143",
   "specVersion": "1.6",
   "version": 1
 }

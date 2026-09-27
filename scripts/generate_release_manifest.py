@@ -62,7 +62,7 @@ def main() -> None:
                 "email-validator": "2.3.0",
                 "pandas": "2.2.3",
                 "plotly": "6.5.2",
-                "reportlab": "4.4.9",
+                "reportlab": "5.0.1",
                 "python-dotenv": "1.2.2",
                 "pydantic": "2.13.4",
                 "requests": "2.34.2",
