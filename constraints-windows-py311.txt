@@ -13,7 +13,7 @@ python-multipart==0.0.32
 email-validator==2.3.0
 pandas==2.2.3
 plotly==6.5.2
-reportlab==4.4.9
+reportlab==5.0.1
 python-dotenv==1.2.2
 pydantic==2.13.4
 PyYAML==6.0.3
@@ -32,5 +32,5 @@ redis==8.1.0
 # THREATLENS_BATCH7F_PYTHON_SECURITY_CONSTRAINTS_BEGIN
 # Security pins generated only from fixable Trivy Python-package findings.
 # Advisory FixedVersion is a minimum floor; reviewed newer direct pins win.
-System.Object[]
+msgpack==1.2.1
 # THREATLENS_BATCH7F_PYTHON_SECURITY_CONSTRAINTS_END
