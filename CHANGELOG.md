@@ -4,6 +4,7 @@
 
 ### Post-v1.0.0 maintenance
 
+- Refresh the API/worker Python 3.11 base to pinned Debian Trixie with in-image security updates; the reviewed 2026-09-28 API scan moved from 60 HIGH/CRITICAL (5 Critical) to 44 HIGH (0 Critical), with no published fixes for those remaining records.
 - Validate temporary demo tunnel origins by hostname, bound STIX indicator parsing, and keep internal import errors out of API responses.
 - Default a standalone syslog collector to loopback and align the Trivy review note with the current runtime msgpack pin.
 - Prevent durable AI jobs from being orphaned when Redis delivery races a locked database row.
