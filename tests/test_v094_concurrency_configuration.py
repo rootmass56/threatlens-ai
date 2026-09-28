@@ -495,8 +495,9 @@ def test_current_release_docs_and_runtime_copy_are_not_stale() -> None:
     report = Path("core/report_generator.py").read_text(encoding="utf-8")
     connectors = Path("core/connectors/defaults.py").read_text(encoding="utf-8")
 
-    assert readme.startswith(f"# ThreatLens AI v{THREATLENS_VERSION}")
-    assert "v0.10.0 Grounded RAG Investigation Assistant" in readme
+    assert "\n# ThreatLens AI\n" in readme[:200]
+    assert f"| Current source lineage | `{THREATLENS_VERSION}` |" in readme
+    assert "v1.0.0" in readme and "immutable accepted release snapshot" in readme
     assert changelog.startswith(f"# Changelog\n\n## v{THREATLENS_VERSION}")
     assert "evidence-supported prototype mappings" not in report
     assert "v0.6 governed multi-source profile" not in connectors

@@ -4627,8 +4627,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_v094_concurrency_configuration.py",
-      "sha256": "b36766b85c8038de64794120106e8db51b497276d474b0aae670fd5f2814db3d",
-      "size_bytes": 18393
+      "sha256": "7f05105584413b8aec97343502decd64c225235e0110e5bdcc29415893f27f73",
+      "size_bytes": 18461
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,7 +4661,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-28T16:15:39.506283+00:00",
+  "generated_utc": "2026-09-28T16:21:51.883708+00:00",
   "governed_test_matrix": {
     "collected_tests": 337,
     "runtime_pins": {
