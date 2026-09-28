@@ -61,8 +61,8 @@
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/batch7-ci.yml",
-      "sha256": "e1ce37342869a12c65b5257f61c1652abf544d838d56087718a295328439d8ea",
-      "size_bytes": 6313
+      "sha256": "9c1d8f2d3363749cfb7566654f24145b676a0cee0e2badcd150eedba25742ebf",
+      "size_bytes": 6368
     },
     {
       "content_mode": "utf8-lf",
@@ -4637,7 +4637,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-28T04:56:49.579512+00:00",
+  "generated_utc": "2026-09-28T04:59:44.303142+00:00",
   "governed_test_matrix": {
     "collected_tests": 336,
     "runtime_pins": {
