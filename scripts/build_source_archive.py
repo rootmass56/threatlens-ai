@@ -67,7 +67,7 @@ def build_archive(output: Path, report: Path | None = None) -> dict[str, object]
         "zip_integrity": "passed" if corrupt is None else f"failed:{corrupt}",
         "manifest_records": len(manifest.get("files") or []),
         "manifest_version": manifest.get("version"),
-        "governed_test_count": 336,
+        "governed_test_count": 337,
         "feature_parity_policy": "15/15 legacy analyst surfaces migrated/superseded",
         "deployment_status": "published as v1.0.0; current source line remains 0.14.0",
     }

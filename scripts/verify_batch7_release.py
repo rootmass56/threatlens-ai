@@ -78,7 +78,7 @@ def main(containerized: bool = False) -> None:
     require('revision: str = "b7f1c2d30001"' in migration, "Batch-7 migration revision missing.")
     require('down_revision: str | None = "f6a6c0b60001"' in migration, "Migration chain invalid.")
 
-    compose = (ROOT / "compose.batch7.yml").read_text(encoding="utf-8")
+    compose = (ROOT / "compose.yaml").read_text(encoding="utf-8")
     for marker in (
         "prometheus:",
         "grafana:",
@@ -119,7 +119,7 @@ def main(containerized: bool = False) -> None:
         "ops/load/batch7_load.py",
         "ops/db/performance_audit.py",
         "ops/security/batch7_security_audit.py",
-        "BATCH7_ACCEPTANCE_CHECKLIST.md",
+        "docs/releases/BATCH7_ACCEPTANCE_CHECKLIST.md",
     )
     for path in runtime_release_assets:
         require((ROOT / path).exists(), f"Batch-7 runtime release asset missing: {path}")

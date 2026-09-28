@@ -83,7 +83,7 @@ The new Alembic head is `e9b5a1300001` and adds `ai_investigation_jobs`.
 
 ## Container stack
 
-`compose.batch5.yml` defines:
+`deploy/compose/legacy/batch5.yml` defines:
 
 - `postgres` â€” PostgreSQL 16 + pgvector;
 - `redis` â€” append-only Redis with authentication;

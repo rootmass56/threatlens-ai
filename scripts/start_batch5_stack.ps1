@@ -9,7 +9,7 @@ if (-not (Test-Path $envFile)) {
 }
 
 Write-Host "Building and starting PostgreSQL/pgvector, Redis, API, worker and React..." -ForegroundColor Cyan
-docker compose --env-file $envFile -f compose.batch5.yml up --build -d
+docker compose --env-file $envFile -f deploy/compose/legacy/batch5.yml up --build -d
 if ($LASTEXITCODE -ne 0) { throw "Batch 5 stack startup failed." }
 
 Write-Host "" 

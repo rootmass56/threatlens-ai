@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "name": "ThreatLens AI Golden Demo",
-  "launcher": "START_THREATLENS_DEMO.ps1",
+  "launcher": "scripts/demo/start-golden-demo.ps1",
   "authentication": {
     "required": true,
     "mode": "existing authorized ThreatLens analyst account",

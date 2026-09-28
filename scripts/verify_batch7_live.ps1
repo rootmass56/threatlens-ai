@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 $project = Split-Path -Parent $PSScriptRoot
 Set-Location $project
 $envFile = Join-Path $project ".env.batch7.local"
-$compose = Join-Path $project "compose.batch7.yml"
+$compose = Join-Path $project "compose.yaml"
 if (-not (Test-Path -LiteralPath $envFile)) { throw ".env.batch7.local does not exist." }
 
 Write-Host "THREATLENS BATCH 7 LIVE ACCEPTANCE" -ForegroundColor Cyan

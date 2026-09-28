@@ -19,7 +19,7 @@ if (-not $SkipFrontendInstall) {
 if (-not $SkipDockerConfig) {
     $envFile = Join-Path $project ".env.batch6.local"
     if (-not (Test-Path $envFile)) { throw "Run scripts/bootstrap_batch6_env.ps1 before Docker config verification." }
-    docker compose --env-file $envFile -f compose.batch6.yml config --quiet
+    docker compose --env-file $envFile -f deploy/compose/legacy/batch6.yml config --quiet
     if ($LASTEXITCODE -ne 0) { throw "Batch-6 Docker Compose validation failed." }
 }
 Write-Host "THREATLENS BATCH 6 STATIC RELEASE GATE: PASS" -ForegroundColor Green

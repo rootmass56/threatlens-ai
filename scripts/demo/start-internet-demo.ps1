@@ -6,7 +6,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
-$Project = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Project = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
 $RuntimeRoot = "D:\ThreatLensAI_Runtime"
 $StateRoot = Join-Path $RuntimeRoot "phase9_internet_demo"
 $StateFile = Join-Path $StateRoot "active-tunnel.json"
@@ -15,8 +15,8 @@ $ProjectName = "threatlens-batch7"
 $RequiredBranch = "phase9/secure-temporary-internet-demo"
 $RequiredAncestor = "6b36688ddc33a98d6cd47eda8e61a9fdda965790"
 
-$ComposeBase = Join-Path $Project "compose.batch7.yml"
-$ComposeInternet = Join-Path $Project "compose.phase9.internet.yml"
+$ComposeBase = Join-Path $Project "compose.yaml"
+$ComposeInternet = Join-Path $Project "deploy/compose/internet-demo.override.yml"
 $EnvFile = Join-Path $Project ".env.batch7.local"
 $HealthChecker = Join-Path $Project "CHECK_THREATLENS.ps1"
 $Verifier = Join-Path $Project "scripts\verify_internet_demo.py"
@@ -286,7 +286,7 @@ try {
     }
 
     if (Test-Path -LiteralPath $StateFile -PathType Leaf) {
-        Fail -Message ("An internet-demo state file already exists. Run STOP_THREATLENS_INTERNET_DEMO.ps1 first: {0}" -f $StateFile)
+        Fail -Message ("An internet-demo state file already exists. Run scripts\demo\stop-internet-demo.ps1 first: {0}" -f $StateFile)
     }
 
     $configYaml = Join-Path $env:USERPROFILE ".cloudflared\config.yaml"
@@ -427,7 +427,7 @@ try {
     Write-Host "Do not share credentials or leave this tunnel running unattended." -ForegroundColor Yellow
     Write-Host ""
     Write-Host "When finished, run:" -ForegroundColor Cyan
-    Write-Host "  .\STOP_THREATLENS_INTERNET_DEMO.ps1"
+    Write-Host "  .\scripts\demo\stop-internet-demo.ps1"
     Write-Host ""
 
     if (-not $NoBrowser) {

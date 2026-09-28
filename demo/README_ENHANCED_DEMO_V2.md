@@ -31,13 +31,13 @@ The two incidents are intentionally linked parts of the same investigation:
 From an accepted Windows runtime/worktree:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\START_THREATLENS_ENHANCED_DEMO_V2.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\demo\start-enhanced-demo-v2.ps1
 ```
 
 For a non-browser verification:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\START_THREATLENS_ENHANCED_DEMO_V2.ps1 -NoBrowser -ContextOut .\enhanced-v2-context.json
+powershell -ExecutionPolicy Bypass -File .\scripts\demo\start-enhanced-demo-v2.ps1 -NoBrowser -ContextOut .\enhanced-v2-context.json
 ```
 
 The launcher:

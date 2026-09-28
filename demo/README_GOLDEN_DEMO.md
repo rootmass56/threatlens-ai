@@ -11,13 +11,13 @@ The Golden Demo is non-destructive. It uses the accepted read-only Phase-3/Phase
 From PowerShell in the repository root:
 
 ```powershell
-.\START_THREATLENS_DEMO.ps1
+.\scripts\demo\start-golden-demo.ps1
 ```
 
 For validation without opening a browser:
 
 ```powershell
-.\START_THREATLENS_DEMO.ps1 -NoBrowser
+.\scripts\demo\start-golden-demo.ps1 -NoBrowser
 ```
 
 The launcher validates Phase-5 source lineage, reuses an already-healthy runtime when possible, starts/reuses Compose services with `up -d --no-build` when necessary, requires full observability and AI/RAG readiness, resolves the stable demo context, prints deep links, and opens the Overview page.
