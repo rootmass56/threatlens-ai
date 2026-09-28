@@ -4411,8 +4411,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_batch7_operational_hardening.py",
-      "sha256": "343adc503a704b402ff8d7cc50320e9f06d273985355e18bdecc6993044abd59",
-      "size_bytes": 15481
+      "sha256": "c51d822d134e52201c83f29ca1c7434ab75c1e4be1c51443684b230eba51db40",
+      "size_bytes": 15514
     },
     {
       "content_mode": "utf8-lf",
@@ -4637,7 +4637,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-28T04:50:33.265861+00:00",
+  "generated_utc": "2026-09-28T04:56:49.579512+00:00",
   "governed_test_matrix": {
     "collected_tests": 336,
     "runtime_pins": {

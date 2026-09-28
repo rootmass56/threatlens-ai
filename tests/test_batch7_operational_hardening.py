@@ -222,7 +222,7 @@ def test_batch7_supply_chain_and_cicd_assets_exist() -> None:
     assert "github/codeql-action" in codeql
     ghcr = (ROOT / ".github/workflows/batch7-ghcr.yml").read_text(encoding="utf-8")
     assert "workflow_dispatch" in ghcr
-    assert "ghcr.io" in ghcr
+    assert "          registry: ghcr.io" in ghcr.splitlines()
     assert "github.sha" in ghcr
     # Production image metadata boundary: source/dev/test evidence stays outside /app.
     dockerignore = set((ROOT / ".dockerignore").read_text(encoding="utf-8").splitlines())
