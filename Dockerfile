@@ -1,4 +1,4 @@
-FROM python:3.11.16-slim-bookworm@sha256:528257d48c1da0dcecc2e725d1ae34498d60c965f1241e39cd6a85a8859bdf84
+FROM python:3.11.16-slim-trixie
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -7,15 +7,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# THREATLENS_H4_PCRE2_SECURITY_PATCH_BEGIN
-# Remediate CVE-2026-86145 and CVE-2026-89161 in Debian libpcre2-8-0.
-# The pinned base image contains 10.42-1; Debian bookworm-security publishes
-# 10.42-1+deb12u1 or newer. Keep this targeted and remove APT metadata afterward.
+# Refresh Debian packages from the pinned base distribution before installing fonts.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends --only-upgrade libpcre2-8-0 \
+    && apt-get upgrade -y --no-install-recommends \
     && apt-get install -y --no-install-recommends fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
-# THREATLENS_H4_PCRE2_SECURITY_PATCH_END
 
 RUN addgroup --system threatlens && adduser --system --ingroup threatlens threatlens
 

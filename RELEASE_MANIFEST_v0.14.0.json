@@ -121,8 +121,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "Dockerfile",
-      "sha256": "1e2c26d54541348f620f761dd805fb45b7aa1f7cf0928af51cb07f5ed677914e",
-      "size_bytes": 1642
+      "sha256": "55372e7b26128a937e53ba09cdc846ecd6f8695edb5391b45189b6ed116f0eae",
+      "size_bytes": 1312
     },
     {
       "content_mode": "utf8-lf",
@@ -4637,7 +4637,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-28T04:59:44.303142+00:00",
+  "generated_utc": "2026-09-28T05:28:07.957053+00:00",
   "governed_test_matrix": {
     "collected_tests": 336,
     "runtime_pins": {
