@@ -8,7 +8,7 @@ vulnerabilities:
     expired_at: 2026-11-30
     statement: >-
       NOT_AFFECTED. Trivy is reading pip 26.2.x's embedded CycloneDX BOM entry
-      for vendored msgpack 1.1.2. The actual ThreatLens runtime msgpack is 1.2.1,
+      for vendored msgpack 1.1.2. The actual ThreatLens runtime msgpack is 1.2.2,
       and pip's vendored msgpack copy contains no native/Cython extension implicated
       in GHSA-6v7p-g79w-8964. Re-review after pip 26.3/upstream revendoring.
   - id: CVE-2025-47273

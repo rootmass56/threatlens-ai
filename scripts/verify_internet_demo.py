@@ -6,7 +6,7 @@ import ssl
 import sys
 import urllib.error
 import urllib.request
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 
 def request(url: str, *, accept_json: bool = False) -> tuple[int, dict[str, str], bytes]:
@@ -40,14 +40,35 @@ def require(condition: bool, message: str) -> None:
         raise RuntimeError(message)
 
 
+def tunnel_base_url(value: str) -> str:
+    """Accept only the origin of a TryCloudflare Quick Tunnel."""
+
+    parts = urlsplit(value)
+    require(parts.scheme == "https", "Public demo URL must use HTTPS.")
+    try:
+        port = parts.port
+    except ValueError as error:
+        raise RuntimeError("Public demo URL must be a TryCloudflare Quick Tunnel origin.") from error
+    require(
+        parts.hostname is not None
+        and parts.hostname.endswith(".trycloudflare.com")
+        and parts.username is None
+        and parts.password is None
+        and port is None
+        and parts.path in ("", "/")
+        and not parts.query
+        and not parts.fragment,
+        "Public demo URL must be a TryCloudflare Quick Tunnel origin.",
+    )
+    return f"https://{parts.hostname}/"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", required=True)
     args = parser.parse_args()
 
-    base = args.url.rstrip("/") + "/"
-    require(base.startswith("https://"), "Public demo URL must use HTTPS.")
-    require(".trycloudflare.com/" in base, "Public demo URL must be a TryCloudflare Quick Tunnel URL.")
+    base = tunnel_base_url(args.url)
 
     home_status, home_headers, home_body = request(base)
     require(home_status == 200, f"Home returned HTTP {home_status}, expected 200.")

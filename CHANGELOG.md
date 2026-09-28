@@ -4,6 +4,8 @@
 
 ### Post-v1.0.0 maintenance
 
+- Validate temporary demo tunnel origins by hostname, bound STIX indicator parsing, and keep internal import errors out of API responses.
+- Default a standalone syslog collector to loopback and align the Trivy review note with the current runtime msgpack pin.
 - Prevent durable AI jobs from being orphaned when Redis delivery races a locked database row.
 - Preserve worker claim state when API delivery bookkeeping completes concurrently.
 - Keep worker-presence heartbeats active during long local-model inference.

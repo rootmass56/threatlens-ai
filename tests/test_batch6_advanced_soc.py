@@ -28,7 +28,7 @@ from advanced_soc.schemas import (
     ThreatIndicatorInput,
     ThreatIntelImportRequest,
 )
-from advanced_soc.service import AdvancedSocService
+from advanced_soc.service import AdvancedSocService, _stix_indicator
 from api.config import SecuritySettings
 from api.main import create_app
 from api.version import THREATLENS_VERSION
@@ -116,6 +116,21 @@ def test_entra_connector_normalizes_batch6_identity_security_events() -> None:
         assert parsed.statistics.parse_success_rate == 1.0
 
 
+def test_stix_indicator_patterns_are_bounded_and_parse_known_fields() -> None:
+    for pattern, indicator_type, value in (
+        ("[ipv4-addr:value = '203.0.113.4']", "ipv4", "203.0.113.4"),
+        (f"[file:hashes.'SHA-256' = '{'a' * 64}']", "sha256", "a" * 64),
+    ):
+        parsed = _stix_indicator({"type": "indicator", "pattern": pattern}, 70, "TLP:CLEAR")
+        assert parsed is not None
+        assert parsed.indicator_type == indicator_type
+        assert parsed.value == value
+
+    oversized = "[ipv4-addr:value = '" + "x" * 16_385 + "']"
+    assert _stix_indicator({"type": "indicator", "pattern": oversized}, 70, "TLP:CLEAR") is None
+    assert _stix_indicator({"type": "indicator", "pattern": {"unexpected": "object"}}, 70, "TLP:CLEAR") is None
+
+
 def test_advanced_soc_service_end_to_end_governance(batch6_environment) -> None:
     scope, analysis = batch6_environment
     with scope() as session:
@@ -161,6 +176,16 @@ def test_advanced_soc_service_end_to_end_governance(batch6_environment) -> None:
             "admin",
         )
         assert imported["added"] == 1
+        rejected = service.import_indicators(
+            feed["feed_uuid"],
+            ThreatIntelImportRequest(
+                indicators=[ThreatIndicatorInput(indicator_type="ipv4", value="not-an-ip")]
+            ),
+            "admin",
+        )
+        assert rejected["rejected"] == [
+            {"value": "not-an-ip", "reason": "Invalid indicator value for this type."}
+        ]
 
         enrichment = service.enrich_analysis(analysis.session_uuid, "admin")
         assert enrichment["new_hits"] >= 1

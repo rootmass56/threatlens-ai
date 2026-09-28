@@ -61,8 +61,8 @@
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/batch7-ci.yml",
-      "sha256": "e1ce37342869a12c65b5257f61c1652abf544d838d56087718a295328439d8ea",
-      "size_bytes": 6313
+      "sha256": "9c1d8f2d3363749cfb7566654f24145b676a0cee0e2badcd150eedba25742ebf",
+      "size_bytes": 6368
     },
     {
       "content_mode": "utf8-lf",
@@ -97,7 +97,7 @@
     {
       "content_mode": "utf8-lf",
       "path": ".trivyignore.yaml",
-      "sha256": "7906466a0e8ca122708310abdd4a55608c7d97a24b731252a3331042c76995ea",
+      "sha256": "824db6e19509de9e4fa1976201f635c1964f3592ec5a665edf474c1e9f40cb8a",
       "size_bytes": 1157
     },
     {
@@ -109,8 +109,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "deaeb82b73e1251cee2a4095a7ccfa0a94bdff6cce667e2088e71311315bea19",
-      "size_bytes": 27974
+      "sha256": "78146eeba6fe66fc708f9991ef6de8ef017465a75e19ff01db67bf9f919077f7",
+      "size_bytes": 28234
     },
     {
       "content_mode": "utf8-lf",
@@ -187,14 +187,14 @@
     {
       "content_mode": "utf8-lf",
       "path": "advanced_soc/service.py",
-      "sha256": "a07db371346f88c028cc908e27a1fd9778f3e108ced0c93ea28067d4716026af",
-      "size_bytes": 65403
+      "sha256": "e607b8f98cdc4f1bc0cd88105ec7e2206bb20b03a30e9096484172eb9a27090f",
+      "size_bytes": 65531
     },
     {
       "content_mode": "utf8-lf",
       "path": "advanced_soc/syslog_collector.py",
-      "sha256": "e24eb398700414c90df51e1a0e22db880854567edf68505184d4cb877eba6ddc",
-      "size_bytes": 1869
+      "sha256": "c95a13389425044999eecf2f7b07504af8eb2051525b0e78d703204cf043e8ec",
+      "size_bytes": 1871
     },
     {
       "content_mode": "utf8-lf",
@@ -247,8 +247,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "api/routes/advanced_soc.py",
-      "sha256": "f884a41a5bc6ab8b36f48aca661277f8eb49403e87a799b81825bd6f2fd23f0a",
-      "size_bytes": 20514
+      "sha256": "31f16d9dbb8a28f6f10043ee098029453f0fa66d673c7cd6e9087ff1e2b4d396",
+      "size_bytes": 20429
     },
     {
       "content_mode": "utf8-lf",
@@ -3973,7 +3973,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/build_source_archive.py",
-      "sha256": "00490ace1240567f5be3f5b2509fc52daf22a0f3eafc2f5595f98695c75c0424",
+      "sha256": "775dc03f29774ede6058bce48792387bb6830cebd41582f574394b55e56fe978",
       "size_bytes": 3633
     },
     {
@@ -4003,7 +4003,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/generate_release_manifest.py",
-      "sha256": "ad2db0713d4ba14417e61104a6a3dfe7fe0c45eee36975c61ba5b0a97ba71722",
+      "sha256": "a19c6ce110e5e171486c1a04e69ea9af0a24eff90e92c95adc0933b332ef41b6",
       "size_bytes": 7692
     },
     {
@@ -4279,8 +4279,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/verify_internet_demo.py",
-      "sha256": "6d4f9665437a6a69eb145aba19d9ad5b208de14f71b5d1e838b8e5b2a082377b",
-      "size_bytes": 4122
+      "sha256": "b1f4b1ab94d821703516ce200445a403286d6dba302e004e4064ebda9adc853d",
+      "size_bytes": 4744
     },
     {
       "content_mode": "utf8-lf",
@@ -4405,14 +4405,14 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_batch6_advanced_soc.py",
-      "sha256": "5c7f1b714ed331ae0581f4bb65107ecd5592b3239701f66215050b3ee3a33ec1",
-      "size_bytes": 15956
+      "sha256": "67a65b9c8dac4c52990388241896aad46dc4f395500534d852d43d498cced4c9",
+      "size_bytes": 17129
     },
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_batch7_operational_hardening.py",
-      "sha256": "38c04eab2ceb77a9268aa7b9e6f1586cde431658d507aa245ebe38486ee22091",
-      "size_bytes": 14845
+      "sha256": "c51d822d134e52201c83f29ca1c7434ab75c1e4be1c51443684b230eba51db40",
+      "size_bytes": 15514
     },
     {
       "content_mode": "utf8-lf",
@@ -4637,9 +4637,9 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-27T18:02:15.445991+00:00",
+  "generated_utc": "2026-09-28T04:59:44.303142+00:00",
   "governed_test_matrix": {
-    "collected_tests": 334,
+    "collected_tests": 336,
     "runtime_pins": {
       "PyJWT": "2.15.0",
       "PyYAML": "6.0.3",
