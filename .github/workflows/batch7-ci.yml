@@ -32,6 +32,25 @@ jobs:
       - run: python -m scripts.verify_release_manifest
       - run: python -m ops.security.batch7_security_audit
       - run: python -m ruff check .
+      - name: Validate PowerShell syntax
+        shell: pwsh
+        run: |
+          $errors = @(
+            Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+              $tokens = $null
+              $parseErrors = $null
+              [void][System.Management.Automation.Language.Parser]::ParseFile(
+                $_.FullName,
+                [ref]$tokens,
+                [ref]$parseErrors
+              )
+              $parseErrors
+            }
+          )
+          if ($errors.Count -gt 0) {
+            $errors | Format-List
+            throw "PowerShell syntax validation failed."
+          }
       - run: python -m pytest -q
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

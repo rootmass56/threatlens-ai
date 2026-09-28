@@ -14,7 +14,7 @@ def require(condition: bool, message: str) -> None:
 
 
 def main() -> None:
-    compose_text = (ROOT / "compose.batch7.yml").read_text(encoding="utf-8")
+    compose_text = (ROOT / "compose.yaml").read_text(encoding="utf-8")
     compose = yaml.safe_load(compose_text)
     services = compose.get("services", {})
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")

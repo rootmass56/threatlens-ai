@@ -35,7 +35,7 @@
                                   "12 - Finish on System Health / observability and explain reliability/performance validation"
                               ],
     "launcher_contract":  {
-                              "filename":  "START_THREATLENS_DEMO.ps1",
+                              "filename":  "scripts/demo/start-golden-demo.ps1",
                               "must_be_single_command_entrypoint":  true,
                               "must_never_embed_or_echo_credentials":  true,
                               "must_never_run_docker_down_v":  true,
@@ -113,7 +113,7 @@
                                      "Golden Demo receives its own final acceptance receipt before Phase6 begins."
                                  ],
     "planned_phase5_artifacts":  [
-                                     "START_THREATLENS_DEMO.ps1",
+                                     "scripts/demo/start-golden-demo.ps1",
                                      "demo/README_GOLDEN_DEMO.md",
                                      "demo/golden-demo-contract.json",
                                      "demo/golden-demo-runbook.json"

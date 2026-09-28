@@ -6,9 +6,9 @@ param(
 $ErrorActionPreference = "Stop"
 $batch7Project = Split-Path -Parent $PSScriptRoot
 $batch6Env = Join-Path $Batch6Project ".env.batch6.local"
-$batch6Compose = Join-Path $Batch6Project "compose.batch6.yml"
+$batch6Compose = Join-Path $Batch6Project "deploy/compose/legacy/batch6.yml"
 $batch7Env = Join-Path $batch7Project ".env.batch7.local"
-$batch7Compose = Join-Path $batch7Project "compose.batch7.yml"
+$batch7Compose = Join-Path $batch7Project "compose.yaml"
 
 foreach ($path in @($batch6Env,$batch6Compose,$batch7Compose)) {
     if (-not (Test-Path -LiteralPath $path)) { throw "Required migration input missing: $path" }

@@ -1,5 +1,5 @@
 
-name: threatlens-batch6
+name: threatlens-batch5
 
 services:
   postgres:
@@ -40,7 +40,7 @@ services:
 
   api:
     build:
-      context: .
+      context: ../../..
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
@@ -65,17 +65,12 @@ services:
       THREATLENS_AI_JOB_MAX_ATTEMPTS: "2"
       THREATLENS_AI_MAX_ACTIVE_JOBS: "100"
       THREATLENS_AI_MAX_ACTIVE_JOBS_PER_ACTOR: "5"
-      THREATLENS_BATCH6_ADVANCED_SOC_ENABLED: "1"
-      THREATLENS_REALTIME_INGESTION_ENABLED: "1"
-      THREATLENS_THREAT_INTEL_ENABLED: "1"
-      THREATLENS_HUNTING_ENABLED: "1"
-      THREATLENS_RESPONSE_PLAYBOOKS_ENABLED: "1"
       THREATLENS_RAG_ENABLED: "1"
       THREATLENS_RAG_VECTOR_BACKEND: pgvector
       THREATLENS_RAG_PGVECTOR_DATABASE_URL: postgresql+psycopg://threatlens:${THREATLENS_POSTGRES_PASSWORD}@postgres:5432/threatlens
       THREATLENS_RAG_EMBEDDING_DIMENSIONS: "1024"
       THREATLENS_RAG_PGVECTOR_HNSW: "1"
-      THREATLENS_RAG_COLLECTION: threatlens-v0130-knowledge
+      THREATLENS_RAG_COLLECTION: threatlens-v0120-knowledge
       THREATLENS_OLLAMA_URL: ${THREATLENS_OLLAMA_URL:-http://host.docker.internal:11434}
       THREATLENS_OLLAMA_API_KEY: ${THREATLENS_OLLAMA_API_KEY:-}
       THREATLENS_RAG_STANDARD_LLM_MODEL: qwen3.5:4b
@@ -108,7 +103,7 @@ services:
 
   worker:
     build:
-      context: .
+      context: ../../..
       dockerfile: Dockerfile
     restart: unless-stopped
     command: ["python", "-m", "jobs.worker"]
@@ -132,17 +127,12 @@ services:
       THREATLENS_AI_JOB_MAX_ATTEMPTS: "2"
       THREATLENS_AI_MAX_ACTIVE_JOBS: "100"
       THREATLENS_AI_MAX_ACTIVE_JOBS_PER_ACTOR: "5"
-      THREATLENS_BATCH6_ADVANCED_SOC_ENABLED: "1"
-      THREATLENS_REALTIME_INGESTION_ENABLED: "1"
-      THREATLENS_THREAT_INTEL_ENABLED: "1"
-      THREATLENS_HUNTING_ENABLED: "1"
-      THREATLENS_RESPONSE_PLAYBOOKS_ENABLED: "1"
       THREATLENS_RAG_ENABLED: "1"
       THREATLENS_RAG_VECTOR_BACKEND: pgvector
       THREATLENS_RAG_PGVECTOR_DATABASE_URL: postgresql+psycopg://threatlens:${THREATLENS_POSTGRES_PASSWORD}@postgres:5432/threatlens
       THREATLENS_RAG_EMBEDDING_DIMENSIONS: "1024"
       THREATLENS_RAG_PGVECTOR_HNSW: "1"
-      THREATLENS_RAG_COLLECTION: threatlens-v0130-knowledge
+      THREATLENS_RAG_COLLECTION: threatlens-v0120-knowledge
       THREATLENS_OLLAMA_URL: ${THREATLENS_OLLAMA_URL:-http://host.docker.internal:11434}
       THREATLENS_OLLAMA_API_KEY: ${THREATLENS_OLLAMA_API_KEY:-}
       THREATLENS_RAG_STANDARD_LLM_MODEL: qwen3.5:4b
@@ -169,28 +159,9 @@ services:
       - host.docker.internal:host-gateway
     networks: [threatlens]
 
-  syslog_collector:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    profiles: ["syslog"]
-    command: ["python", "-m", "advanced_soc.syslog_collector"]
-    environment:
-      THREATLENS_SYSLOG_BIND: 0.0.0.0
-      THREATLENS_SYSLOG_PORT: "5514"
-      THREATLENS_SYSLOG_API_URL: http://api:10000/api/v1/ingest/realtime
-      THREATLENS_SYSLOG_INGEST_KEY: ${THREATLENS_SYSLOG_INGEST_KEY:-}
-    ports:
-      - "5514:5514/udp"
-    depends_on:
-      api:
-        condition: service_healthy
-    networks: [threatlens]
-
   frontend:
     build:
-      context: ./frontend
+      context: ../../../frontend
       dockerfile: Dockerfile
       args:
         VITE_THREATLENS_API_URL: ""

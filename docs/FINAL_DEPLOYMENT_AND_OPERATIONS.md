@@ -99,7 +99,7 @@ Do not add passwords to launch scripts or documentation. If a credential must be
 The formal Golden Demo launcher is:
 
 ```powershell
-.\START_THREATLENS_DEMO.ps1
+.\scripts\demo\start-golden-demo.ps1
 ```
 
 It:
@@ -121,7 +121,7 @@ The Phase 9 internet-demo workflow is intentionally separate from normal local o
 Start, only from the accepted Phase 9 branch/worktree:
 
 ```powershell
-.\START_THREATLENS_INTERNET_DEMO.ps1
+.\scripts\demo\start-internet-demo.ps1
 ```
 
 The workflow creates a random `trycloudflare.com` Quick Tunnel, validates the HTTPS/security boundary and records the exact `cloudflared` process identity.
@@ -129,7 +129,7 @@ The workflow creates a random `trycloudflare.com` Quick Tunnel, validates the HT
 When the supervised demonstration is finished, stop it using:
 
 ```powershell
-.\STOP_THREATLENS_INTERNET_DEMO.ps1
+.\scripts\demo\stop-internet-demo.ps1
 ```
 
 The shutdown script validates the recorded process before terminating it, verifies the public endpoint is no longer operational, verifies the local application remains healthy, and removes only ephemeral active-tunnel state.

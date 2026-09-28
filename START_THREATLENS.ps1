@@ -13,7 +13,7 @@ $ProgressPreference = "SilentlyContinue"
 
 $Project = Split-Path -Parent $MyInvocation.MyCommand.Path
 $EnvFile = Join-Path $Project ".env.batch7.local"
-$Compose = Join-Path $Project "compose.batch7.yml"
+$Compose = Join-Path $Project "compose.yaml"
 $Check = Join-Path $Project "CHECK_THREATLENS.ps1"
 $ProjectName = "threatlens-batch7"
 

@@ -9,7 +9,7 @@ $ProgressPreference = "SilentlyContinue"
 
 $Project = Split-Path -Parent $MyInvocation.MyCommand.Path
 $EnvFile = Join-Path $Project ".env.batch7.local"
-$Compose = Join-Path $Project "compose.batch7.yml"
+$Compose = Join-Path $Project "compose.yaml"
 $ProjectName = "threatlens-batch7"
 
 function Invoke-Probe {

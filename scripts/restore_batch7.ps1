@@ -15,7 +15,7 @@ if ($TargetDatabase -notmatch '^[A-Za-z0-9_]+$') {
 
 $project = Split-Path -Parent $PSScriptRoot
 $envFile = Join-Path $project ".env.batch7.local"
-$compose = Join-Path $project "compose.batch7.yml"
+$compose = Join-Path $project "compose.yaml"
 $manifestPath = Join-Path $BackupDirectory "manifest.json"
 $dumpPath = Join-Path $BackupDirectory "threatlens.dump"
 

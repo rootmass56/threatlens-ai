@@ -112,7 +112,7 @@ if ($SkipDockerConfig) {
     Write-Host "[SKIP] Docker Compose config explicitly skipped." -ForegroundColor Yellow
 }
 elseif (Get-Command docker -ErrorAction SilentlyContinue) {
-    & docker compose -f compose.batch5.yml config --quiet
+    & docker compose -f deploy/compose/legacy/batch5.yml config --quiet
     if ($LASTEXITCODE -ne 0) { throw "Docker Compose Batch-5 configuration is invalid." }
     Write-Host "[OK] Docker Compose config PASS" -ForegroundColor Green
 }

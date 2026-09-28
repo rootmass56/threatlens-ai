@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
-$Project = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Project = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
 $RuntimeRoot = "D:\ThreatLensAI_Runtime"
 $StateRoot = Join-Path $RuntimeRoot "phase9_internet_demo"
 $StateFile = Join-Path $StateRoot "active-tunnel.json"

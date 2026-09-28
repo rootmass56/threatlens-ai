@@ -25,13 +25,13 @@ Open a new PowerShell window after installation if the executable is not immedia
 Start the supervised internet demo:
 
 ```powershell
-.\START_THREATLENS_INTERNET_DEMO.ps1
+.\scripts\demo\start-internet-demo.ps1
 ```
 
 Stop public exposure immediately after the demonstration:
 
 ```powershell
-.\STOP_THREATLENS_INTERNET_DEMO.ps1
+.\scripts\demo\stop-internet-demo.ps1
 ```
 
 The start launcher refuses to run a Quick Tunnel if `%USERPROFILE%\.cloudflared\config.yml` or `config.yaml` exists. It never reads, renames, overwrites, or deletes those files.

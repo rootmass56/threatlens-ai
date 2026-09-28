@@ -53,7 +53,7 @@ Core services are:
 Inspect:
 
 ```powershell
-docker compose --env-file .env.batch7.local -f compose.batch7.yml ps
+docker compose --env-file .env.batch7.local -f compose.yaml ps
 ```
 
 Then inspect targeted logs for the failing service rather than dumping every environment variable.
@@ -191,7 +191,7 @@ Do not weaken the source-lineage check.
 If a tunnel is active, stop it with:
 
 ```powershell
-.\STOP_THREATLENS_INTERNET_DEMO.ps1
+.\scripts\demo\stop-internet-demo.ps1
 ```
 
 The stop script validates the recorded process identity before termination.

@@ -7,11 +7,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
-$Project = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Project = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
 $ProjectName = "threatlens-batch7"
 $RequiredAncestor = "55e8b8834e4e5b8c0b89e2ca01a9c0c163d4f80c"
 
-$Compose = Join-Path $Project "compose.batch7.yml"
+$Compose = Join-Path $Project "compose.yaml"
 $EnvFile = Join-Path $Project ".env.batch7.local"
 $HealthChecker = Join-Path $Project "CHECK_THREATLENS.ps1"
 $Resolver = Join-Path $Project "scripts\enhanced_demo_v2.py"

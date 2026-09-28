@@ -68,7 +68,7 @@ def main() -> int:
         require("redis==8.1.0" in source, f"redis pin missing from {source_name}.")
     require('"jobs*"' in pyproject, "jobs package is missing from setuptools discovery.")
 
-    compose = (ROOT / "compose.batch5.yml").read_text(encoding="utf-8")
+    compose = (ROOT / "deploy/compose/legacy/batch5.yml").read_text(encoding="utf-8")
     for service in ("postgres:", "redis:", "api:", "worker:", "frontend:"):
         require(service in compose, f"Compose service missing: {service}")
     require("pgvector/pgvector:pg16" in compose, "pgvector PostgreSQL image missing.")

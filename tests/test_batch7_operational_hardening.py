@@ -138,7 +138,7 @@ def test_batch7_request_body_and_hsts_controls_exist() -> None:
 def test_batch7_compose_has_private_data_services_and_observability_profile() -> None:
     import yaml
 
-    compose = yaml.safe_load((ROOT / "compose.batch7.yml").read_text(encoding="utf-8"))
+    compose = yaml.safe_load((ROOT / "compose.yaml").read_text(encoding="utf-8"))
     services = compose["services"]
     assert not services["postgres"].get("ports")
     assert not services["redis"].get("ports")
@@ -397,6 +397,39 @@ def test_batch7_runbook_and_acceptance_matrix_is_complete() -> None:
         "SECURITY_INCIDENT.md",
     ):
         assert (ROOT / "docs/runbooks" / name).exists(), name
-    acceptance = (ROOT / "BATCH7_ACCEPTANCE_CHECKLIST.md").read_text(encoding="utf-8")
+    acceptance = (ROOT / "docs/releases/BATCH7_ACCEPTANCE_CHECKLIST.md").read_text(encoding="utf-8")
     for phase in ("7A", "7B", "7C", "7D", "7E", "7F", "7G", "7H"):
         assert phase in acceptance
+
+
+def test_repository_layout_exposes_only_current_operator_entrypoints() -> None:
+    for path in (
+        "compose.yaml",
+        "START_THREATLENS.ps1",
+        "STOP_THREATLENS.ps1",
+        "CHECK_THREATLENS.ps1",
+        "scripts/demo/start-golden-demo.ps1",
+        "scripts/demo/start-enhanced-demo-v2.ps1",
+        "scripts/demo/start-internet-demo.ps1",
+        "scripts/demo/stop-internet-demo.ps1",
+        "deploy/compose/internet-demo.override.yml",
+        "deploy/compose/legacy/batch5.yml",
+        "deploy/compose/legacy/batch6.yml",
+        "docs/releases/BATCH7_ACCEPTANCE_CHECKLIST.md",
+        "release/RELEASE_MANIFEST_v0.14.0.json",
+    ):
+        assert (ROOT / path).is_file(), path
+
+    for retired_root_path in (
+        "compose.batch5.yml",
+        "compose.batch6.yml",
+        "compose.batch7.yml",
+        "compose.phase9.internet.yml",
+        "START_THREATLENS_DEMO.ps1",
+        "START_THREATLENS_ENHANCED_DEMO_V2.ps1",
+        "START_THREATLENS_INTERNET_DEMO.ps1",
+        "STOP_THREATLENS_INTERNET_DEMO.ps1",
+        "BATCH7_ACCEPTANCE_CHECKLIST.md",
+        "RELEASE_MANIFEST_v0.14.0.json",
+    ):
+        assert not (ROOT / retired_root_path).exists(), retired_root_path

@@ -354,7 +354,7 @@ def test_batch5_api_and_worker_surfaces_exist() -> None:
 
 
 def test_batch5_container_stack_is_declared() -> None:
-    compose = (ROOT / "compose.batch5.yml").read_text(encoding="utf-8")
+    compose = (ROOT / "deploy/compose/legacy/batch5.yml").read_text(encoding="utf-8")
     for service in ("postgres:", "redis:", "api:", "worker:", "frontend:"):
         assert service in compose
     assert "pgvector/pgvector:pg16" in compose

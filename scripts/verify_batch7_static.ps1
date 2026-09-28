@@ -49,7 +49,7 @@ if (-not $SkipFrontendInstall) {
 if (-not $SkipDockerConfig) {
     $envFile = Join-Path $project ".env.batch7.local"
     if (-not (Test-Path -LiteralPath $envFile)) { & (Join-Path $PSScriptRoot "bootstrap_batch7_env.ps1") }
-    & docker.exe compose --profile observability --env-file $envFile -f compose.batch7.yml config --quiet
+    & docker.exe compose --profile observability --env-file $envFile -f compose.yaml config --quiet
     if ($LASTEXITCODE -ne 0) { throw "Batch-7 Docker Compose validation failed." }
 }
 
