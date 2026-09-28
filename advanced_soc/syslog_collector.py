@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 
 
 def main() -> int:
-    host=os.getenv("THREATLENS_SYSLOG_BIND","0.0.0.0")
+    host=os.getenv("THREATLENS_SYSLOG_BIND","127.0.0.1")
     port=int(os.getenv("THREATLENS_SYSLOG_PORT","5514"))
     api=os.getenv("THREATLENS_SYSLOG_API_URL","http://api:10000/api/v1/ingest/realtime")
     key=os.getenv("THREATLENS_SYSLOG_INGEST_KEY","").strip()

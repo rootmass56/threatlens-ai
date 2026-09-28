@@ -70,7 +70,7 @@ from database.models import (
 from database.service import ThreatLensPersistenceService
 
 STIX_PATTERN = re.compile(
-    r"\[\s*(?P<object>[a-z0-9_-]+):(?P<field>[^=]+?)\s*=\s*['\"](?P<value>.+?)['\"]\s*\]",
+    r"\[\s*(?P<object>[a-z0-9_-]{1,64}):(?P<field>[^\s=\]\r\n]{1,128})\s*=\s*['\"](?P<value>[^'\"\]\r\n]{1,8192})['\"]\s*\]",
     re.IGNORECASE,
 )
 
@@ -163,7 +163,9 @@ def _normalize_indicator(indicator_type: str, value: str) -> str:
 def _stix_indicator(item: dict[str, Any], default_confidence: int, default_tlp: str) -> ThreatIndicatorInput | None:
     if item.get("type") != "indicator" or item.get("revoked") is True:
         return None
-    pattern = str(item.get("pattern") or "")
+    pattern = item.get("pattern")
+    if not isinstance(pattern, str) or len(pattern) > 16_384:
+        return None
     match = STIX_PATTERN.search(pattern)
     if not match:
         return None
@@ -489,8 +491,8 @@ class AdvancedSocService:
         for item in inputs:
             try:
                 normalized = _normalize_indicator(item.indicator_type, item.value)
-            except Exception as error:
-                rejected.append({"value": item.value[:200], "reason": str(error)})
+            except ValueError:
+                rejected.append({"value": item.value[:200], "reason": "Invalid indicator value for this type."})
                 continue
             row = self.session.scalar(
                 select(ThreatIndicatorModel).where(

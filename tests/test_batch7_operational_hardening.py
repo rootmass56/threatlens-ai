@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 os.environ.setdefault(
     "THREATLENS_JWT_SECRET", "batch7-test-secret-that-is-long-enough-123456789"
 )
@@ -14,8 +16,23 @@ from api.config import SecuritySettings
 from api.main import _non_negative_pool_gauge, create_app
 from api.version import THREATLENS_VERSION
 from core.observability import JsonLogFormatter, MetricsRegistry
+from scripts.verify_internet_demo import tunnel_base_url
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_public_demo_verifier_requires_exact_tunnel_origin() -> None:
+    assert tunnel_base_url("https://demo.trycloudflare.com") == "https://demo.trycloudflare.com/"
+    for value in (
+        "http://demo.trycloudflare.com",
+        "https://example.com/.trycloudflare.com/",
+        "https://demo.trycloudflare.com.evil.example/",
+        "https://user@demo.trycloudflare.com/",
+        "https://demo.trycloudflare.com/path",
+        "https://demo.trycloudflare.com:8443/",
+    ):
+        with pytest.raises(RuntimeError):
+            tunnel_base_url(value)
 
 
 def test_batch7_current_release_version_and_frontend() -> None:

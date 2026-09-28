@@ -175,10 +175,7 @@ def create_intel_feed(
     principal: RequireIntelManage,
     session: DatabaseSession,
 ) -> dict:
-    try:
-        return AdvancedSocService(session).create_feed(payload, principal.username)
-    except Exception as error:
-        raise _invalid(error) from error
+    return AdvancedSocService(session).create_feed(payload, principal.username)
 
 
 @router.get("/intel/feeds")
