@@ -1831,14 +1831,14 @@
     {
       "content_mode": "utf8-lf",
       "path": "frontend/package-lock.json",
-      "sha256": "52d5310ee7faa7e54a08ef39597d11e6483f393ebc1a8c8a46d21e1626fd0e16",
-      "size_bytes": 40467
+      "sha256": "410671ff6806a3e634bd32a3616a486ca2bd1fca87d3dd8a5a84866491d9d191",
+      "size_bytes": 40454
     },
     {
       "content_mode": "utf8-lf",
       "path": "frontend/package.json",
-      "sha256": "420ed90506bf1d23918cb4d022af47004fc2ce898d0f52ae2fa9b7d90cd33c02",
-      "size_bytes": 543
+      "sha256": "7ddbc06c7d283ebe34e862a0ead5abe190d0d12a437cc972da31f7644d21d384",
+      "size_bytes": 542
     },
     {
       "content_mode": "utf8-lf",
@@ -4525,7 +4525,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_v012_production_web.py",
-      "sha256": "b861ac6b291e4d65d2519e893fa47ae8e052ce45fc32bb547426bc44121e34a8",
+      "sha256": "718a11003ca09ce71ee66a6d55b22c3a076fba124cd78e28d2fc1cddc4145a84",
       "size_bytes": 7394
     },
     {
@@ -4637,7 +4637,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-27T16:53:58.332012+00:00",
+  "generated_utc": "2026-09-27T18:02:15.445991+00:00",
   "governed_test_matrix": {
     "collected_tests": 334,
     "runtime_pins": {
