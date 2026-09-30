@@ -865,6 +865,7 @@ class ThreatLensPersistenceService:
         mapping = item.attack_mappings_json[0] if item.attack_mappings_json else {}
         return {
             "alert_uuid": item.alert_uuid,
+            "detection_id": item.detection_id,
             "rule_id": item.rule_id,
             "rule_title": item.rule_title,
             "rule_status": item.rule_status,
@@ -877,8 +878,10 @@ class ThreatLensPersistenceService:
             "severity": item.severity,
             "confidence": item.confidence,
             "description": item.description,
+            "primary_tactic": item.primary_tactic,
             "mitre_tactic": item.primary_tactic,
             "mitre_technique": mapping.get("technique"),
+            "primary_technique_id": item.primary_technique_id,
             "mitre_technique_id": item.primary_technique_id,
             "attack_mappings": item.attack_mappings_json,
             "recommendation": item.recommendation,
