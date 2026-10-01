@@ -52,7 +52,7 @@ jobs:
             throw "PowerShell syntax validation failed."
           }
       - run: python -m pytest -q
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: source-sbom-${{ github.sha }}
           path: sbom/source-dependencies-v0.14.0.cdx.json
@@ -141,7 +141,7 @@ jobs:
 
       - name: Upload API Trivy evidence
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: trivy-api-${{ github.sha }}
           path: |
@@ -182,7 +182,7 @@ jobs:
         # misleading second failure merely because no frontend evidence exists.
         # If the frontend scan ran (including a blocking failure), preserve it.
         if: ${{ always() && hashFiles('trivy-frontend-all.json') != '' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: trivy-frontend-${{ github.sha }}
           path: |
