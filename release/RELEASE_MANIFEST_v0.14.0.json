@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "5c4e1ae59a2f4547744b7965f652a51517c0c3744fd6811a443cef73fda8435c",
-      "size_bytes": 29040
+      "sha256": "b4cb821790bbb8a4f578f4144b776fd33d9ccf3864377a3b6f1a2b4973925fb0",
+      "size_bytes": 29194
     },
     {
       "content_mode": "utf8-lf",
@@ -115,8 +115,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "Dockerfile",
-      "sha256": "291bd1beb6706d5015ed48322507de579b6ed20c6a70f5525f83075c415fedee",
-      "size_bytes": 1384
+      "sha256": "a6e26e0771864b9621d75a33247aa44cf628c82c10eeaf2cd3127a2b2924746a",
+      "size_bytes": 1401
     },
     {
       "content_mode": "utf8-lf",

@@ -24,7 +24,7 @@ RUN chown -R threatlens:threatlens /app
 
 # THREATLENS_BATCH7F_TARGETED_PYTHON_PATCH_BEGIN
 # Generated from exact V2 Trivy fixable Python-package findings.
-RUN python -m pip install --no-cache-dir --upgrade --upgrade-strategy only-if-needed "msgpack==1.2.2" "setuptools==84.0.0"
+RUN python -m pip install --no-cache-dir --upgrade --upgrade-strategy only-if-needed "msgpack==1.2.2" "setuptools==84.0.0" "urllib3==2.8.0"
 # THREATLENS_BATCH7F_TARGETED_PYTHON_PATCH_END
 
 USER threatlens
