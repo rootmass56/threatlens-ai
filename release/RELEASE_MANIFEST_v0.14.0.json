@@ -61,20 +61,20 @@
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/batch7-ci.yml",
-      "sha256": "e0521ebb8b52f3e4308cba4546a1cb5fd325fb0e40c884cee29e5b9b6994cd50",
-      "size_bytes": 6981
+      "sha256": "7bd31bba73a9a4c5a9c0e50e52cc852df9262e384ca6bdaa0d0e7276f6c54b80",
+      "size_bytes": 6993
     },
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/batch7-ghcr.yml",
-      "sha256": "4a1b6b0736c82d3e935343ce0631b54ef749c8ac4413343fc5b0d049cbf61b70",
-      "size_bytes": 2945
+      "sha256": "4f706afdfb1707dc03e1603ee82f7bca2ee0b54a294ab22c9a43b2bb1abb0413",
+      "size_bytes": 2961
     },
     {
       "content_mode": "utf8-lf",
       "path": ".github/workflows/codeql.yml",
-      "sha256": "9bfcb6fe373765f5e76acbbb5827db522dba303a82bf3d9e1cddcaf0b64b6171",
-      "size_bytes": 1372
+      "sha256": "1d0a2b68e21d7311d2bda51e7a3056c751b59fa479af6e2af6a4a45fe7582628",
+      "size_bytes": 1386
     },
     {
       "content_mode": "utf8-lf",
@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "82eaed3446bf4ca05f583dd72cfa3f813e5a647de20461fe8679b4c200ac9ac8",
-      "size_bytes": 29437
+      "sha256": "08dbb533b3da91691737e86c9869b0c4985f4edf013301c067872636d1fdb099",
+      "size_bytes": 29627
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,7 +4661,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-10-05T15:57:17.462483+00:00",
+  "generated_utc": "2026-10-05T16:11:43.609147+00:00",
   "governed_test_matrix": {
     "collected_tests": 337,
     "runtime_pins": {
