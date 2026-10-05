@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "08dbb533b3da91691737e86c9869b0c4985f4edf013301c067872636d1fdb099",
-      "size_bytes": 29627
+      "sha256": "3eabf8c1b30ff1c6802cab848cefbcfd9e296135656cb591b304d34e8cd7c640",
+      "size_bytes": 29828
     },
     {
       "content_mode": "utf8-lf",
@@ -1819,13 +1819,13 @@
     {
       "content_mode": "utf8-lf",
       "path": "frontend/package-lock.json",
-      "sha256": "410671ff6806a3e634bd32a3616a486ca2bd1fca87d3dd8a5a84866491d9d191",
-      "size_bytes": 40454
+      "sha256": "c18af7c78214caa221095a51527e24414e746373be665a8ba2d8f21a7e7014ad",
+      "size_bytes": 40506
     },
     {
       "content_mode": "utf8-lf",
       "path": "frontend/package.json",
-      "sha256": "7ddbc06c7d283ebe34e862a0ead5abe190d0d12a437cc972da31f7644d21d384",
+      "sha256": "abb11909176bad76a76bcce6741a1ec94380a358d9ba2cd37f08a52cacc19e28",
       "size_bytes": 542
     },
     {
@@ -4549,7 +4549,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_v012_production_web.py",
-      "sha256": "718a11003ca09ce71ee66a6d55b22c3a076fba124cd78e28d2fc1cddc4145a84",
+      "sha256": "eb75744287b217dc8346b00aa9f5493861be249da1ef6350db2b331345285835",
       "size_bytes": 7394
     },
     {
@@ -4661,7 +4661,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-10-05T16:11:43.609147+00:00",
+  "generated_utc": "2026-10-05T21:07:43.494857+00:00",
   "governed_test_matrix": {
     "collected_tests": 337,
     "runtime_pins": {
