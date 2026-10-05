@@ -11,7 +11,7 @@ RUN npm run typecheck && npm run build
 FROM nginx:1.30.4-alpine3.24@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c
 # THREATLENS_BATCH7F_TARGETED_OS_PATCH_BEGIN
 # Generated from exact V2 Trivy fixable Alpine OS-package findings.
-RUN apk upgrade --no-cache libuuid libexpat
+RUN apk upgrade --no-cache
 # THREATLENS_BATCH7F_TARGETED_OS_PATCH_END
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html

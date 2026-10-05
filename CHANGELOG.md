@@ -4,6 +4,10 @@
 
 ### Post-v1.0.0 maintenance
 
+- Upgrade every Alpine package in the production frontend image during the Docker build so newly published fixable HIGH/CRITICAL OS vulnerabilities are remediated before Trivy enforcement.
+- Pin the API image transitive `urllib3` dependency to `2.8.0` and remove build-only pip from the final runtime, eliminating its vendored vulnerable copy reported under `CVE-2026-97687` and `CVE-2026-97689`.
+- Expose canonical `detection_id`, `primary_tactic`, and `primary_technique_id` fields in persisted alert API records while retaining the legacy MITRE aliases for compatibility.
+- Add regression coverage for the incident-alert contract used by the React case-evidence table.
 - Present the repository as a professional portfolio project: streamline the root, adopt the standard `compose.yaml` entrypoint, group historical Compose contracts, demo launchers and release evidence, and refresh the README/navigation without changing the immutable `v1.0.0` tag.
 - Refresh the API/worker Python 3.11 base to pinned Debian Trixie with in-image security updates; the reviewed 2026-09-28 API scan moved from 60 HIGH/CRITICAL (5 Critical) to 44 HIGH (0 Critical), with no published fixes for those remaining records.
 - Validate temporary demo tunnel origins by hostname, bound STIX indicator parsing, and keep internal import errors out of API responses.

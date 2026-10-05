@@ -76,7 +76,11 @@ def test_complete_analysis_and_explicit_relationships_are_persisted(database_ses
     assert len(details["events"]) == 9
     assert len(details["alerts"]) == 4
     assert len(details["incidents"]) == 1
-    assert len(details["alerts"][0]["supporting_event_uuids"]) >= 1
+    alert = details["alerts"][0]
+    assert len(alert["supporting_event_uuids"]) >= 1
+    assert alert["detection_id"]
+    assert alert["primary_tactic"] == alert["mitre_tactic"]
+    assert alert["primary_technique_id"] == alert["mitre_technique_id"]
 
 
 def test_duplicate_analysis_is_rejected(database_session):

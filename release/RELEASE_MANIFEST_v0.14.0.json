@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "3dde3bf3f4690176e22ae0c66c25aad39005ed2a86a2c1dcedd56cbaffa78825",
-      "size_bytes": 28765
+      "sha256": "82eaed3446bf4ca05f583dd72cfa3f813e5a647de20461fe8679b4c200ac9ac8",
+      "size_bytes": 29437
     },
     {
       "content_mode": "utf8-lf",
@@ -115,8 +115,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "Dockerfile",
-      "sha256": "291bd1beb6706d5015ed48322507de579b6ed20c6a70f5525f83075c415fedee",
-      "size_bytes": 1384
+      "sha256": "865a63b20a56f1c364f644b52523206c76afa5df0234466fc249f5c6d7b5f1bd",
+      "size_bytes": 1464
     },
     {
       "content_mode": "utf8-lf",
@@ -901,8 +901,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "database/service.py",
-      "sha256": "c5aebe33265fdae786dd3c23bdb5bc90e2147d7c274ab7bdcd3cc6af5dd46a17",
-      "size_bytes": 50495
+      "sha256": "43966c74ae9b224852eb1d73050bf982d2b3a746b3e5c9df518a545249eac8c3",
+      "size_bytes": 50656
     },
     {
       "content_mode": "utf8-lf",
@@ -1795,8 +1795,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "frontend/Dockerfile",
-      "sha256": "c8d3576f93a4e71b8167cfefe5e72fa41001b7faf679b2d4f26baa9c82a33042",
-      "size_bytes": 852
+      "sha256": "f3a55142e6d886d0242368cc5f057346df77f3a6e812df3cfe2804338355f67a",
+      "size_bytes": 835
     },
     {
       "content_mode": "utf8-lf",
@@ -4471,8 +4471,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_persistence_service.py",
-      "sha256": "6ff4d5f1c208cf4d296576dbaafafb5723e2a78a74a06b373e76bc3ad2d3bb9a",
-      "size_bytes": 5231
+      "sha256": "f48df12767e055623bff3bcd59326020aa1d525ccfc720fb36ed9ffada92bbfe",
+      "size_bytes": 5414
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,7 +4661,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-28T16:21:51.883708+00:00",
+  "generated_utc": "2026-10-05T15:57:17.462483+00:00",
   "governed_test_matrix": {
     "collected_tests": 337,
     "runtime_pins": {
