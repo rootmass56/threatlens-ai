@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "570f12896bb990f6643bc9b9c132db9ed78ba267bd4262dd11aacf52ca6abdb1",
-      "size_bytes": 29248
+      "sha256": "82eaed3446bf4ca05f583dd72cfa3f813e5a647de20461fe8679b4c200ac9ac8",
+      "size_bytes": 29437
     },
     {
       "content_mode": "utf8-lf",
@@ -1795,8 +1795,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "frontend/Dockerfile",
-      "sha256": "c8d3576f93a4e71b8167cfefe5e72fa41001b7faf679b2d4f26baa9c82a33042",
-      "size_bytes": 852
+      "sha256": "f3a55142e6d886d0242368cc5f057346df77f3a6e812df3cfe2804338355f67a",
+      "size_bytes": 835
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,7 +4661,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-09-28T16:21:51.883708+00:00",
+  "generated_utc": "2026-10-05T15:57:17.462483+00:00",
   "governed_test_matrix": {
     "collected_tests": 337,
     "runtime_pins": {
