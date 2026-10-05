@@ -4,6 +4,8 @@
 
 ### Post-v1.0.0 maintenance
 
+- Refresh the frontend build toolchain from Vite 8.3.1 to 8.3.2, incorporating upstream build-preload and bundled-development fixes while preserving the existing React and TypeScript application contract.
+
 - Refresh the frontend build toolchain from Vite 8.3.0 to 8.3.1, incorporating upstream bug fixes and performance improvements while preserving the existing React and TypeScript application contract.
 
 - Refresh immutable GitHub Actions pins to CodeQL 4.38.2, upload-artifact 7.0.1 and setup-buildx 4.4.1, removing deprecated Node.js 20 action paths while preserving SHA-pinned CI execution.
