@@ -62,9 +62,9 @@ export function AttackPage({ session }: { session: Session }) {
 }
 
 function CoverageGaps({ techniques, mappings }: { techniques: Json[]; mappings: Json[] }) {
-  const mapped = new Set(mappings.map(row => value(row, ['attack_id', 'technique_id'], '')).filter(Boolean))
+  const mapped = new Set(mappings.filter(row => row.valid === true).map(row => value(row, ['attack_id', 'technique_id'], '')).filter(Boolean))
   const gaps = techniques.filter(row => !mapped.has(value(row, ['attack_id', 'technique_id'], '')))
-  return <><Notice>Coverage gaps are explicit engineering backlog items. They are not presented as detected behavior unless a governed rule maps to supporting telemetry.</Notice><DataTable rows={gaps} columns={['attack_id', 'name', 'tactics', 'platforms', 'is_subtechnique']} exportName="threatlens-attack-coverage-gaps" maxRows={1000} /></>
+  return <><Notice>Coverage gaps include catalogue techniques without a valid governed rule mapping. Invalid mappings do not count as coverage; gaps are not presented as detected behavior unless a governed rule maps to supporting telemetry.</Notice><DataTable rows={gaps} columns={['attack_id', 'name', 'tactics', 'platforms', 'is_subtechnique']} exportName="threatlens-attack-coverage-gaps" maxRows={1000} /></>
 }
 
 export function AttackGraphPage({ session, analysisId, navigate }: { session: Session; analysisId: string; navigate: (page: Page, id?: string) => void }) {
