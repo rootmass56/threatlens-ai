@@ -9,7 +9,7 @@
     "wheel": "0.48.0"
   },
   "runtime": {
-    "streamlit": "1.64.0",
+    "streamlit": "1.66.1",
     "fastapi": "0.141.1",
     "starlette": "1.7.0",
     "uvicorn": "0.53.0",
@@ -138,7 +138,7 @@
   "runtime_mitigations": [
     {
       "component": "streamlit",
-      "version": "1.64.0",
+      "version": "1.66.1",
       "issue": "streamlit/streamlit#16391",
       "status": "mitigated",
       "controls": [
