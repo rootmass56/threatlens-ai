@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "4eece9d78dab8de56790a8ff8c6eac950336254b7304953abb00d1fa8741e340",
-      "size_bytes": 30359
+      "sha256": "70dcbbc2e92bcc00e3ee709f2dce3736d0dd51598ef5c5f36f6b0a4a660fc87a",
+      "size_bytes": 30431
     },
     {
       "content_mode": "utf8-lf",
@@ -523,7 +523,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "config/dependency_security_baseline.json",
-      "sha256": "d48354f37e7ecf6022d8d1d80e3570cc8e25f7874192d98b869b395bc9bc2995",
+      "sha256": "872289277b466b7dd619a487712dce7479ee62efc2a3df298c14561464be4bcf",
       "size_bytes": 4392
     },
     {
@@ -547,7 +547,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "constraints-windows-py311.txt",
-      "sha256": "ed26a4fd3bad6aa4e5a0ba0ab7c592e2186428eaef89c907a2f7487d32248de6",
+      "sha256": "0a3a41b3d38704028522d89f68bd806cfcdab201dd18f69361b86f33c1de9348",
       "size_bytes": 879
     },
     {
@@ -2353,7 +2353,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "pyproject.toml",
-      "sha256": "2ee291ef2da823a8d5ac5e5ada08ab9d00871e76ae00fc5718b970fa55293357",
+      "sha256": "5dc8271d25980e566be10dd6da89649274d6247c2e7ae702c4bd8af9a7ade012",
       "size_bytes": 1636
     },
     {
@@ -2497,7 +2497,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "requirements.txt",
-      "sha256": "b3e8867880a8b0deedb3106814a50c4167ef767d0902c3dcabd87194bbe2a6a0",
+      "sha256": "65ad3423ef8a714721bafcff0925010be6317792e151286c29f3667375554d6c",
       "size_bytes": 377
     },
     {
@@ -3895,7 +3895,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "sbom/source-dependencies-v0.14.0.cdx.json",
-      "sha256": "e391d16632de1fa7e4fe70a1b2e7f80bdff2ad0b617dc9e56e0acd76892830f4",
+      "sha256": "dfcf4183280604fe0e7ea2d5ca30924e9d0b02141441221ff413a5da8f08157a",
       "size_bytes": 14163
     },
     {
@@ -4027,8 +4027,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/generate_release_manifest.py",
-      "sha256": "7b67f5221592eb7b0ad099abdd87404f63e5f503909fead335644a469fb1b608",
-      "size_bytes": 7692
+      "sha256": "44dbff075647d1f8164766ca1162838878cc2afe42b29fa2d903da78e2422b62",
+      "size_bytes": 7728
     },
     {
       "content_mode": "utf8-lf",
@@ -4513,8 +4513,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_runtime_dependencies.py",
-      "sha256": "1afd2828cd8847f352ac05c3020ecf5e7aece1bcfbb0fc65c97b9597d172200c",
-      "size_bytes": 1329
+      "sha256": "2cdc669b842bb5996523f53c6a3880531d551caca55e8d134c78305170a794eb",
+      "size_bytes": 1357
     },
     {
       "content_mode": "utf8-lf",
@@ -4549,7 +4549,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_v012_production_web.py",
-      "sha256": "78972b15137e1747a283ba968753781e789c676d295cb4daafa010a55aed2985",
+      "sha256": "40d83b93f2c4bd5fa13a5e492913ea720b404021ac47097ef474d6fe85d40529",
       "size_bytes": 7394
     },
     {
@@ -4627,8 +4627,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_v094_concurrency_configuration.py",
-      "sha256": "7f05105584413b8aec97343502decd64c225235e0110e5bdcc29415893f27f73",
-      "size_bytes": 18461
+      "sha256": "a88313c27d03a446776056b22af5b023f6242b0e60bbf87f06054446e471b1d3",
+      "size_bytes": 18487
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,7 +4661,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-10-27T01:31:46.434Z",
+  "generated_utc": "2026-10-27T01:35:03.523Z",
   "governed_test_matrix": {
     "collected_tests": 337,
     "runtime_pins": {
@@ -4689,7 +4689,7 @@
       "setuptools": "84.0.0",
       "sqlalchemy": "2.0.54",
       "starlette": "1.7.0",
-      "streamlit": "1.64.0",
+      "streamlit": "1.66.1",
       "uvicorn": "0.53.0",
       "wheel": "0.48.0"
     },
