@@ -4027,7 +4027,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/generate_release_manifest.py",
-      "sha256": "44dbff075647d1f8164766ca1162838878cc2afe42b29fa2d903da78e2422b62",
+      "sha256": "3da2c1d8165feb16a85a09a921dbb5358185443f75d2b64056c18177a6f0d4a9",
       "size_bytes": 7728
     },
     {
@@ -4661,9 +4661,9 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-10-27T05:04:10.972Z",
+  "generated_utc": "2026-10-27T05:09:11.289Z",
   "governed_test_matrix": {
-    "collected_tests": 337,
+    "collected_tests": 338,
     "runtime_pins": {
       "Pillow": "13.0.0",
       "PyJWT": "2.15.0",
