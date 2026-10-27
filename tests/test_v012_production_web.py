@@ -162,7 +162,7 @@ def test_v012_docker_runs_fastapi_as_non_root() -> None:
 def test_v012_frontend_package_is_react_vite_typescript() -> None:
     package = json.loads((ROOT / "frontend" / "package.json").read_text(encoding="utf-8"))
     assert package["dependencies"]["react"] == "19.3.0"
-    assert package["devDependencies"]["vite"] == "8.3.2"
+    assert package["devDependencies"]["vite"] == "8.3.5"
     assert package["devDependencies"]["typescript"] == "7.0.2"
 
 

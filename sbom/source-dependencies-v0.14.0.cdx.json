@@ -164,6 +164,24 @@
       "version": "0.5.0"
     },
     {
+      "bom-ref": "pkg:pypi/pillow@13.0.0",
+      "name": "Pillow",
+      "properties": [
+        {
+          "name": "threatlens:dependency-scope",
+          "value": "runtime"
+        },
+        {
+          "name": "threatlens:resolution",
+          "value": "direct-reviewed-pin; transitive closure is attested after installation"
+        }
+      ],
+      "purl": "pkg:pypi/pillow@13.0.0",
+      "scope": "required",
+      "type": "library",
+      "version": "13.0.0"
+    },
+    {
       "bom-ref": "pkg:pypi/plotly@6.5.2",
       "name": "plotly",
       "properties": [
@@ -380,7 +398,7 @@
       "version": "1.7.0"
     },
     {
-      "bom-ref": "pkg:pypi/streamlit@1.64.0",
+      "bom-ref": "pkg:pypi/streamlit@1.66.1",
       "name": "streamlit",
       "properties": [
         {
@@ -392,10 +410,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/streamlit@1.64.0",
+      "purl": "pkg:pypi/streamlit@1.66.1",
       "scope": "required",
       "type": "library",
-      "version": "1.64.0"
+      "version": "1.66.1"
     },
     {
       "bom-ref": "pkg:pypi/uvicorn@0.53.0",
@@ -501,7 +519,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:f8812afc-4dd5-2777-f9e8-8de43c932379",
+  "serialNumber": "urn:uuid:19c05728-1f87-2885-5287-a7aa25af2fd6",
   "specVersion": "1.6",
   "version": 1
 }

@@ -8,7 +8,7 @@ ARG VITE_THREATLENS_API_URL=""
 ENV VITE_THREATLENS_API_URL=${VITE_THREATLENS_API_URL}
 RUN npm run typecheck && npm run build
 
-FROM nginx:1.30.4-alpine3.24@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c
+FROM nginx:1.30.6-alpine3.24@sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951
 # THREATLENS_BATCH7F_TARGETED_OS_PATCH_BEGIN
 # Generated from exact V2 Trivy fixable Alpine OS-package findings.
 RUN apk upgrade --no-cache

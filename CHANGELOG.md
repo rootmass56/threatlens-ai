@@ -4,12 +4,17 @@
 
 ### Post-v1.0.0 maintenance
 
+- Correct MITRE ATT&CK coverage-gap counts so invalid rule mappings remain visible as gaps.
+- Upgrade Vite to 8.3.5 and source-map-js to 1.2.2 to remediate published high-severity advisories.
+- Upgrade Streamlit to 1.66.1 and pin Pillow 13.0.0, resolving the Streamlit/Pillow compatibility constraint while remediating reviewed Pillow advisories; refresh the dependency baseline and source SBOM.
+
 - Refresh the frontend build toolchain from Vite 8.3.1 to 8.3.2, incorporating upstream build-preload and bundled-development fixes while preserving the existing React and TypeScript application contract.
 
 - Refresh the frontend build toolchain from Vite 8.3.0 to 8.3.1, incorporating upstream bug fixes and performance improvements while preserving the existing React and TypeScript application contract.
 
 - Refresh immutable GitHub Actions pins to CodeQL 4.38.2, upload-artifact 7.0.1 and setup-buildx 4.4.1, removing deprecated Node.js 20 action paths while preserving SHA-pinned CI execution.
 - Upgrade every Alpine package in the production frontend image during the Docker build so newly published fixable HIGH/CRITICAL OS vulnerabilities are remediated before Trivy enforcement.
+- Refresh the frontend Nginx base image to pinned 1.30.6-alpine3.24, remediating three fixable HIGH Nginx advisories.
 - Pin the API image transitive `urllib3` dependency to `2.8.0` and remove build-only pip from the final runtime, eliminating its vendored vulnerable copy reported under `CVE-2026-97687` and `CVE-2026-97689`.
 - Expose canonical `detection_id`, `primary_tactic`, and `primary_technique_id` fields in persisted alert API records while retaining the legacy MITRE aliases for compatibility.
 - Add regression coverage for the incident-alert contract used by the React case-evidence table.
