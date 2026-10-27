@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "6cb897b02178f79f276764b50675a0ca3c973ea2a89b6fced09faa8bb7038c84",
-      "size_bytes": 30859
+      "sha256": "ae889616f14edac7fdfb9ed54b3019f17146c7fceb38ac476e6f0e7e4db876b1",
+      "size_bytes": 31035
     },
     {
       "content_mode": "utf8-lf",
@@ -679,8 +679,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "core/report_generator.py",
-      "sha256": "859fde966a5a0c4de0b7359dc295a8f68f7dc910b5cbbd4d96423396d4f90557",
-      "size_bytes": 48239
+      "sha256": "9c01727fff33781464af4ccf5841edb0844cf8ad916c30fb3fee8742b22e140b",
+      "size_bytes": 48633
     },
     {
       "content_mode": "utf8-lf",
@@ -4495,8 +4495,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_professional_report.py",
-      "sha256": "47e15e06abb33dd6375f05d5956b73861f89a92eb108f4d79546f00557a15d97",
-      "size_bytes": 13066
+      "sha256": "fd260ba1f956bce54ff463fce79a4c3d850b07b0699d269edd2f3a161cf4bcce",
+      "size_bytes": 14034
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,7 +4661,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-10-27T08:25:19.401Z",
+  "generated_utc": "2026-10-27T08:47:06.673Z",
   "governed_test_matrix": {
     "collected_tests": 340,
     "runtime_pins": {

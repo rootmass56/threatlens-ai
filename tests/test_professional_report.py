@@ -306,12 +306,16 @@ def test_professional_report_renders_saved_ai_answer_and_citations(tmp_path: Pat
                     "citation_ids": ["INC:event-1"],
                 }],
                 "recommended_actions": [],
-                "technique_explanations": [],
+                "technique_explanations": [{
+                    "technique_id": "T1059.001",
+                    "technique_name": "PowerShell",
+                    "observed_evidence": "Encoded PowerShell execution observed.",
+                }],
                 "limitations": ["Business context has not been independently verified."],
                 "citations": [{
                     "citation_id": "INC:event-1",
-                    "source_type": "incident_event",
-                    "source_reference": "event-1",
+                    "source_type": "attack_technique",
+                    "source_reference": "https://attack.mitre.org/techniques/T1059/001",
                     "title": "Windows event",
                     "snippet": "Encoded PowerShell execution observed.",
                 }],
@@ -329,9 +333,26 @@ def test_professional_report_renders_saved_ai_answer_and_citations(tmp_path: Pat
     assert "Observed event evidence supports suspicious execution." in paragraphs
     assert "Encoded PowerShell was observed." in paragraphs
     assert "Business context has not been independently verified." in paragraphs
+    labels = [
+        item for item in story
+        if isinstance(item, Paragraph)
+        and item.getPlainText() in {"QUESTION", "GROUNDED ANSWER"}
+    ]
+    assert len(labels) == 2
+    assert all(label.style.keepWithNext for label in labels)
+    technique_headings = [
+        item for item in story
+        if isinstance(item, Paragraph)
+        and item.getPlainText() == "T1059.001 - PowerShell"
+    ]
+    assert len(technique_headings) == 1
+    assert technique_headings[0].style.keepWithNext
     citation_tables = [item for item in story if isinstance(item, LongTable)]
     assert citation_tables
     assert citation_tables[0]._cellvalues[1][0].getPlainText() == "INC:event-1"
+    assert citation_tables[0]._cellvalues[1][1].style.wordWrap == "CJK"
+    assert citation_tables[0]._cellvalues[1][2].style.wordWrap == "CJK"
+    assert citation_tables[0]._colWidths[1] > citation_tables[0]._colWidths[0]
 
     path = Path(generate_incident_report(
         events, alerts, incidents, timeline,

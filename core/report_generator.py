@@ -272,6 +272,9 @@ def _build_styles():
     styles.add(ParagraphStyle(name="Tiny", parent=styles["BodyText"], fontSize=6.2, leading=7.6))
     styles.add(ParagraphStyle(name="SmallInverse", parent=styles["Small"], textColor=WHITE))
     styles.add(ParagraphStyle(name="MetaLabel", parent=styles["Small"], fontName=BOLD_FONT, fontSize=6.2, leading=7.6, textColor=MUTED))
+    styles.add(ParagraphStyle(name="AnswerLabel", parent=styles["MetaLabel"], keepWithNext=True))
+    styles.add(ParagraphStyle(name="TechniqueHeading", parent=styles["Small"], fontName=BOLD_FONT, textColor=NAVY_LIGHT, spaceBefore=3, spaceAfter=2, keepWithNext=True))
+    styles.add(ParagraphStyle(name="CitationKey", parent=styles["Tiny"], wordWrap="CJK"))
     styles.add(ParagraphStyle(name="MetricValue", parent=styles["BodyText"], fontName=BOLD_FONT, fontSize=17, leading=19, alignment=TA_CENTER, textColor=NAVY))
     styles.add(ParagraphStyle(name="MetricLabel", parent=styles["Small"], fontName=BOLD_FONT, fontSize=6.2, leading=7.5, alignment=TA_CENTER, textColor=MUTED))
     styles.add(ParagraphStyle(name="Callout", parent=styles["BodyText"], fontSize=7.8, leading=10.3, textColor=INK))
@@ -584,10 +587,10 @@ def _append_saved_ai_investigations(
                 f"Grounding score: {_format_number(response.get('grounding_score'))}",
                 styles["Small"],
             ),
-            Paragraph("QUESTION", styles["MetaLabel"]),
+            Paragraph("QUESTION", styles["AnswerLabel"]),
             _paragraph(item.get("question"), styles["BodyText"]),
             Spacer(1, 4),
-            Paragraph("GROUNDED ANSWER", styles["MetaLabel"]),
+            Paragraph("GROUNDED ANSWER", styles["AnswerLabel"]),
             _paragraph(response.get("assessment"), styles["BodyText"]),
         ])
         assessment_ids = response.get("assessment_citation_ids") or []
@@ -628,7 +631,7 @@ def _append_saved_ai_investigations(
                 story.append(_paragraph(
                     f"{_display_value(technique.get('technique_id'))} - "
                     f"{_display_value(technique.get('technique_name'))}",
-                    styles["Small"],
+                    styles["TechniqueHeading"],
                 ))
                 for label, key in (
                     ("Observed", "observed_evidence"),
@@ -659,9 +662,9 @@ def _append_saved_ai_investigations(
                 if not isinstance(citation, dict):
                     continue
                 rows.append([
-                    _paragraph(citation.get("citation_id"), styles["Tiny"]),
-                    _paragraph(citation.get("source_type"), styles["Tiny"]),
-                    _paragraph(citation.get("source_reference"), styles["Tiny"], "Not recorded"),
+                    _paragraph(citation.get("citation_id"), styles["CitationKey"]),
+                    _paragraph(citation.get("source_type"), styles["CitationKey"]),
+                    _paragraph(citation.get("source_reference"), styles["CitationKey"], "Not recorded"),
                     _paragraph(
                         f"{_display_value(citation.get('title'))}: "
                         f"{_display_value(citation.get('snippet'))}",
@@ -671,7 +674,7 @@ def _append_saved_ai_investigations(
             if len(rows) > 1:
                 table = LongTable(
                     rows, repeatRows=1,
-                    colWidths=[35 * mm, 31 * mm, 73 * mm, 115 * mm],
+                    colWidths=[35 * mm, 37 * mm, 73 * mm, 109 * mm],
                 )
                 table.setStyle(_table_style(compact=True))
                 story.append(table)
