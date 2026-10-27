@@ -164,6 +164,24 @@
       "version": "0.5.0"
     },
     {
+      "bom-ref": "pkg:pypi/pillow@13.0.0",
+      "name": "Pillow",
+      "properties": [
+        {
+          "name": "threatlens:dependency-scope",
+          "value": "runtime"
+        },
+        {
+          "name": "threatlens:resolution",
+          "value": "direct-reviewed-pin; transitive closure is attested after installation"
+        }
+      ],
+      "purl": "pkg:pypi/pillow@13.0.0",
+      "scope": "required",
+      "type": "library",
+      "version": "13.0.0"
+    },
+    {
       "bom-ref": "pkg:pypi/plotly@6.5.2",
       "name": "plotly",
       "properties": [
@@ -501,7 +519,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:f8812afc-4dd5-2777-f9e8-8de43c932379",
+  "serialNumber": "urn:uuid:6106f7b9-16c9-4508-77d9-78f7bf1e2165",
   "specVersion": "1.6",
   "version": 1
 }
