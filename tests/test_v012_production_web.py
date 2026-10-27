@@ -199,3 +199,21 @@ def test_v012_frontend_gate_requires_typecheck_build_and_audit() -> None:
     assert "npm run typecheck" in source
     assert "npm run build" in source
     assert "npm audit --audit-level=high" in source
+
+
+def test_v012_ai_investigation_reopens_persisted_answer_without_requeue() -> None:
+    source = (ROOT / "frontend" / "src" / "pages" / "AiPage.tsx").read_text(
+        encoding="utf-8"
+    )
+    restore = source.split("function openSavedJob(saved: Json)", 1)[1].split(
+        "async function cancelQueued", 1
+    )[0]
+    assert "setQuestion(value(saved, ['question'], ''))" in restore
+    assert (
+        "setResult(status === 'succeeded' && saved.result ? asJson(saved.result) : null)"
+        in restore
+    )
+    assert "setJob(saved)" in restore
+    assert "method: 'POST'" not in restore
+    assert "onRow={openSavedJob}" in source
+    assert "Open saved answer →" in source

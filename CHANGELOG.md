@@ -4,6 +4,7 @@
 
 ### Post-v1.0.0 maintenance
 
+- Reopen persisted AI investigation questions and grounded answers from completed jobs in the React console without rerunning the model.
 - Correct MITRE ATT&CK coverage-gap counts so invalid rule mappings remain visible as gaps.
 - Upgrade Vite to 8.3.5 and source-map-js to 1.2.2 to remediate published high-severity advisories.
 - Upgrade Streamlit to 1.66.1 and pin Pillow 13.0.0, resolving the Streamlit/Pillow compatibility constraint while remediating reviewed Pillow advisories; refresh the dependency baseline and source SBOM.

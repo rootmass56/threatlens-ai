@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "7fdceaa78cc4dcc871c5438392acfc68c75b1861d7ea642ba551390c0b1fe795",
-      "size_bytes": 30549
+      "sha256": "c34aebe07633ca333b738606b39c67e4f23d8b2be1df1faa27c1f1acde5b758f",
+      "size_bytes": 30686
     },
     {
       "content_mode": "utf8-lf",
@@ -1867,8 +1867,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "frontend/src/pages/AiPage.tsx",
-      "sha256": "2d6d5fd649cd4cd35255e1428ee3291a1484eb17522008620efec04185abf5b3",
-      "size_bytes": 10360
+      "sha256": "b08840e07154cc4ea8b0e9341f90dafb5044174c13439c28f337775b69b5d639",
+      "size_bytes": 11247
     },
     {
       "content_mode": "utf8-lf",
@@ -4027,7 +4027,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/generate_release_manifest.py",
-      "sha256": "44dbff075647d1f8164766ca1162838878cc2afe42b29fa2d903da78e2422b62",
+      "sha256": "3da2c1d8165feb16a85a09a921dbb5358185443f75d2b64056c18177a6f0d4a9",
       "size_bytes": 7728
     },
     {
@@ -4549,8 +4549,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_v012_production_web.py",
-      "sha256": "40d83b93f2c4bd5fa13a5e492913ea720b404021ac47097ef474d6fe85d40529",
-      "size_bytes": 7394
+      "sha256": "a73680e7583c06369c7388fed625a84fea16075fe3728c11b73a70a96e2bc9ea",
+      "size_bytes": 8081
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,9 +4661,9 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-10-27T01:44:57.220Z",
+  "generated_utc": "2026-10-27T05:09:11.289Z",
   "governed_test_matrix": {
-    "collected_tests": 337,
+    "collected_tests": 338,
     "runtime_pins": {
       "Pillow": "13.0.0",
       "PyJWT": "2.15.0",
