@@ -679,8 +679,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "core/report_generator.py",
-      "sha256": "474211963cc8a894881e4acfdcc6a0c658668e7fd6b56900a4eb4f6781eda0b4",
-      "size_bytes": 48227
+      "sha256": "859fde966a5a0c4de0b7359dc295a8f68f7dc910b5cbbd4d96423396d4f90557",
+      "size_bytes": 48239
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,7 +4661,7 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-10-27T08:20:45.659Z",
+  "generated_utc": "2026-10-27T08:25:19.401Z",
   "governed_test_matrix": {
     "collected_tests": 340,
     "runtime_pins": {
