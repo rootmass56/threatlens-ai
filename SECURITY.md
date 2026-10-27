@@ -18,7 +18,7 @@ Batch 7 (`v0.14.x`) operationally hardens the frozen `v0.13.0` SOC capability ba
 
 ## Reporting a vulnerability
 
-For the private development repository, report security findings directly to the repository owner. Do not open a public issue containing credentials, exploit payloads or sensitive test data.
+Report security findings privately to the repository owner. If GitHub private vulnerability reporting is enabled, use that channel; otherwise contact the maintainer through an existing private channel. Do not open a public issue containing credentials, exploit payloads or sensitive test data. Never include live secrets in a report.
 
 ## Batch-7 validation
 

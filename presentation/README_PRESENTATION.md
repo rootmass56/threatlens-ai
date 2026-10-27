@@ -1,56 +1,22 @@
-# ThreatLens AI Presentation Package
+# ThreatLens AI presentation assets
 
-This folder contains the recruiter/interviewer presentation assets for ThreatLens AI.
+This directory contains the static recruiter/interviewer deck, diagrams, speaker notes, and archived UI captures. The screenshots illustrate interface capabilities; their on-screen counts are **not** a live runtime health result or a current global total.
 
-## Accepted Golden Demo
+## Which investigation should I present?
 
-- Reference analysis: `93aa1e45-480d-4dbb-aae1-e4fd12db3c15`
-- Reference incident: `95275eea-92f9-498a-a975-74f53906e803` (`Multi-Stage Credential Access Activity`)
-- 10 normalized events
-- 8 alerts
-- 5 correlated incidents
-- 0 quarantined records
-- RAG: pgvector / 1007 indexed chunks
+For the current post-release portfolio scenario, use the [Enhanced Golden Demo v2](../demo/README_ENHANCED_DEMO_V2.md): five telemetry sources, 29 normalized events, 26 deterministic alerts, 2 critical correlated incidents, and 0 quarantined records. Its acceptance contract also records 19 ATT&CK techniques, 21 resolved entities, 139 scored relationships, and a 76-node / 300-edge persisted attack graph. These are fixture-specific results, not universal detection or performance claims.
 
-The accepted Golden Demo remains the primary deterministic investigation story.
+The immutable v1.0.0 acceptance reference is a **different** dataset: 10 events, 8 alerts, 5 incidents, 0 quarantined. Keep its evidence separate from the enhanced v2 scenario. See the [demo guide](../docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md) for the correct walkthrough and the [operations guide](../docs/FINAL_DEPLOYMENT_AND_OPERATIONS.md) for startup commands.
 
-## Case Operations presentation scenario
+## Contents
 
-Case Operations uses a separate namespaced, non-reference Batch-6 incident:
+- `ThreatLensAI_Recruiter_Interviewer_Deck.html`: static presenter deck; it does not expose the authenticated backend.
+- `DEMO_NARRATIVE.md` and `SPEAKER_NOTES.md`: presentation narrative and supporting notes. Validate any historical counts against the selected demo contract.
+- `assets/`: architecture and trust-boundary diagrams.
+- `assets/screenshots/S01`–`S14`: archived captures covering the public showcase, login, overview, analysis, incidents, ATT&CK, graph, threat intelligence, hunting, case operations, AI, audit trail, and system health.
 
-- Marker: `PHASE7D-CASEOPS-DEMO-V1`
-- Incident identity: resolve from the namespaced persisted presentation context; do not hard-code a numeric database ID
-- Tasks: 3
-- Handoffs: 1
-- Containment: in_progress
+The operational SOC console is local and authenticated. The public showcase is a separate static surface; neither an archived screenshot nor the static deck is proof that a live service is running.
 
-The accepted Golden Demo incident was not altered to manufacture Case Operations activity.
+## Before sharing or recording
 
-## AI Investigation UI repair
-
-The Phase7 presentation branch contains a one-file frontend repair to the AI Investigation summary metrics.
-
-- Repair commit: 8c3aa08c36a46f982ce8f5f765c68a47d03647d5
-- Changed path: frontend/src/pages/AiPage.tsx
-- Backend/RAG/DB semantics: unchanged
-- Frontend build: PASS
-- Runtime/RAG validation: PASS
-
-## Screenshot sequence
-
-S01 Public Showcase
-S02 Secure Login
-S03 Overview
-S04 Current Analysis
-S05 Incident Queue
-S06 Case Details
-S07 MITRE ATT&CK
-S08 Attack Graph
-S09 Threat Intelligence
-S10 Threat Hunting
-S11 Case Operations
-S12 AI Investigation
-S13 Audit Trail
-S14 System Health
-
-Screenshots must not expose passwords, tokens, .env content, private keys, or other secrets.
+Use only synthetic/authorized telemetry. Review every capture for personal data and do not expose passwords, tokens, `.env` content, private keys, or live infrastructure identifiers. Cite project-owned screenshots as repository captures and distinguish generated report figures from archived UI images.

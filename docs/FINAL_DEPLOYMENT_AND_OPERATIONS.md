@@ -33,8 +33,13 @@ The bootstrap script does not print generated passwords/secrets.
 ## Start the complete local stack
 
 ```powershell
-.\scripts\start_batch7_stack.ps1 -Observability
+ollama pull qwen3.5:4b
+ollama pull qwen3.5:9b
+ollama pull qwen3-embedding:0.6b
+.\START_THREATLENS.ps1 -RequireAI
 ```
+
+Run the model pulls once on a new machine. The start script starts/reuses Docker Desktop and Ollama when needed, then brings up the core and observability services. If the models are not needed, omit `-RequireAI`; deterministic SOC features remain available. `scripts/start_batch7_stack.ps1 -Observability` is the lower-level stack launcher used by specialized workflows.
 
 The accepted Compose service set includes:
 
@@ -94,7 +99,17 @@ The console requires an authorized ThreatLens user account.
 
 Do not add passwords to launch scripts or documentation. If a credential must be reset during local administration, use a purpose-built recovery process that preserves the security audit trail and avoids printing/persisting the password.
 
-## Golden Demo
+## Demonstrations: choose the correct dataset
+
+From current post-release `main`, use the [Enhanced Golden Demo v2](../demo/README_ENHANCED_DEMO_V2.md) for the five-source portfolio scenario (`29` events, `26` alerts, `2` incidents, `0` quarantined):
+
+```powershell
+.\scripts\demo\start-enhanced-demo-v2.ps1
+```
+
+Those counts are the locked v2 fixture, not global platform totals. It does not change the immutable v1.0.0 release reference.
+
+### Frozen v1 acceptance demo
 
 The formal Golden Demo launcher is:
 
@@ -112,7 +127,7 @@ It:
 - prints the demo order;
 - opens the browser unless `-NoBrowser` is supplied.
 
-The launcher is intentionally gated to its frozen Phase 5 source lineage. Use it as a formal acceptance/demo workflow from the branch it requires; do not remove that control just to bypass a branch mismatch.
+The launcher is intentionally gated to its frozen Phase 5 source lineage. It is **not** the current-main v2 entrypoint. Use it as a formal acceptance/demo workflow from the branch it requires; do not remove that control just to bypass a branch mismatch. Its reference dataset is `10` events, `8` alerts, `5` incidents, `0` quarantined.
 
 ## Temporary supervised internet demo
 

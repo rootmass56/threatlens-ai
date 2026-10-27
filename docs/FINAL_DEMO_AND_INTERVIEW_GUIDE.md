@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide is for recruiter demonstrations, technical interviews, project reviews and viva-style explanations of ThreatLens AI.
+This guide is for recruiter demonstrations, technical interviews, project reviews and viva-style explanations of ThreatLens AI. Choose the current enhanced portfolio scenario or the frozen v1 acceptance reference explicitly; do not combine their figures.
 
 Current source version: **0.14.0**.
 
@@ -16,7 +16,7 @@ ThreatLens AI is an evidence-first SOC investigation platform that ingests secur
 
 ## 30-second elevator pitch
 
-ThreatLens AI is designed around a simple rule: **AI does not establish the incident facts**. The platform first normalizes telemetry, runs deterministic detection and correlation, persists incidents and investigation evidence, and then allows an authenticated analyst to use local grounded AI against that authorized context. The runtime uses FastAPI, React/Nginx, PostgreSQL, pgvector, Redis workers, local Qwen models and Prometheus/Grafana. The accepted Golden Demo shows a multi-source investigation with 10 normalized events, 8 alerts, 5 correlated incidents and 0 quarantined records.
+ThreatLens AI is designed around a simple rule: **AI does not establish the incident facts**. The platform first normalizes telemetry, runs deterministic detection and correlation, persists incidents and investigation evidence, and then allows an authenticated analyst to use local grounded AI against that authorized context. The runtime uses FastAPI, React/Nginx, PostgreSQL, pgvector, Redis workers, local Qwen models and Prometheus/Grafana. The current enhanced portfolio fixture contains 29 normalized events, 26 alerts and 2 correlated incidents across five sources; these are dataset-specific results, not platform-wide totals.
 
 ## Architecture talking points
 
@@ -34,7 +34,13 @@ Use these points when asked to explain the system:
 
 See [Final Architecture](FINAL_ARCHITECTURE.md) and [Final Security Model](FINAL_SECURITY_MODEL.md).
 
-## Accepted Golden Demo reference
+## Current enhanced portfolio demonstration (v2)
+
+From current post-release `main`, use [`start-enhanced-demo-v2.ps1`](../scripts/demo/start-enhanced-demo-v2.ps1) and follow the [enhanced walkthrough and acceptance contract](../demo/README_ENHANCED_DEMO_V2.md). It uses five supported telemetry sources and a synthetic multi-stage intrusion. The locked result is 29 events, 26 alerts, 2 critical incidents, and 0 quarantined records.
+
+Recommended concise tour: Overview → Current Analysis → Incident Queue/Case Details → ATT&CK/Attack Graph → AI Investigation (saved answer and citations) → Audit/System Health. If time permits, include threat intelligence, hunting, case operations, and the permissioned response record. Explain that AI output is advisory and that IOC enrichment is not observed incident fact.
+
+## Frozen v1 acceptance reference (different dataset)
 
 The frozen reference analysis used in the recruiter storyline contains:
 
@@ -47,7 +53,7 @@ The frozen reference analysis used in the recruiter storyline contains:
 
 These numbers belong to the accepted Golden Demo dataset. They are not total lifetime platform counts.
 
-## Recommended 8–10 minute recruiter walkthrough
+## Frozen v1 reference walkthrough (historical)
 
 ### 1. Public showcase
 
@@ -184,10 +190,10 @@ Message:
 
 ## Two-minute compressed demo
 
-When time is limited:
+For the **current enhanced v2** scenario, when time is limited:
 
 1. Overview.
-2. Current Analysis — show 10 / 8 / 5 / 0.
+2. Current Analysis — show 29 / 26 / 2 / 0 for the selected v2 dataset.
 3. Case Details — show persisted incident evidence.
 4. Attack Graph or ATT&CK.
 5. AI Investigation — explain evidence-first grounding.
