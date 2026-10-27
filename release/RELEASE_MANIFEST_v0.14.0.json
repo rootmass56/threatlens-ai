@@ -103,8 +103,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "CHANGELOG.md",
-      "sha256": "c34aebe07633ca333b738606b39c67e4f23d8b2be1df1faa27c1f1acde5b758f",
-      "size_bytes": 30686
+      "sha256": "6cb897b02178f79f276764b50675a0ca3c973ea2a89b6fced09faa8bb7038c84",
+      "size_bytes": 30859
     },
     {
       "content_mode": "utf8-lf",
@@ -259,8 +259,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "api/routes/reports.py",
-      "sha256": "5a60eb9ddfb4b3883e841fc7ddf4a52bc9bb7bf6f2cf9ec3870383dcbbf36903",
-      "size_bytes": 2554
+      "sha256": "5492d2f55924a66d25918fefe3f62357ed9555d648fb146f393e96071eab603f",
+      "size_bytes": 4731
     },
     {
       "content_mode": "utf8-lf",
@@ -679,8 +679,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "core/report_generator.py",
-      "sha256": "4e002a7d3225617852f5e0143c01e6b06665ccb13443fa7c1cc0d74b5dcb9c9f",
-      "size_bytes": 41819
+      "sha256": "474211963cc8a894881e4acfdcc6a0c658668e7fd6b56900a4eb4f6781eda0b4",
+      "size_bytes": 48227
     },
     {
       "content_mode": "utf8-lf",
@@ -4027,7 +4027,7 @@
     {
       "content_mode": "utf8-lf",
       "path": "scripts/generate_release_manifest.py",
-      "sha256": "3da2c1d8165feb16a85a09a921dbb5358185443f75d2b64056c18177a6f0d4a9",
+      "sha256": "df02652c513e573c0a438e29602ce78ea04e7af71c9a0e0a5e65c46d9f926178",
       "size_bytes": 7728
     },
     {
@@ -4495,8 +4495,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "tests/test_professional_report.py",
-      "sha256": "d80ac17f6575bf17aea9f6bb079a4a73fcd31d6e8d21e8625344fc8db0b00273",
-      "size_bytes": 7011
+      "sha256": "47e15e06abb33dd6375f05d5956b73861f89a92eb108f4d79546f00557a15d97",
+      "size_bytes": 13066
     },
     {
       "content_mode": "utf8-lf",
@@ -4661,9 +4661,9 @@
       "size_bytes": 23744
     }
   ],
-  "generated_utc": "2026-10-27T05:09:11.289Z",
+  "generated_utc": "2026-10-27T08:20:45.659Z",
   "governed_test_matrix": {
-    "collected_tests": 338,
+    "collected_tests": 340,
     "runtime_pins": {
       "Pillow": "13.0.0",
       "PyJWT": "2.15.0",
