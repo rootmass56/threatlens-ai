@@ -49,7 +49,7 @@ def main() -> None:
         },
         "roles": list(ROLE_DEFINITIONS),
         "governed_test_matrix": {
-            "collected_tests": 338,
+            "collected_tests": 340,
             "validation_command": "python -m pytest -q",
             "runtime_pins": {
                 "streamlit": "1.66.1",

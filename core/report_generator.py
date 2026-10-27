@@ -30,7 +30,7 @@ from reportlab.platypus import (
 
 PROJECT_NAME = "ThreatLens AI"
 REPORT_TITLE = "Incident Investigation Report"
-REPORT_VERSION = "3.0"
+REPORT_VERSION = "3.1"
 REPORT_CLASSIFICATION = "INTERNAL - AUTHORIZED SECURITY OPERATIONS USE"
 
 BODY_FONT = "Helvetica"
@@ -365,7 +365,7 @@ def _overview_table(metrics: dict[str, Any], styles) -> Table:
         ["Severity distribution", _paragraph(severity_summary, styles["Small"])],
         ["Incident workflow", _paragraph(status_summary, styles["Small"])],
         ["Telemetry coverage", _paragraph(", ".join(metrics["sources"]) or "Not recorded", styles["Small"])],
-        ["ATT&CK coverage", _paragraph(", ".join(metrics["techniques"]) or "No ATT&CK techniques mapped", styles["Small"])],
+        ["ATT&CK references", _paragraph(", ".join(metrics["techniques"]) or "No ATT&CK techniques mapped", styles["Small"])],
     ]
     table = Table(rows, colWidths=[42 * mm, 212 * mm])
     table.setStyle(_key_value_style())
@@ -546,6 +546,137 @@ def _append_case_notes_and_evidence(story: list[Any], details: dict[str, Any] | 
         story.append(table)
 
 
+
+def _append_saved_ai_investigations(
+    story: list[Any], investigations: list[dict[str, Any]], styles
+) -> None:
+    """Render persisted, incident-scoped AI responses without invoking a model."""
+    story.append(Paragraph("Saved AI investigations", styles["SubsectionHeading"]))
+    if not investigations:
+        story.append(_paragraph(
+            "No completed AI investigation answer was saved for this incident at report generation.",
+            styles["Small"],
+        ))
+        return
+
+    story.append(_paragraph(
+        "Up to five most recent completed answers are reproduced from persisted jobs. "
+        "AI assessments are advisory, not deterministic detections or approved response actions.",
+        styles["Small"],
+    ))
+    for index, item in enumerate(investigations[:5], start=1):
+        response = item.get("response") or {}
+        if not isinstance(response, dict):
+            continue
+        story.extend([
+            Spacer(1, 7),
+            Paragraph(f"Saved question {index:02d}", styles["SubsectionHeading"]),
+            _paragraph(
+                f"Asked by {_display_value(item.get('actor'))} | "
+                f"Completed {_format_timestamp(item.get('completed_at'))} | "
+                f"Job {_display_value(item.get('job_uuid'))} | "
+                f"Query {_display_value(item.get('query_uuid'))}",
+                styles["Small"],
+            ),
+            _paragraph(
+                f"Response: {_display_value(response.get('status'))} | "
+                f"Model: {_display_value(response.get('served_model') or response.get('llm_model'))} | "
+                f"Grounding score: {_format_number(response.get('grounding_score'))}",
+                styles["Small"],
+            ),
+            Paragraph("QUESTION", styles["MetaLabel"]),
+            _paragraph(item.get("question"), styles["BodyText"]),
+            Spacer(1, 4),
+            Paragraph("GROUNDED ANSWER", styles["MetaLabel"]),
+            _paragraph(response.get("assessment"), styles["BodyText"]),
+        ])
+        assessment_ids = response.get("assessment_citation_ids") or []
+        if isinstance(assessment_ids, list) and assessment_ids:
+            story.append(_paragraph(
+                "Assessment citations: " + ", ".join(str(value) for value in assessment_ids),
+                styles["Small"],
+            ))
+
+        for title, key in (
+            ("Key findings", "key_findings"),
+            ("Recommended actions", "recommended_actions"),
+        ):
+            claims = response.get(key) or []
+            if not isinstance(claims, list) or not claims:
+                continue
+            story.append(Paragraph(title, styles["SubsectionHeading"]))
+            for claim in claims:
+                if not isinstance(claim, dict):
+                    continue
+                ids = claim.get("citation_ids") or []
+                suffix = (
+                    f"&#160;[Citations: {_text(', '.join(str(value) for value in ids))}]"
+                    if isinstance(ids, list) and ids else ""
+                )
+                story.append(Paragraph(
+                    f"<bullet>&bull;</bullet>{_text(claim.get('text'), 'Not available')}"
+                    f"{suffix}",
+                    styles["BulletBody"],
+                ))
+
+        techniques = response.get("technique_explanations") or []
+        if isinstance(techniques, list) and techniques:
+            story.append(Paragraph("Technique explanations", styles["SubsectionHeading"]))
+            for technique in techniques:
+                if not isinstance(technique, dict):
+                    continue
+                story.append(_paragraph(
+                    f"{_display_value(technique.get('technique_id'))} - "
+                    f"{_display_value(technique.get('technique_name'))}",
+                    styles["Small"],
+                ))
+                for label, key in (
+                    ("Observed", "observed_evidence"),
+                    ("Governed", "governed_explanation"),
+                    ("Inference", "analyst_inference"),
+                ):
+                    if not _is_missing(technique.get(key)):
+                        story.append(_paragraph(
+                            f"{label}: {_display_value(technique.get(key))}",
+                            styles["Small"],
+                        ))
+
+        limitations = response.get("limitations") or []
+        if isinstance(limitations, list) and limitations:
+            story.append(Paragraph("Limitations", styles["SubsectionHeading"]))
+            for limitation in limitations:
+                story.append(Paragraph(
+                    f"<bullet>&bull;</bullet>{_text(limitation)}", styles["BulletBody"]
+                ))
+
+        citations = response.get("citations") or []
+        if isinstance(citations, list) and citations:
+            story.append(Paragraph("Supporting citations", styles["SubsectionHeading"]))
+            rows: list[list[Any]] = [
+                ["Citation ID", "Source type", "Reference", "Source and excerpt"]
+            ]
+            for citation in citations:
+                if not isinstance(citation, dict):
+                    continue
+                rows.append([
+                    _paragraph(citation.get("citation_id"), styles["Tiny"]),
+                    _paragraph(citation.get("source_type"), styles["Tiny"]),
+                    _paragraph(citation.get("source_reference"), styles["Tiny"], "Not recorded"),
+                    _paragraph(
+                        f"{_display_value(citation.get('title'))}: "
+                        f"{_display_value(citation.get('snippet'))}",
+                        styles["Tiny"],
+                    ),
+                ])
+            if len(rows) > 1:
+                table = LongTable(
+                    rows, repeatRows=1,
+                    colWidths=[35 * mm, 31 * mm, 73 * mm, 115 * mm],
+                )
+                table.setStyle(_table_style(compact=True))
+                story.append(table)
+
+
 def _recommendations(alerts_df: pd.DataFrame) -> list[str]:
     if not alerts_df.empty and "recommendation" in alerts_df.columns:
         ordered = alerts_df.copy()
@@ -585,10 +716,10 @@ def _response_plan_table(recommendations: list[str], styles) -> LongTable:
 def _append_methodology(story: list[Any], report_id: str, styles) -> None:
     story.extend([PageBreak(), Paragraph("Methodology, boundaries and integrity", styles["SectionHeading"])])
     statements = [
-        "Detections are produced by deterministic, governed security rules. The AI assistant is not used to create detections or change rule outcomes.",
-        "ATT&CK references are evidence-supported mappings from the governed detection catalogue; they describe observed technique alignment, not attacker attribution.",
+        "Detections are produced by deterministic, governed security rules. Saved AI answers are advisory and do not change detection or incident outcomes.",
+        "ATT&CK identifiers here are recorded alert and incident references, not a claim of valid governed rule coverage or attacker attribution. Validate mappings against the rule catalogue before asserting coverage.",
         "Correlation groups alerts by shared entities, time and ordered security stages. Correlation confidence supports prioritization and does not replace analyst judgment.",
-        "This report reflects persisted evidence available at generation time. Missing notes, evidence registrations or telemetry sources are stated as limitations rather than inferred.",
+        "This report reflects persisted evidence available at generation time. Saved AI answers, when authorized and available, are reproduced without model regeneration. Missing notes, evidence registrations or telemetry sources are stated as limitations rather than inferred.",
         "The download response includes an X-Content-SHA256 digest. Preserve that digest with the report to verify file integrity after transfer.",
         "Recommended actions are advisory. Destructive or production-changing actions require explicit human authorization and auditable execution.",
     ]
@@ -611,6 +742,7 @@ def generate_incident_report(
     analysis_name: str | None = None,
     analyst: str | None = None,
     incident_details: list[dict[str, Any]] | None = None,
+    ai_investigations: dict[str, list[dict[str, Any]]] | None = None,
 ) -> str:
     """Generate a professional, pagination-safe incident report from persisted evidence."""
     _register_report_fonts()
@@ -642,7 +774,7 @@ def generate_incident_report(
     if alerts_df.empty:
         story.append(_narrative_callout("ALERT REGISTER", "No alert was generated by the enabled governed detections for this analysis.", styles, "No alerts"))
     else:
-        story.extend([_paragraph("Detection alerts are listed with their observed risk, confidence, ATT&CK mapping and linked-event trace.", styles["BodyText"]), Spacer(1, 6), _alert_table(alerts_df, styles)])
+        story.extend([_paragraph("Detection alerts are listed with their observed risk, confidence, recorded ATT&CK reference and linked-event trace.", styles["BodyText"]), Spacer(1, 6), _alert_table(alerts_df, styles)])
     story.extend([Spacer(1, 10), Paragraph("Incident register", styles["SectionHeading"])])
     if incidents_df.empty:
         story.append(_narrative_callout("CORRELATION RESULT", "No incident case was produced by correlation for this analysis.", styles, "No incidents"))
@@ -665,6 +797,10 @@ def generate_incident_report(
             ])
             details = details_map.get(incident_uuid)
             _append_case_notes_and_evidence(story, details, styles)
+            if ai_investigations is not None:
+                _append_saved_ai_investigations(
+                    story, ai_investigations.get(incident_uuid, []), styles
+                )
             if details is not None:
                 story.append(Paragraph("Evidence timeline", styles["SubsectionHeading"]))
                 case_records = build_case_timeline_records(details)
