@@ -12,6 +12,7 @@ from api.routes.reports import _saved_ai_investigations
 from core.report_generator import (
     _append_saved_ai_investigations,
     _build_styles,
+    _citation_excerpt,
     _overview_table,
     _recommendations,
     _report_metrics,
@@ -317,7 +318,7 @@ def test_professional_report_renders_saved_ai_answer_and_citations(tmp_path: Pat
                     "source_type": "attack_technique",
                     "source_reference": "https://attack.mitre.org/techniques/T1059/001",
                     "title": "Windows event",
-                    "snippet": "Encoded PowerShell execution observed.",
+                    "snippet": "Encoded <code>PowerShell</code> execution observed. [Context](https://example.test/context)",
                 }],
                 "grounding_score": 0.92,
                 "served_model": "qwen3.5:4b",
@@ -350,9 +351,17 @@ def test_professional_report_renders_saved_ai_answer_and_citations(tmp_path: Pat
     citation_tables = [item for item in story if isinstance(item, LongTable)]
     assert citation_tables
     assert citation_tables[0]._cellvalues[1][0].getPlainText() == "INC:event-1"
+    excerpt = citation_tables[0]._cellvalues[1][3].getPlainText()
+    assert "Encoded PowerShell execution observed. Context" in excerpt
+    assert "<code>" not in excerpt
+    assert "https://example.test/context" not in excerpt
     assert citation_tables[0]._cellvalues[1][1].style.wordWrap == "CJK"
     assert citation_tables[0]._cellvalues[1][2].style.wordWrap == "CJK"
     assert citation_tables[0]._colWidths[1] > citation_tables[0]._colWidths[0]
+    long_excerpt = _citation_excerpt("Evidence word " * 100)
+    assert long_excerpt.endswith("...")
+    assert len(long_excerpt) <= 323
+    assert long_excerpt.endswith("Evidence...")
 
     path = Path(generate_incident_report(
         events, alerts, incidents, timeline,

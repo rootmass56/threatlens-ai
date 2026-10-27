@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import ast
+import html
+import re
 from collections import Counter
 from collections.abc import Iterable
 from datetime import UTC, datetime
@@ -106,6 +108,22 @@ def _text(value: Any, default: str = "Not available") -> str:
 
 def _paragraph(value: Any, style: ParagraphStyle, default: str = "Not available") -> Paragraph:
     return Paragraph(_text(value, default), style)
+
+
+def _citation_excerpt(value: Any, *, max_chars: int = 320) -> str:
+    """Make untrusted source snippets readable without changing persisted evidence."""
+    raw = html.unescape(_display_value(value))
+    plain = re.sub(r"</?code\b[^>]*>", "", raw, flags=re.IGNORECASE)
+    plain = re.sub(r"<br\s*/?>", " ", plain, flags=re.IGNORECASE)
+    plain = re.sub(r"\[([^\]]+)\]\((?:[^()]|\([^()]*\))*\)", r"\1", plain)
+    plain = re.sub(r"\s+", " ", plain.replace("`", "")).strip()
+    if len(plain) <= max_chars:
+        return plain
+    prefix = plain[:max_chars].rsplit(" ", 1)[0] or plain[:max_chars]
+    sentence_end = prefix.rfind(". ")
+    if sentence_end >= max_chars // 2:
+        return prefix[:sentence_end + 1]
+    return prefix.rstrip(" ,;:") + "..."
 
 
 def _status_label(value: Any) -> str:
@@ -655,6 +673,11 @@ def _append_saved_ai_investigations(
         citations = response.get("citations") or []
         if isinstance(citations, list) and citations:
             story.append(Paragraph("Supporting citations", styles["SubsectionHeading"]))
+            story.append(_paragraph(
+                "Excerpts are shortened and display-normalized for readability. "
+                "Citation IDs and source references identify the persisted evidence.",
+                styles["Small"],
+            ))
             rows: list[list[Any]] = [
                 ["Citation ID", "Source type", "Reference", "Source and excerpt"]
             ]
@@ -667,7 +690,7 @@ def _append_saved_ai_investigations(
                     _paragraph(citation.get("source_reference"), styles["CitationKey"], "Not recorded"),
                     _paragraph(
                         f"{_display_value(citation.get('title'))}: "
-                        f"{_display_value(citation.get('snippet'))}",
+                        f"{_citation_excerpt(citation.get('snippet'))}",
                         styles["Tiny"],
                     ),
                 ])
