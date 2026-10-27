@@ -13,6 +13,7 @@ This index is the authoritative entry point for the current project documentatio
 | AI and retrieval | [RAG / AI architecture](FINAL_RAG_AI_ARCHITECTURE.md) |
 | Quality evidence | [Testing and validation](FINAL_TESTING_AND_VALIDATION.md) |
 | Portfolio workflow | [Demo and interview guide](FINAL_DEMO_AND_INTERVIEW_GUIDE.md) |
+| Current enhanced scenario | [Enhanced Golden Demo v2](../demo/README_ENHANCED_DEMO_V2.md) |
 | Operator support | [Troubleshooting](FINAL_TROUBLESHOOTING.md) |
 | Declared constraints | [Known limitations](FINAL_LIMITATIONS.md) |
 
@@ -24,7 +25,7 @@ Release acceptance evidence lives under [`releases/`](releases/); machine-readab
 
 ## Compatibility and historical material
 
-Files with version suffixes such as `_v0.9`, `_v0.10`, or `_v0.11`, and batch-specific handoff/audit documents, describe earlier implementation milestones. They are retained only where they support governed regressions, migration evidence, or the RAG knowledge contract. Superseded generated OpenAPI snapshots and SBOMs remain available from immutable tags and Git history instead of being duplicated on current `main`.
+Files with version suffixes such as `_v0.9`, `_v0.10`, or `_v0.11`, and batch-specific handoff/audit documents, describe earlier implementation milestones. They remain where regression tests, release inventory, migration evidence, or the RAG knowledge contract still reference them. Do not use those files as current deployment instructions. Superseded generated OpenAPI snapshots and SBOMs remain available from immutable tags and Git history instead of being duplicated on current `main`.
 
 `openapi_v0.12.0.json` remains as the React feature-parity compatibility baseline used by the current verifier. It is not a claim that the full Batch 7 API still has the v0.12 endpoint count.
 
