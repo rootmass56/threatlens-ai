@@ -250,7 +250,7 @@ def test_batch7_reviewed_dependency_and_sbom_contract() -> None:
         for scope in ("build", "runtime", "development")
         for name, version in baseline[scope].items()
     }
-    assert len(expected) == 27
+    assert len(expected) == 28
     sbom = json.loads((ROOT / "sbom/source-dependencies-v0.14.0.cdx.json").read_text())
     actual = {(item["name"], item["version"]) for item in sbom["components"]}
     assert actual == expected
