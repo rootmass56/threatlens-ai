@@ -50,7 +50,7 @@ The core trust rule is simple: **persisted deterministic evidence is authoritati
 ### Prerequisites
 
 - Docker Desktop or Docker Engine with Compose v2
-- PowerShell 7+
+- Windows PowerShell 5.1 or PowerShell 7+
 - Ollama and the local models listed in the [deployment guide](docs/FINAL_DEPLOYMENT_AND_OPERATIONS.md) when AI readiness is required
 
 ### Start the production-style local stack
@@ -58,11 +58,14 @@ The core trust rule is simple: **persisted deterministic evidence is authoritati
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
 .\scripts\bootstrap_batch7_env.ps1
-.\START_THREATLENS.ps1
+ollama pull qwen3.5:4b
+ollama pull qwen3.5:9b
+ollama pull qwen3-embedding:0.6b
+.\START_THREATLENS.ps1 -RequireAI
 .\CHECK_THREATLENS.ps1 -RequireObservability -RequireAI
 ```
 
-The bootstrap command creates the ignored `.env.batch7.local` file with random local secrets. Do not replace it with `.env.example`.
+Run these commands from the repository root on Windows. Model downloads are needed only once; the start script can launch Docker Desktop and Ollama when required. The bootstrap command creates the ignored `.env.batch7.local` file with random local secrets. Do not replace it with `.env.example`. To use deterministic SOC features without Ollama, omit `-RequireAI` from the start command and health check.
 
 Open `http://127.0.0.1:8080`. Stop the stack non-destructively with:
 
