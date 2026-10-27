@@ -398,7 +398,7 @@
       "version": "1.7.0"
     },
     {
-      "bom-ref": "pkg:pypi/streamlit@1.64.0",
+      "bom-ref": "pkg:pypi/streamlit@1.66.1",
       "name": "streamlit",
       "properties": [
         {
@@ -410,10 +410,10 @@
           "value": "direct-reviewed-pin; transitive closure is attested after installation"
         }
       ],
-      "purl": "pkg:pypi/streamlit@1.64.0",
+      "purl": "pkg:pypi/streamlit@1.66.1",
       "scope": "required",
       "type": "library",
-      "version": "1.64.0"
+      "version": "1.66.1"
     },
     {
       "bom-ref": "pkg:pypi/uvicorn@0.53.0",
@@ -519,7 +519,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:6106f7b9-16c9-4508-77d9-78f7bf1e2165",
+  "serialNumber": "urn:uuid:19c05728-1f87-2885-5287-a7aa25af2fd6",
   "specVersion": "1.6",
   "version": 1
 }
