@@ -83,6 +83,18 @@ export function AiPage({ session, incidentId }: { session: Session; incidentId: 
     }
   }
 
+  function openSavedJob(saved: Json) {
+    const status = value(saved, ['status'], '')
+    const savedMode = value(saved, ['analysis_mode'], 'auto')
+    setJob(saved)
+    setQuestion(value(saved, ['question'], ''))
+    if (['auto', 'standard', 'deep'].includes(savedMode)) setMode(savedMode)
+    setResult(status === 'succeeded' && saved.result ? asJson(saved.result) : null)
+    setBusy(status === 'queued' || status === 'running')
+    setError(status === 'failed' ? value(saved, ['error_message'], 'This saved job failed.') : '')
+    if (status === 'succeeded') window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   async function cancelQueued() {
     if (!jobUuid || jobStatus !== 'queued') return
     try {
@@ -137,7 +149,7 @@ export function AiPage({ session, incidentId }: { session: Session; incidentId: 
         </div>}
       </Panel>
     </div>
-    <Panel title="Durable AI jobs"><DataTable rows={jobs.data.items || []} columns={['created_at','job_uuid','status','analysis_mode','attempts','queue_delivery_state','worker_id','result_query_uuid','error_code','completed_at']} exportName="threatlens-ai-jobs" /></Panel>
+    <Panel title="Durable AI jobs"><p className="body-copy">Select a completed job to reopen its persisted question and grounded answer without generating a new response.</p><DataTable rows={jobs.data.items || []} columns={['created_at','job_uuid','status','analysis_mode','attempts','queue_delivery_state','worker_id','result_query_uuid','error_code','completed_at']} onRow={openSavedJob} rowActionLabel={row => value(row, ['status'], '') === 'succeeded' ? 'Open saved answer →' : 'View job →'} exportName="threatlens-ai-jobs" /></Panel>
     <Panel title="Previous assistant queries"><DataTable rows={history.data.items || []} columns={['created_at','actor','question','response_status','requested_mode','resolved_mode','served_model','fallback_used','routing_score','grounding_score','citation_count','total_latency_ms']} exportName="threatlens-ai-history" /></Panel>
   </>
 }
