@@ -4,6 +4,10 @@
 
 ### Post-v1.0.0 maintenance
 
+- Correct MITRE ATT&CK coverage-gap counts so invalid rule mappings remain visible as gaps.
+- Upgrade Vite to 8.3.5 and source-map-js to 1.2.2 to remediate published high-severity advisories.
+- Pin Pillow 13.0.0, update the reviewed Python dependency baseline, and regenerate the source SBOM to remediate Pillow advisories.
+
 - Refresh the frontend build toolchain from Vite 8.3.1 to 8.3.2, incorporating upstream build-preload and bundled-development fixes while preserving the existing React and TypeScript application contract.
 
 - Refresh the frontend build toolchain from Vite 8.3.0 to 8.3.1, incorporating upstream bug fixes and performance improvements while preserving the existing React and TypeScript application contract.
