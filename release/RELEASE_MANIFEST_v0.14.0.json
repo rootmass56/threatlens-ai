@@ -121,14 +121,14 @@
     {
       "content_mode": "utf8-lf",
       "path": "README.md",
-      "sha256": "f351ab665d3b911ab37c66bbe8bc597c3d1e22cc9034b34babe0dc940a186d8e",
-      "size_bytes": 11083
+      "sha256": "a4cc617458561a33d307d1a31def19a82599ec630f82858197002eb11bfae4f8",
+      "size_bytes": 11471
     },
     {
       "content_mode": "utf8-lf",
       "path": "SECURITY.md",
-      "sha256": "b49f7ad3b406bfe5f8b506a2c26d64f1d497f6d334393fc96180990731ea4197",
-      "size_bytes": 1654
+      "sha256": "a745369414b9da8b2f40b45689b882183ce7d4bb6f9d5d5b20756e7d2725d3a3",
+      "size_bytes": 1797
     },
     {
       "content_mode": "utf8-lf",
@@ -1153,14 +1153,14 @@
     {
       "content_mode": "utf8-lf",
       "path": "docs/FINAL_DEMO_AND_INTERVIEW_GUIDE.md",
-      "sha256": "4606160aa85521f8974b2309d2db54f1e5863aa0e0509c461ab5ec21e56a4fb0",
-      "size_bytes": 9944
+      "sha256": "72e415db198db866af0d443e2ab2aa668340f20c4a77ff26567c697f6c2b4986",
+      "size_bytes": 11025
     },
     {
       "content_mode": "utf8-lf",
       "path": "docs/FINAL_DEPLOYMENT_AND_OPERATIONS.md",
-      "sha256": "6fd049cb003faada4b25175f6cd9c70a4b72fd65ec64a02397710fd1cf4e54f4",
-      "size_bytes": 5645
+      "sha256": "1fa72a7847b927fd0d53f5a709d796343dc3b98f02173d26814001dac767b1dd",
+      "size_bytes": 6666
     },
     {
       "content_mode": "utf8-lf",
@@ -1453,8 +1453,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "docs/README.md",
-      "sha256": "e341a51fb4ed3159784a138c8a2d820ccff56a8bb6aa58fccb96dad91185245c",
-      "size_bytes": 2100
+      "sha256": "8f16dc69dbb2b7a2e41124b61bfb4d48b22a496a1ebe257baaf67341e5218769",
+      "size_bytes": 2265
     },
     {
       "content_mode": "utf8-lf",
@@ -2221,8 +2221,8 @@
     {
       "content_mode": "utf8-lf",
       "path": "presentation/README_PRESENTATION.md",
-      "sha256": "3300dd6df5fff5df65ed472cc9c2690ca7a391ad48d8c1617956ddea319e5c70",
-      "size_bytes": 1651
+      "sha256": "e4dbb04ad4c44b683dce2ec38669d8d0c76b6c3886a3f4e8ec11bc3d3be7ca20",
+      "size_bytes": 2290
     },
     {
       "content_mode": "utf8-lf",
