@@ -4,6 +4,7 @@
 
 ### Post-v1.0.0 maintenance
 
+- Include up to five saved, incident-scoped AI questions and grounded answers in generated PDF reports; distinguish recorded ATT&CK references from validated rule coverage.
 - Reopen persisted AI investigation questions and grounded answers from completed jobs in the React console without rerunning the model.
 - Correct MITRE ATT&CK coverage-gap counts so invalid rule mappings remain visible as gaps.
 - Upgrade Vite to 8.3.5 and source-map-js to 1.2.2 to remediate published high-severity advisories.
