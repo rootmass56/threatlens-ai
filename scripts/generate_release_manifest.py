@@ -52,7 +52,7 @@ def main() -> None:
             "collected_tests": 337,
             "validation_command": "python -m pytest -q",
             "runtime_pins": {
-                "streamlit": "1.64.0",
+                "streamlit": "1.66.1",
                 "fastapi": "0.141.1",
                 "starlette": "1.7.0",
                 "uvicorn": "0.53.0",
@@ -61,6 +61,7 @@ def main() -> None:
                 "python-multipart": "0.0.32",
                 "email-validator": "2.3.0",
                 "pandas": "2.2.3",
+                "Pillow": "13.0.0",
                 "plotly": "6.5.2",
                 "reportlab": "5.0.1",
                 "python-dotenv": "1.2.3",
